@@ -1,0 +1,165 @@
+---
+import { getEmDashCollection, getEmDashEntry } from 'emdash'
+import Layout from '../layouts/Base.astro'
+import HeroBanner from './components/HeroBanner.astro'
+import ProductGrid from './components/ProductGrid.astro'
+import StatsSection from './components/StatsSection.astro'
+
+const { entry: heroEntry = null } = await getEmDashEntry('hero', 'home')
+  .catch(() => ({ entry: null }))
+
+const { entries: statEntries = [] } = await getEmDashCollection('stats', { status: 'published' })
+  .catch(() => ({ entries: [] }))
+
+const { entries: hblockEntries = [] } = await getEmDashCollection('hblock', { status: 'published', orderBy: { sort_order: 'asc' } })
+  .catch(() => ({ entries: [] }))
+
+function isVisible(item: any): boolean {
+  const v = item?.is_visible
+  return v === true || v === 1 || v === '1'
+}
+
+/**
+ * 把 EmDash 媒体字段（短文本 URL / 媒体库对象 {url:{meta:{storageKey}}}）统一解析为可访问的图片 URL
+ * - 短文本 URL 字符串 → 原样返回
+ * - 媒体对象（带 meta.storageKey）→ 转成 /_emdash/api/media/file/<key>
+ * - 已经是 /_emdash 路径 → 原样返回
+ */
+function extractImageUrl(raw: any): string {
+  if (!raw) return ''
+  if (typeof raw === 'string') {
+    if (raw.startsWith('http://') || raw.startsWith('https://') || raw.startsWith('/')) return raw
+    return raw
+  }
+  if (typeof raw === 'object') {
+    if (raw.meta?.storageKey) return `/_emdash/api/media/file/${raw.meta.storageKey}`
+    if (raw.url) {
+      if (typeof raw.url === 'string') return raw.url
+      if (raw.url?.meta?.storageKey) return `/_emdash/api/media/file/${raw.url.meta.storageKey}`
+      if (raw.url?.url) return raw.url.url
+    }
+  }
+  return ''
+}
+
+function extractCardsFromEntry(entry: any, sectionPrefix: string = 'solutions'): any[] {
+  const item = entry.data?.item ?? entry.data ?? entry
+  if (!item || typeof item !== 'object') return []
+
+  const cards: any[] = []
+  /* 重复器 img_item：[{title, img, link}, ...] */
+  const repeater = item.img_item
+  if (Array.isArray(repeater)) {
+    repeater.forEach((row: any, idx: number) => {
+      if (!row || typeof row !== 'object') return
+      const title = row.title
+      if (!title) return
+
+      cards.push({
+        id: `${entry.id}-${idx + 1}`,
+        title: String(title),
+        description: '',
+        image: extractImageUrl(row.img),
+        images: [],
+        link: String(row.link ?? '/products'),
+        tag: '',
+        section: sectionPrefix,
+        sort_order: idx + 1,
+        is_active: true,
+      })
+    })
+  }
+  return cards
+}
+
+const visibleBlocks = hblockEntries.filter((e: any) => {
+  const item = e.data?.item ?? e.data ?? e
+  return isVisible(item)
+})
+
+const hero = heroEntry ? {
+  badge_text: heroEntry.data?.badge_text ?? '',
+  headline: heroEntry.data?.headline ?? '欢迎访问',
+  subheadline: heroEntry.data?.subheadline ?? '',
+  cta_text: heroEntry.data?.cta_text ?? '探索产品',
+  cta_link: heroEntry.data?.cta_link ?? '/products',
+  images: (() => {
+    const raw = heroEntry.data?.images
+    if (Array.isArray(raw)) {
+      return raw.map((item: any) => {
+        if (item?.url?.meta?.storageKey) return `/_emdash/api/media/file/${item.url.meta.storageKey}`
+        if (typeof item?.url === 'string') return item.url
+        if (item?.url?.url) return item.url.url
+        if (item?.url) return item.url
+        return ''
+      }).filter(Boolean)
+    }
+    return []
+  })(),
+  interval: heroEntry.data?.images_interval || 4,
+} : {
+  badge_text: '',
+  headline: '欢迎访问 EmDash',
+  subheadline: '',
+  cta_text: '探索产品',
+  cta_link: '/products',
+  images: [],
+  interval: 4,
+}
+
+const stats = statEntries.length > 0
+  ? statEntries.map((s: any) => ({ number: String(s.data?.number ?? '0'), label: s.data?.label ?? '' }))
+  : [
+      { number: '50K+', label: '全球用户' },
+      { number: '80+', label: '覆盖国家' },
+      { number: '3K+', label: '在售 SKU' },
+      { number: '99.2%', label: '好评率' },
+    ]
+---
+
+<Layout title="EmDash — 智能热转印设备">
+  <HeroBanner hero={hero} />
+
+  {visibleBlocks.map((entry: any) => {
+    const item = entry.data?.item ?? entry.data ?? entry
+    const sectionKey = `solutions-${entry.id}`
+    const cards = extractCardsFromEntry(entry, sectionKey)
+    return (
+      <div style="background:#fff;">
+        <ProductGrid
+          products={cards}
+          title={item?.headline ?? '区块'}
+          subtitle={item?.subheadline ?? ''}
+          section={`solutions-${entry.id}`}
+          columns={3}
+        />
+      </div>
+    )
+  })}
+
+  <StatsSection stats={stats} />
+  <div class="newsletter">
+    <div class="newsletter-inner">
+      <span class="newsletter-tag">STAY IN TOUCH</span>
+      <h2 class="newsletter-title">获取最新资讯</h2>
+      <p class="newsletter-desc">订阅邮件，获取新品发布与专属优惠</p>
+      <form class="newsletter-form" onsubmit="return false">
+        <input type="email" placeholder="输入您的邮箱地址" class="newsletter-input" />
+        <button type="submit" class="newsletter-btn">订阅</button>
+      </form>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .newsletter{background:#111;padding:2.5rem 2rem;text-align:center}
+  .newsletter-inner{max-width:480px;margin:0 auto}
+  .newsletter-tag{display:inline-block;color:#22C55E;font-size:.75rem;font-weight:500;letter-spacing:2px;margin-bottom:.5rem}
+  .newsletter-title{font-size:1.5rem;font-weight:700;color:#FAF5E6;margin:0 0 .25rem}
+  .newsletter-desc{font-size:.8125rem;color:#D8CDB5;margin:0 0 1.25rem}
+  .newsletter-form{display:flex;max-width:380px;margin:0 auto}
+  .newsletter-input{flex:1;background:#FAF5E6;border:none;padding:.625rem 1rem;font-size:.8125rem;color:#333;border-radius:4px 0 0 4px;outline:none}
+  .newsletter-input::placeholder{color:#BFAF8E}
+  .newsletter-btn{background:#22C55E;color:#fff;border:none;padding:.625rem 1.25rem;font-size:.8125rem;font-weight:600;border-radius:0 4px 4px 0;cursor:pointer}
+  .newsletter-btn:hover{background:#1DA34E}
+</style>

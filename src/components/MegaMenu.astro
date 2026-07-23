@@ -1,0 +1,161 @@
+---
+import { getTaxonomyTerms } from "emdash";
+
+const termTree = await getTaxonomyTerms("products1");
+
+const url = new URL(Astro.request.url);
+const activeCategory = url.searchParams.get("category") || "";
+
+type MenuItem = {
+  slug: string;
+  name: string;
+  children: { slug: string; name: string }[];
+};
+
+function buildMenu(terms: any[]): MenuItem[] {
+  return terms.map((t) => ({
+    slug: t.slug,
+    name: t.label,
+    children: t.children ? buildMenu(t.children) : [],
+  }));
+}
+
+const menuItems = buildMenu(termTree);
+
+const topItems: MenuItem[] = [];
+for (const l1 of menuItems) {
+  topItems.push(l1);
+  for (const l2 of l1.children) {
+    if (l2.children.length > 0) {
+      topItems.push(l2);
+    }
+  }
+}
+
+/* 完全匹配 */
+function isActive(s: string): boolean {
+  return activeCategory === s || (!activeCategory && s === "");
+}
+
+/* 只检查直接子节点 —— 不递归 */
+function hasDirectActiveChild(item: MenuItem): boolean {
+  if (!item.children) return false;
+  return item.children.some((c) => c.slug === activeCategory);
+}
+---
+
+<nav class="cat-menu">
+  <div class="cat-inner">
+    <a href="/products" class:list={["cat-all", { active: isActive("") }]}>All Products</a>
+
+    {topItems.map((item) => (
+      <div class="cat-item">
+        <a href={"/products?category=" + item.slug}
+           class:list={["cat-trigger", { active: isActive(item.slug) || hasDirectActiveChild(item) }]}>
+          {item.name}
+          {(item.children || []).length > 0 && <span class="arrow">▾</span>}
+        </a>
+        {(item.children || []).length > 0 && (
+          <div class="cat-drop">
+            {item.children.map((child) => (
+              <a href={"/products?category=" + child.slug}
+                 class:list={["cat-sub-link", { active: isActive(child.slug) }]}>
+                {child.name}
+              </a>
+            ))}
+          </div>
+        )}
+      </div>
+    ))}
+  </div>
+</nav>
+
+<style is:global>
+.cat-menu{
+  background:#fff;
+  border-bottom:1px solid #ddd;
+  position:relative;
+  z-index:99999 !important;
+}
+.cat-inner{
+  max-width:1200px;
+  margin:0 auto;
+  padding:0 24px;
+  display:flex;
+  align-items:stretch;
+  gap:0;
+  overflow:visible;
+}
+.cat-all{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:10px 16px;
+  font-size:14px;
+  font-weight:600;
+  color:#06c;
+  text-decoration:none;
+  border-bottom:2px solid transparent;
+  flex-shrink:0;
+  white-space:nowrap;
+}
+.cat-all.active,.cat-all:hover{color:#06c;border-bottom-color:#06c}
+.cat-item{
+  position:relative !important;
+  display:inline-flex;
+  flex-shrink:0;
+  overflow:visible !important;
+}
+.cat-trigger{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:10px 16px;
+  font-size:14px;
+  font-weight:500;
+  color:#525252;
+  text-decoration:none;
+  border-bottom:2px solid transparent;
+  white-space:nowrap;
+  cursor:pointer;
+}
+.cat-trigger:hover{color:#000;border-color:#06c}
+.cat-trigger.active{color:#06c;border-color:#06c;font-weight:600}
+.arrow{font-size:11px;transition:transform .15s;flex-shrink:0}
+.cat-drop{
+  position:absolute !important;
+  top:100% !important;
+  left:0 !important;
+  min-width:220px;
+  background:#fff;
+  border:1px solid #d0d0d0;
+  border-radius:0 0 8px 8px;
+  box-shadow:0 12px 40px rgba(0,0,0,.18);
+  padding:8px 0;
+  z-index:9999999 !important;
+  pointer-events:auto;
+  opacity:0;
+  visibility:hidden;
+  transform:translateY(-4px);
+  transition:opacity .15s ease, transform .15s ease, visibility 0s .15s;
+}
+.cat-item:hover > .cat-drop{
+  opacity:1 !important;
+  visibility:visible !important;
+  transform:translateY(0) !important;
+  display:block !important;
+}
+.cat-sub-link{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:10px 20px;
+  font-size:13px;
+  color:#444;
+  text-decoration:none;
+  white-space:nowrap;
+}
+.cat-sub-link:hover{background:#f0f7ff;color:#06c}
+.cat-sub-link.active{background:#e6f2ff;color:#06c;font-weight:600}
+</style>

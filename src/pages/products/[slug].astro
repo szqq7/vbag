@@ -1,0 +1,201 @@
+---
+import { getEmDashEntry } from "emdash";
+import Base from "../../layouts/Base.astro";
+
+const { entry, cacheHint } = await getEmDashEntry("products", Astro.params.slug, { taxonomy: "products1" });
+if (!entry) return Astro.redirect("/404");
+
+const data = entry.data || {};
+const title = data.title || "Product";
+const spu = data.spu || "";
+
+let pictures = [];
+if (data.picture_json) {
+  try {
+    const raw = typeof data.picture_json === "string" ? data.picture_json : JSON.stringify(data.picture_json);
+    const parsed = JSON.parse(raw);
+    pictures = Array.isArray(parsed) ? parsed : [parsed];
+  } catch (e) {}
+}
+
+let colorImgs = [];
+if (data.color_img) {
+  try {
+    const raw = typeof data.color_img === "string" ? data.color_img : JSON.stringify(data.color_img);
+    const parsed = JSON.parse(raw);
+    colorImgs = Array.isArray(parsed) ? parsed : [parsed];
+  } catch (e) {}
+}
+
+let highlightItems = [];
+if (data.top_highlights) {
+  const text = typeof data.top_highlights === "string" ? data.top_highlights : String(data.top_highlights);
+  const lines = text.split(/\n/).filter((s) => s.trim().match(/^[-*]\s/));
+  const items = lines.length > 0 ? lines : (text.trim() ? [text.trim()] : []);
+  highlightItems = items.map((s) => s.trim().replace(/^[-*]\s*/, ""));
+}
+
+let details = [];
+if (data.item_details) {
+  try {
+    let raw = typeof data.item_details === "string" ? data.item_details : JSON.stringify(data.item_details);
+    raw = raw.replace(/,\s*,/g, ",").replace(/$$\s*,/g, "[").replace(/,\s*$$/g, "]");
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed)) {
+      details = parsed.map((item) => ({ key: item.key || item.label || "Item", value: item.value || item.text || String(item) }));
+    }
+  } catch (e) {}
+}
+
+function boldText(s) { return s.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>"); }
+function getImgSrc(item) { return item?.url || item?.src || (typeof item === "string" ? item : ""); }
+---
+
+<Base title={title}>
+  <div class="product-container">
+    <div class="product-main">
+      <!-- 左侧：图片 -->
+      <div class="product-media">
+        {pictures.length > 0 ? (
+          <>
+            <div class="main-image">
+              <img id="mainImg" src={getImgSrc(pictures[0])} alt={title} />
+            </div>
+            {pictures.length > 1 && (
+              <div class="thumbnail-list">
+                {pictures.map((pic, i) => (
+                  <button class="thumb-btn" data-src={getImgSrc(pic)} aria-label={`View image ${i + 1}`}>
+                    <img src={getImgSrc(pic)} class="thumb" />
+                  </button>
+                ))}
+              </div>
+            )}
+          </>
+        ) : (
+          <div class="no-image">No Image</div>
+        )}
+      </div>
+
+      <!-- 右侧：产品信息 -->
+      <div class="product-info">
+        <h1 class="product-title">{title}</h1>
+        {spu && <div class="product-code">Code: {spu}</div>}
+
+        <!-- 颜色图横排 -->
+        {colorImgs.length > 0 && (
+          <div class="color-section">
+            <div class="color-list">
+              {colorImgs.map((img, i) => (
+                <button class="color-thumb-btn" data-src={getImgSrc(img)} aria-label={`Color option ${i + 1}`}>
+                  <img src={getImgSrc(img)} class="color-thumb" />
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <section class="product-section">
+          <h2 class="section-title">Product Details</h2>
+
+          {highlightItems.length > 0 && (
+            <details class="details-panel" open>
+              <summary>Top Highlights</summary>
+              <div class="panel-content">
+                <ul class="highlight-list">
+                  {highlightItems.map((item) => <li set:html={boldText(item)} />)}
+                </ul>
+              </div>
+            </details>
+          )}
+
+          {details.length > 0 && (
+            <details class="details-panel" open>
+              <summary>Item Details</summary>
+              <div class="panel-content">
+                <table class="specs-table">
+                  <tbody>
+                    {details.map((d) => (
+                      <tr>
+                        <td class="spec-key">{d.key}</td>
+                        <td class="spec-value">{d.value}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </details>
+          )}
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 主图缩略图切换
+    document.querySelectorAll('.thumb-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const src = this.getAttribute('data-src');
+        const mainImg = document.getElementById('mainImg');
+        if (mainImg && src) mainImg.src = src;
+      });
+    });
+    
+    // 颜色图点击切换主图
+    document.querySelectorAll('.color-thumb-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const src = this.getAttribute('data-src');
+        const mainImg = document.getElementById('mainImg');
+        if (mainImg && src) mainImg.src = src;
+      });
+    });
+  </script>
+</Base>
+
+<style>
+  .product-container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+  .product-main { display: grid; grid-template-columns: 500px 1fr; gap: 3rem; align-items: start; }
+  
+  .product-media { position: sticky; top: 2rem; }
+  .main-image { width: 100%; aspect-ratio: 1; background: #f8f9fa; border-radius: 8px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+  .main-image img { width: 100%; height: 100%; object-fit: contain; padding: 1rem; }
+  .thumbnail-list { display: flex; gap: 0.5rem; margin-top: 1rem; overflow-x: auto; }
+  .thumb-btn { padding: 0; border: 2px solid #e0e0e0; border-radius: 4px; background: #fff; cursor: pointer; }
+  .thumb-btn:hover, .thumb-btn:focus { border-color: #333; }
+  .thumb { width: 80px; height: 80px; object-fit: cover; border-radius: 2px; display: block; }
+  .no-image { width: 100%; aspect-ratio: 1; background: #f8f9fa; display: flex; align-items: center; justify-content: center; color: #999; border-radius: 8px; }
+
+  .product-info { padding-top: 0.5rem; }
+  .product-title { font-size: 1.75rem; font-weight: 600; margin-bottom: 0.5rem; line-height: 1.3; }
+  .product-code { color: #666; font-size: 0.9rem; margin-bottom: 1rem; }
+  
+  /* 颜色图横排 */
+  .color-section { margin-bottom: 1.5rem; }
+  .color-list { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .color-thumb-btn { padding: 2px; border: 2px solid #e0e0e0; border-radius: 4px; background: #fff; cursor: pointer; transition: border-color 0.2s; }
+  .color-thumb-btn:hover, .color-thumb-btn:focus { border-color: #333; }
+  .color-thumb { width: 60px; height: 60px; object-fit: cover; border-radius: 2px; display: block; }
+  
+  .section-title { font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #333; }
+  
+  .details-panel { margin-bottom: 1rem; border: 1px solid #e0e0e0; border-radius: 6px; overflow: hidden; }
+  .details-panel summary { padding: 1rem 1.25rem; font-weight: 600; cursor: pointer; background: #f8f9fa; list-style: none; }
+  .details-panel summary::before { content: "▼"; margin-right: 0.5rem; font-size: 0.8rem; }
+  .details-panel:not([open]) summary::before { transform: rotate(-90deg); }
+  .panel-content { padding: 1.25rem; background: #fff; }
+  
+  .highlight-list { list-style: none; padding: 0; margin: 0; }
+  .highlight-list li { padding: 0.75rem 0; padding-left: 1.2rem; position: relative; border-bottom: 1px solid #f0f0f0; line-height: 1.6; }
+  .highlight-list li:last-child { border-bottom: none; }
+  .highlight-list li::before { content: "•"; position: absolute; left: 0; color: #666; font-weight: bold; }
+  
+  .specs-table { width: 100%; border-collapse: collapse; }
+  .specs-table tr { border-bottom: 1px solid #f0f0f0; }
+  .specs-table td { padding: 0.9rem 0; vertical-align: top; }
+  .spec-key { width: 35%; font-weight: 600; color: #555; }
+  .spec-value { width: 65%; color: #222; padding-left: 1rem; }
+
+  @media (max-width: 900px) {
+    .product-main { grid-template-columns: 1fr; }
+    .product-media { position: static; }
+  }
+</style>

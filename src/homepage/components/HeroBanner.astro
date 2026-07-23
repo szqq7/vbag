@@ -1,0 +1,76 @@
+---
+interface HeroContent {
+  badge_text: string
+  headline: string
+  subheadline: string
+  cta_text: string
+  cta_link: string
+  images: string[]
+  interval?: number
+}
+export interface Props { hero: HeroContent }
+const { hero } = Astro.props
+const images = hero.images ?? []
+const hasMultiple = images.length > 1
+---
+<div class="hero-wrapper">
+  <div class="hero-inner">
+    <div class="hero-text">
+      {hero.badge_text && <span class="hero-badge">{hero.badge_text}</span>}
+      <h1 class="hero-headline">{hero.headline}</h1>
+      <p class="hero-subheadline">{hero.subheadline}</p>
+      <a href={hero.cta_link} class="hero-cta">{hero.cta_text}<span class="cta-arrow">→</span></a>
+    </div>
+    <div class="hero-visual">
+      {images.length > 0 ? (
+        <div class="hero-carousel" data-interval={hero.interval ?? 4}>
+          {images.map((img, i) => (
+            <img class:list={{ 'carousel-slide': true, active: i === 0 }} src={img} alt="" data-index={i} loading={i === 0 ? 'eager' : 'lazy'} />
+          ))}
+          {hasMultiple && (
+            <div class="carousel-dots">
+              {images.map((_, i) => (
+                <span class:list={{ dot: true, active: i === 0 }} data-index={i} />
+              ))}
+            </div>
+          )}
+        </div>
+      ) : <div class="hero-placeholder">产品主图</div>}
+    </div>
+  </div>
+</div>
+<script>
+  const c = document.querySelector('.hero-carousel')
+  if (c) {
+    const s = c.querySelectorAll('.carousel-slide'), d = c.querySelectorAll('.dot')
+    const t = parseInt(c.getAttribute('data-interval') || '4') * 1000
+    if (s.length > 1) {
+      let i = 0, tm = setInterval(n, t)
+      function n() {
+        s[i].classList.remove('active'); d[i]?.classList.remove('active')
+        i = (i + 1) % s.length
+        s[i].classList.add('active'); d[i]?.classList.add('active')
+      }
+      c.addEventListener('mouseenter', () => clearInterval(tm))
+      c.addEventListener('mouseleave', () => { tm = setInterval(n, t) })
+    }
+  }
+</script>
+<style>
+  .hero-wrapper { background: #FAFAFA; padding: 3rem 2rem; }
+  .hero-inner { max-width: 1200px; margin: 0 auto; display: flex; gap: 2rem; align-items: center; }
+  .hero-text { flex: 1.2; }
+  .hero-badge { display: inline-block; background: #22C55E; color: #fff; font-size: 0.8125rem; font-weight: 500; padding: 0.25rem 0.75rem; border-radius: 4px; margin-bottom: 1rem; }
+  .hero-headline { font-size: 2.25rem; font-weight: 700; color: #111; line-height: 1.15; margin: 0 0 0.75rem; }
+  .hero-subheadline { font-size: 0.9375rem; color: #6B6B6B; line-height: 1.6; margin: 0 0 1.5rem; max-width: 480px; }
+  .hero-cta { display: inline-flex; align-items: center; gap: 6px; background: #111; color: #fff; font-size: 0.875rem; font-weight: 500; padding: 0.625rem 1.5rem; border-radius: 6px; text-decoration: none; transition: background 0.2s; }
+  .hero-cta:hover { background: #333; }
+  .hero-visual { flex: 0.8; }
+  .hero-carousel { position: relative; aspect-ratio: 4/3; border-radius: 8px; overflow: hidden; }
+  .carousel-slide { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 0.6s ease-in-out; }
+  .carousel-slide.active { opacity: 1; }
+  .carousel-dots { position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.4); }
+  .dot.active { background: #fff; }
+  .hero-placeholder { aspect-ratio: 4/3; background: #E0E0E0; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #9B9B9B; font-size: 0.875rem; }
+</style>

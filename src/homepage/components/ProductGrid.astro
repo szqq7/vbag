@@ -1,0 +1,48 @@
+---
+import SectionHeader from './SectionHeader.astro'
+import ProductCard from './ProductCard.astro'
+
+interface Product {
+  id: string
+  title: string
+  description: string
+  image: string
+  link: string
+  tag?: string
+  section?: string
+  sort_order?: number
+  is_active?: boolean
+}
+
+export interface Props {
+  products: Product[]
+  title: string
+  subtitle?: string
+  section: string
+  columns?: 2 | 3 | 4
+}
+
+const { products, title, subtitle, section, columns = 3 } = Astro.props
+const sectionProducts = products
+  .filter(p => p.section === section)
+  .sort((a, b) => (a.sort_order ?? 999) - (b.sort_order ?? 999))
+---
+<div class="product-grid-section">
+  <SectionHeader title={title} subtitle={subtitle} />
+  {sectionProducts.length > 0 ? (
+    <div class="grid" data-columns={columns}>
+      {sectionProducts.map(p => <ProductCard product={p} />)}
+    </div>
+  ) : <p class="empty-hint">暂无内容</p>}
+</div>
+<style>
+  .product-grid-section { padding: 2.5rem 2rem; max-width: 1200px; margin: 0 auto; }
+  .grid { display: grid; gap: 1rem; margin-top: 1.5rem; }
+  .grid[data-columns="2"] { grid-template-columns: repeat(2, 1fr); }
+  .grid[data-columns="3"] { grid-template-columns: repeat(3, 1fr); }
+  .grid[data-columns="4"] { grid-template-columns: repeat(4, 1fr); }
+  .empty-hint { text-align: center; color: #9B9B9B; font-size: 0.875rem; padding: 2rem 0; }
+  @media (max-width: 768px) {
+    .grid[data-columns="3"], .grid[data-columns="4"] { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>

@@ -1,0 +1,35 @@
+---
+import SectionHeader from './SectionHeader.astro'
+
+interface StatItem {
+  number: string
+  label: string
+}
+
+export interface Props {
+  stats: StatItem[]
+  title?: string
+  subtitle?: string
+}
+
+const { stats, title = '全球用户的共同选择', subtitle = '已服务 50,000+ 创客与企业' } = Astro.props
+---
+<div class="stats-section">
+  <SectionHeader title={title} subtitle={subtitle} />
+  <div class="stats-grid">
+    {stats.map((stat, i) => (
+      <div class="stat-card" key={i}>
+        <div class="stat-number">{stat.number}</div>
+        <div class="stat-label">{stat.label}</div>
+      </div>
+    ))}
+  </div>
+</div>
+<style>
+  .stats-section { padding: 2.5rem 2rem; background: #FAFAFA; }
+  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; max-width: 1200px; margin: 1.5rem auto 0; }
+  .stat-card { background: #fff; border: 1px solid #EBEBEB; border-radius: 8px; padding: 1.25rem 0.75rem; text-align: center; }
+  .stat-number { font-size: 1.75rem; font-weight: 700; color: #111; line-height: 1.1; margin-bottom: 0.25rem; }
+  .stat-label { font-size: 0.8125rem; color: #6B6B6B; }
+  @media (max-width: 768px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+</style>
