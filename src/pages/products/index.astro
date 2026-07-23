@@ -1,138 +1,319 @@
 ---
-import { getEmDashCollection } from "emdash";
 import Base from "../../layouts/Base.astro";
+import {
+  loadProductIndex,
+  setProductModules,
+  getColorOptions,
+  getPricingSteps,
+  getPrintMethodTabs,
+  getPrintingSurfaces,
+  getAllImages,
+  getDownloadFiles,
+  getTemplateFiles,
+  getSpecifications,
+  type ProductData,
+} from "../../utils/product-data";
 
+// 构建时批量加载所有产品 JSON
+const productModules = import.meta.glob<ProductData>(
+  "/src/data/products/*.json",
+  { eager: true }
+);
+setProductModules(productModules);
+
+// 从 URL 参数 ?code= 读取要展示的产品 code,默认 120356(Non-Woven Value Tote Bag)
 const url = new URL(Astro.request.url);
-const selectedCategory = url.searchParams.get("category");
+const requestedCode = url.searchParams.get("code");
+const indexList = loadProductIndex();
+const defaultCode = "120356";
+const productCode =
+  requestedCode && productModules[`/src/data/products/${requestedCode}.json`]
+    ? requestedCode
+    : defaultCode;
 
-const PAGE_SIZE = 12;
-const currentPage = Math.max(1, parseInt(url.searchParams.get("page") || "1") || 1);
+const product = productModules[`/src/data/products/${productCode}.json`] as ProductData;
 
-// ── 总数：D1 直接 COUNT(*)，毫秒级，不传输任何产品 JSON ──
-// 失败则降级为「拉全部再统计」（与旧逻辑一致，慢但保证可用）
-let total = 0;
-try {
-  const db = (Astro.locals as any).runtime?.env?.DB;
-  if (!db) throw new Error("no-db");
-  let sql = `SELECT COUNT(*) AS c FROM ec_products`;
-  const args: string[] = [];
-  if (selectedCategory) {
-    sql = `SELECT COUNT(*) AS c
-      FROM ec_products p
-      JOIN content_taxonomies ct ON ct.collection = 'products' AND ct.entry_id = p.id
-      JOIN taxonomies t ON t.id = ct.taxonomy_id
-      WHERE t.name = 'products1' AND t.slug = ?`;
-    args.push(selectedCategory);
-  }
-  const row = await db.prepare(sql).bind(...args).first();
-  total = Number((row as any)?.c ?? 0);
-  if (!total) throw new Error("zero");
-} catch {
-  const { entries } = await getEmDashCollection(
-    "products",
-    selectedCategory ? { where: { products1: selectedCategory } } : {}
-  );
-  total = (entries || []).length;
+if (!product) {
+  return Astro.redirect("/404");
 }
 
-// ── 当前页数据：只取本页 12 条，绝不全表拉取 ──
-const opts: any = { limit: currentPage * PAGE_SIZE, orderBy: { created_at: "desc" } };
-if (selectedCategory) opts.where = { products1: selectedCategory };
-const { entries } = await getEmDashCollection("products", opts);
-const displayProducts = (entries || []).slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
-
-const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
-const safePage = Math.min(currentPage, totalPages);
-
-function buildPageUrl(page: number): string {
-  const u = new URL(url.toString());
-  if (page === 1) u.searchParams.delete("page");
-  else u.searchParams.set("page", String(page));
-  return u.pathname + u.search;
-}
-
-function getFirstImage(entry: any) {
-  try {
-    if (!entry?.data?.picture_json) return "";
-    const raw = typeof entry.data.picture_json === "string"
-      ? entry.data.picture_json : JSON.stringify(entry.data.picture_json);
-    if (!raw || raw === "null" || raw === "{}") return "";
-    const parsed = JSON.parse(raw);
-    const pics = Array.isArray(parsed) ? parsed : [parsed];
-    return pics[0]?.url || pics[0]?.src || pics[0] || "";
-  } catch { return ""; }
-}
-
-Astro.response.headers.set('Cache-Control', 'public, max-age=0, s-maxage=300');
-Astro.response.headers.set('CDN-Cache-Control', 'public, max-age=300, stale-while-revalidate=60');
+const title = product.nameEn || "Product";
+const images = getAllImages(product);
+const mainImage = images[0] || product.imgMainUrl || "";
+const colors = getColorOptions(product);
+const pricingSteps = getPricingSteps(product);
+const methodTabs = getPrintMethodTabs(product);
+const surfaces = getPrintingSurfaces(product);
+const downloadFiles = getDownloadFiles(product);
+const templateFiles = getTemplateFiles(product);
+const specs = getSpecifications(product);
+const description = product.descriptionEn || "";
+const defaultColor = colors[0]?.name || "Default";
 ---
 
-<Base title="Products">
-  <div class="products-page">
-    <div class="products-grid">
-      {displayProducts.map((product) => {
-        const imgUrl = getFirstImage(product);
-        return (
-          <a href={`/products/${product.slug}`} class="product-card">
-            <div class="product-image">
-              {imgUrl ? (
-                <img src={imgUrl} alt={product.data?.title || ""} loading="lazy" />
-              ) : (
-                <div class="no-image">No Image</div>
-              )}
-            </div>
-            <h3 class="product-title">{product.data?.title}</h3>
+<Base title={title}>
+  <div class="product-page">
+    <!-- 左侧媒体区 -->
+    <div class="product-media">
+      {images.length > 1 && (
+        <div class="thumbnails">
+          {images.map((img, i) => (
+            <button class={`thumb-btn ${i === 0 ? "active" : ""}`} data-src={img} aria-label={`View image ${i + 1}`}>
+              <img src={img} alt="" />
+            </button>
+          ))}
+        </div>
+      )}
+      <div class="main-image-wrap">
+        <img id="mainImg" class="main-image" src={mainImage} alt={title} />
+        {!mainImage && <div class="no-image">No Image</div>}
+      </div>
+      {images.length <= 1 && <div></div>}
+      <div class="download-row">
+        {downloadFiles.length > 0 && (
+          <a class="download-btn" href={downloadFiles[0].path} target="_blank" rel="noopener" download>
+            <span class="dl-icon">⬇</span> Download Hi-Res Image
           </a>
-        );
-      })}
+        )}
+        {templateFiles.length > 0 && (
+          <a class="download-btn" href={templateFiles[0].path} target="_blank" rel="noopener" download>
+            <span class="dl-icon">⬇</span> Download Template
+          </a>
+        )}
+      </div>
     </div>
 
-    {displayProducts.length === 0 && (
-      <div class="empty-state">
-        <p>{selectedCategory ? "此分类下暂无产品" : "暂无产品"}</p>
-      </div>
-    )}
+    <!-- 右侧信息区 -->
+    <div class="product-info">
+      <h1 class="product-title">{title}</h1>
 
-    {totalPages > 1 && (
-      <nav class="pagination">
-        <a href={safePage > 1 ? buildPageUrl(safePage - 1) : '#'}
-           class={`pg-btn ${safePage <= 1 ? 'disabled' : ''}`}>‹ Prev</a>
-        {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
-          <a key={p} href={buildPageUrl(p)}
-             class={`pg-btn ${p === safePage ? 'active' : ''}`}>{p}</a>
-        ))}
-        <a href={safePage < totalPages ? buildPageUrl(safePage + 1) : '#'}
-           class={`pg-btn ${safePage >= totalPages ? 'disabled' : ''}`}>Next ›</a>
-      </nav>
-    )}
+      <div class="color-header">
+        <span class="color-label">PRODUCT COLOR: <strong id="currentColor">{defaultColor}</strong></span>
+        <label class="bulk-toggle">
+          <span>Bulk order: Min colors</span>
+          <input type="checkbox" />
+          <span class="toggle-track"><span class="toggle-thumb"></span></span>
+        </label>
+      </div>
+
+      {colors.length > 0 && (
+        <div class="color-grid">
+          {colors.map((c, i) => (
+            <button class={`color-swatch ${i === 0 ? "selected" : ""}`} style={`background-color:${c.rgb};`} data-name={c.name} data-img={c.imageUrl || ""} title={c.name} aria-label={c.name}></button>
+          ))}
+        </div>
+      )}
+
+      <div class="method-section">
+        <h3 class="section-title">IMPRINT METHOD & QUANTITY</h3>
+        <div class="tabs">
+          {methodTabs.map((tab, i) => (
+            <button class={`tab-btn ${i === 0 ? "active" : ""}`} data-method={tab.name}>{tab.name}</button>
+          ))}
+        </div>
+        {pricingSteps.length > 0 && (
+          <div class="pricing-table">
+            <div class="pricing-row header">
+              <span class="qty-col">Quantity</span>
+              {pricingSteps.map((s) => (<span class="step-col">{s.label}</span>))}
+            </div>
+            <div class="pricing-row values" id="pricingRow">
+              <span class="qty-col">Price Each (C)</span>
+              {pricingSteps.map((s) => (<span class="step-col" data-step-price={s.price}>{s.formatted}</span>))}
+            </div>
+          </div>
+        )}
+        <a class="flat-price-link" href="#">Sign in to view flat price</a>
+      </div>
+
+      <div class="quantity-section">
+        <label>Enter the quantity you'd like</label>
+        <div class="qty-input-group">
+          <button type="button" id="qtyMinus" aria-label="Decrease">−</button>
+          <input type="number" id="qtyInput" value="50" min="1" />
+          <button type="button" id="qtyPlus" aria-label="Increase">+</button>
+          <span id="qtyTotal" class="qty-total">$0.00</span>
+        </div>
+      </div>
+
+      <h3 class="section-title">IMPRINT LOCATION(S) & OPTION</h3>
+      <div class="imprint-locations">
+        {surfaces.length > 0 ? (
+          surfaces.map((s, i) => (
+            <label class="imprint-checkbox">
+              <input type="checkbox" checked={i === 0} data-surface={s.name} />
+              <span>{s.name}</span>
+            </label>
+          ))
+        ) : (
+          <span style="color:#999">No imprint location info</span>
+        )}
+      </div>
+      <div class="imprint-color">
+        <label>Imprint Color</label>
+        <select><option>1 color</option><option>2 color</option><option>3 color</option><option>Full color</option></select>
+      </div>
+
+      <div class="custom-color">
+        <label>Enter your preferred color besides the colors listed above</label>
+        <div class="custom-color-group">
+          <input type="text" placeholder="e.g. Neon Green" />
+          <button type="button">+ Add</button>
+        </div>
+      </div>
+
+      <label class="sample-checkbox">
+        <input type="checkbox" />
+        <span>Physical Sample: <strong>Send me a physical sample</strong></span>
+      </label>
+
+      <div class="zip-code">
+        <label>ZIP Code</label>
+        <div class="zip-row">
+          <input type="text" placeholder="Enter ZIP Code for shipping estimate." />
+          <label class="zip-residential"><input type="checkbox" /><span>Residential Address</span></label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 底部 -->
+  <div class="product-bottom">
+    <section class="description-section">
+      <h2>PRODUCT DESCRIPTION</h2>
+      <p>{description || "No description available."}</p>
+    </section>
+    <section class="specs-section">
+      <h2>PRODUCT SPECIFICATIONS</h2>
+      <table class="specs-table">
+        <tbody>
+          {specs.map((s) => (<tr><td class="spec-key">{s.label}</td><td class="spec-value">{s.value}</td></tr>))}
+        </tbody>
+      </table>
+    </section>
+    <section class="imprint-diagram-section">
+      <h2>IMPRINT LOCATION</h2>
+      <p class="imprint-note">The imprint area shown is for dimension and placement reference only. Please contact us if you have any other questions.</p>
+      {surfaces.length > 0 ? (
+        <div class="imprint-diagram-grid">
+          {surfaces.map((s) => {
+            const r = s.regions[0];
+            return (
+              <div class="imprint-card">
+                <div class="diagram-box">
+                  <div class="product-silhouette">
+                    {r && (<div class="print-zone" style={`width:${Math.min(r.width,4)}in;height:${Math.min(r.height,4)}in;`}><span>{r.width} in / {r.height} in</span></div>)}
+                  </div>
+                  <div class="diagram-label">{s.name}</div>
+                </div>
+                <p class="imprint-summary">{s.name}: {r ? `W:${r.width} IN × H:${r.height} IN` : ""}</p>
+              </div>
+            );
+          })}
+        </div>
+      ) : (<p style="color:#999">No imprint location data</p>)}
+    </section>
   </div>
 </Base>
 
+<script is:inline define:vars={{pricingSteps,methodTabs,productCode}}>
+  window.__PRICING_STEPS__ = pricingSteps; window.__METHOD_TABS__ = methodTabs; window.__PRODUCT_CODE__ = productCode;
+</script>
+
+<script>
+document.querySelectorAll(".thumb-btn").forEach((btn)=>{btn.addEventListener("click",function(){const s=this.getAttribute("data-src"),m=document.getElementById("mainImg");if(m&&s)m.src=s;document.querySelectorAll(".thumb-btn").forEach((b)=>b.classList.remove("active"));this.classList.add("active")})});
+document.querySelectorAll(".color-swatch").forEach((s)=>{s.addEventListener("click",function(){document.querySelectorAll(".color-swatch").forEach((x)=>x.classList.remove("selected"));this.classList.add("selected");const n=this.getAttribute("data-name"),i=this.getAttribute("data-img"),l=document.getElementById("currentColor");if(l&&n)l.textContent=n;if(i){const m=document.getElementById("mainImg");if(m)m.src=i}})});
+function getCS(){const a=document.querySelector(".tab-btn.active"),n=a?.getAttribute("data-method")||"Screen Print",t=(window).__METHOD_TABS__||[],b=t.find((t)=>t.name===n);return b?.pricingSteps&&b.pricingSteps.length?b.pricingSteps:(window).__PRICING_STEPS__||[]}
+function updP(){const s=getCS();document.querySelectorAll("#pricingRow .step-col").forEach((c,i)=>{if(s[i]){c.textContent=`$${parseFloat(s[i].price).toFixed(2)}`;c.setAttribute("data-step-price",String(s[i].price))}})}
+document.querySelectorAll(".tab-btn").forEach((b)=>{b.addEventListener("click",function(){document.querySelectorAll(".tab-btn").forEach((x)=>x.classList.remove("active"));this.classList.add("active");updP();recalc()})});
+function recalc(){const q=document.getElementById("qtyInput"),t=document.getElementById("qtyTotal");if(!q||!t)return;const n=Math.max(0,parseInt(q.value)||0),s=getCS().slice().sort((a,b)=>b.num-a.num);let p=0;for(const c of s){if(n>=c.num){p=parseFloat(c.price)*n;break}}t.textContent=`$${p.toFixed(2)}`}
+document.getElementById("qtyMinus")?.addEventListener("click",()=>{const i=document.getElementById("qtyInput");if(!i)return;i.value=String(Math.max(1,(parseInt(i.value)||1)-1));recalc()});
+document.getElementById("qtyPlus")?.addEventListener("click",()=>{const i=document.getElementById("qtyInput");if(!i)return;i.value=String((parseInt(i.value)||0)+1);recalc()});
+document.getElementById("qtyInput")?.addEventListener("input",recalc);
+recalc();
+</script>
+
 <style>
-  .products-page { max-width: 1400px; margin: 0 auto; padding: 2rem; }
-  .products-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; }
-  .product-card { text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; border-radius: 8px; overflow: hidden; background: #fff; border: 1px solid #f0f0f0; }
-  .product-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
-  .product-image { aspect-ratio: 1; background: #f8f9fa; overflow: hidden; display: flex; align-items: center; justify-content: center; }
-  .product-image img { width: 100%; height: 100%; object-fit: contain; padding: 1rem; transition: transform 0.3s; }
-  .product-card:hover .product-image img { transform: scale(1.03); }
-  .no-image { color: #bbb; font-size: 0.9rem; }
-  .product-title { font-size: 0.9rem; font-weight: 500; line-height: 1.4; color: #333; padding: 0.75rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 3.2em; }
-  .empty-state { text-align: center; padding: 5rem 2rem; color: #999; }
-
-  .pagination { display: flex; justify-content: center; align-items: center; gap: 6px; margin-top: 2.5rem; flex-wrap: wrap; }
-  .pg-btn {
-    display: inline-flex; align-items: center; justify-content: center;
-    min-width: 36px; height: 36px; padding: 0 10px;
-    border: 1px solid #e0e0e0; border-radius: 4px;
-    background: #fff; color: #555;
-    font-size: 0.875rem; text-decoration: none;
-  }
-  .pg-btn:hover:not(.disabled):not(.active) { background: #f5f5f5; border-color: #ccc; color: #06c; }
-  .pg-btn.active { background: #5cc4b8; border-color: #5cc4b8; color: #fff; font-weight: 600; cursor: default; }
-  .pg-btn.disabled { opacity: 0.4; pointer-events: none; }
-
-  @media (max-width: 1200px) { .products-grid { grid-template-columns: repeat(3, 1fr); } }
-  @media (max-width: 900px) { .products-grid { grid-template-columns: repeat(2, 1fr); } }
-  @media (max-width: 500px) { .products-grid { grid-template-columns: repeat(2, 1fr); gap: 1rem; } }
+.product-page{display:grid;grid-template-columns:460px 1fr;gap:2.5rem;max-width:1200px;margin:0 auto;padding:2rem}
+.product-media{display:flex;flex-direction:row;gap:12px;align-items:flex-start}
+.thumbnails{display:flex;flex-direction:column;gap:8px;width:72px;flex-shrink:0;max-height:500px;overflow-y:auto}
+.thumb-btn{width:72px;height:72px;padding:2px;border:1px solid #e0e0e0;border-radius:4px;background:#fff;cursor:pointer;overflow:hidden;transition:border-color .15s}
+.thumb-btn:hover{border-color:#999}.thumb-btn.active{border-color:#333}
+.thumb-btn img{width:100%;height:100%;object-fit:cover;display:block}
+.main-image-wrap{flex:1;aspect-ratio:1;background:#f8f9fa;border:1px solid #eee;border-radius:4px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.main-image{width:100%;height:100%;object-fit:contain;padding:1rem}.no-image{color:#999}
+.download-row{display:flex;flex-direction:column;gap:8px;width:72px;flex-shrink:0}
+.download-btn{display:flex;align-items:center;justify-content:center;gap:4px;padding:.4rem .5rem;border:1px solid #0066c0;color:#0066c0;border-radius:4px;text-decoration:none;font-size:.7rem;text-align:center;line-height:1.2;transition:background .15s,color .15s}
+.download-btn:hover{background:#0066c0;color:#fff}.dl-icon{font-size:.85rem}
+.product-info{padding-top:.5rem}
+.product-title{font-size:1.5rem;font-weight:600;margin:0 0 1rem;line-height:1.3;color:#111}
+.color-header{display:flex;justify-content:space-between;align-items:center;font-size:.85rem;color:#555;margin-bottom:.5rem}
+.color-label strong{color:#222;font-weight:600}
+.bulk-toggle{display:inline-flex;align-items:center;gap:6px;font-size:.8rem;color:#555;cursor:pointer}
+.bulk-toggle input{display:none}
+.toggle-track{width:28px;height:16px;background:#ccc;border-radius:8px;position:relative;transition:background .15s}
+.toggle-thumb{width:12px;height:12px;background:#fff;border-radius:50%;position:absolute;top:2px;left:2px;transition:transform .15s}
+.bulk-toggle input:checked+.toggle-track{background:#0066c0}
+.bulk-toggle input:checked+.toggle-track .toggle-thumb{transform:translateX(12px)}
+.color-grid{display:grid;grid-template-columns:repeat(10,1fr);gap:4px;margin-bottom:1.5rem}
+.color-swatch{width:100%;aspect-ratio:1;border:1px solid #d0d0d0;border-radius:2px;cursor:pointer;min-height:24px;transition:transform .1s,border-color .1s;padding:0}
+.color-swatch:hover{transform:scale(1.1);border-color:#999}
+.color-swatch.selected{border:2px solid #333;box-shadow:0 0 0 1px #fff inset}
+.section-title{font-size:.9rem;font-weight:700;margin:0 0 .75rem;color:#222;letter-spacing:.02em}
+.method-section{margin-bottom:1rem}
+.tabs{display:flex;border-bottom:1px solid #ddd;margin-bottom:1rem}
+.tab-btn{padding:.5rem 1.25rem;border:none;background:none;font-size:.85rem;color:#555;cursor:pointer;border-bottom:2px solid transparent;transition:all .15s}
+.tab-btn:hover{color:#111}.tab-btn.active{color:#111;border-bottom-color:#333;font-weight:600}
+.pricing-table{border:1px solid #e0e0e0;border-radius:4px;margin-bottom:.75rem;overflow-x:auto}
+.pricing-row{display:grid;grid-template-columns:130px repeat(auto-fit,minmax(70px,1fr));border-bottom:1px solid #f0f0f0}
+.pricing-row:last-child{border-bottom:none}.pricing-row.header{background:#f8f8f8;font-weight:600}
+.qty-col,.step-col{padding:.5rem .625rem;text-align:center;border-right:1px solid #f0f0f0;font-size:.85rem}
+.qty-col{text-align:left;font-weight:500;color:#333}
+.pricing-row.values .step-col{color:#b12704}
+.step-col:last-child,.qty-col:last-child{border-right:none}
+.flat-price-link{display:inline-block;font-size:.85rem;color:#0066c0;text-decoration:none;margin-bottom:1.25rem}
+.flat-price-link:hover{text-decoration:underline}
+.quantity-section{margin-bottom:1.5rem}
+.quantity-section label{display:block;font-size:.85rem;color:#555;margin-bottom:.5rem}
+.qty-input-group{display:flex;align-items:center;gap:0}
+.qty-input-group button{width:36px;height:36px;border:1px solid #ccc;background:#f8f8f8;font-size:1.1rem;cursor:pointer}
+.qty-input-group button:first-child{border-radius:4px 0 0 4px}
+.qty-input-group button:last-of-type{border-radius:0}
+.qty-input-group input{width:80px;height:36px;border:1px solid #ccc;border-left:none;border-right:none;text-align:center;font-size:1rem;outline:none;-moz-appearance:textfield}
+.qty-input-group input::-webkit-outer-spin-button,.qty-input-group input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.qty-total{padding:0 1rem;height:36px;background:#cce8ff;color:#0066c0;display:flex;align-items:center;font-weight:600;font-size:.95rem;border:1px solid #ccc;border-left:none;border-radius:0 4px 4px 0}
+.imprint-locations{display:flex;flex-wrap:wrap;gap:1.25rem;margin-bottom:1rem}
+.imprint-checkbox{display:inline-flex;align-items:center;gap:6px;font-size:.9rem;color:#333;cursor:pointer}
+.imprint-color{margin-bottom:1.25rem}
+.imprint-color label{display:block;font-size:.85rem;color:#555;margin-bottom:.25rem}
+.imprint-color select{width:100%;max-width:200px;padding:.5rem;border:1px solid #ccc;border-radius:4px;font-size:.85rem}
+.custom-color{margin-bottom:1.25rem}
+.custom-color label{display:block;font-size:.85rem;color:#555;margin-bottom:.5rem}
+.custom-color-group{display:flex;gap:8px}
+.custom-color-group input{flex:1;max-width:320px;padding:.5rem;border:1px solid #ccc;border-radius:4px;font-size:.85rem}
+.custom-color-group button{padding:.5rem 1.25rem;background:#fff;color:#0066c0;border:1px solid #0066c0;border-radius:4px;cursor:pointer;font-size:.85rem;transition:background .15s,color .15s}
+.custom-color-group button:hover{background:#0066c0;color:#fff}
+.sample-checkbox{display:inline-flex;align-items:center;gap:8px;font-size:.85rem;color:#444;cursor:pointer;margin-bottom:1.5rem}
+.zip-code{margin-bottom:.5rem}
+.zip-code label{display:block;font-size:.85rem;color:#555;margin-bottom:.5rem}
+.zip-row{display:flex;gap:1rem;align-items:center;flex-wrap:wrap}
+.zip-row input[type=text]{flex:1;min-width:200px;padding:.5rem .75rem;border:1px solid #ccc;border-radius:4px;font-size:.85rem}
+.zip-residential{display:inline-flex;align-items:center;gap:6px;font-size:.85rem;color:#444;cursor:pointer}
+.product-bottom{max-width:1200px;margin:2rem auto 0;padding:2rem;border-top:1px solid #e0e0e0}
+.product-bottom h2{font-size:1.1rem;font-weight:700;margin:0 0 1rem;padding-bottom:.5rem;border-bottom:2px solid #111;color:#222;letter-spacing:.02em}
+.description-section p{font-size:.9rem;line-height:1.7;color:#444;margin:0 0 2.5rem}
+.specs-table{width:100%;border-collapse:collapse;margin:0 0 2.5rem}
+.specs-table tr{border-bottom:1px solid #e8e8e8}
+.specs-table td{padding:.85rem .5rem;font-size:.9rem;vertical-align:top}
+.spec-key{width:35%;color:#555;font-weight:500}.spec-value{color:#222}
+.imprint-note{font-size:.85rem;color:#666;margin:0 0 1.5rem;line-height:1.5}
+.imprint-diagram-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1.5rem;margin-bottom:1rem}
+.imprint-card{text-align:left}
+.diagram-box{width:100%;max-width:220px;aspect-ratio:1;border:1px solid #ddd;background:#fafafa;display:flex;flex-direction:column;align-items:center;justify-content:center;margin-bottom:.5rem;position:relative}
+.product-silhouette{width:130px;height:100px;border:2px dashed #999;position:relative;flex:1;display:flex;align-items:center;justify-content:center}
+.print-zone{border:2px solid #e74c3c;background:rgba(231,76,60,.05);display:flex;align-items:center;justify-content:center;font-size:.7rem;color:#e74c3c;font-weight:500;text-align:center}
+.diagram-label{font-size:.85rem;font-weight:600;color:#333;margin-top:.5rem}
+.imprint-summary{font-size:.85rem;color:#333;margin:.5rem 0 0}
+@media(max-width:1024px){.product-page{grid-template-columns:1fr;max-width:700px;padding:1.5rem}.product-media{flex-direction:column}.thumbnails{flex-direction:row;width:100%;max-height:none;overflow-x:auto}.download-row{flex-direction:row;width:100%}}
+@media(max-width:640px){.product-page{padding:1rem}.product-title{font-size:1.25rem}.color-grid{grid-template-columns:repeat(6,1fr)}.color-swatch{min-height:20px}.qty-input-group input{width:60px}.imprint-diagram-grid{grid-template-columns:1fr}.download-row{flex-direction:column}}
 </style>
