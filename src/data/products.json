@@ -336,6 +336,575 @@
           ]
         }
       ]
+    },
+    {
+      "code": "120044",
+      "nameEn": "Silicone Phone Wallet",
+      "material": "Silicone",
+      "imgMainUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/177814614473162518.jpg",
+      "descriptionEn": "This Popular Phone Wallet is made of soft silicone. With strong adhesive backing to attach to phone or phone case. Perfect for carrying identification, room keys, cash or credit cards. Available in several colors, and customize with an imprint of your brand logo for a promotional gift that is sure to stick. ",
+      "files": [
+        {
+          "type": 0,
+          "file": {
+            "path": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/176766878091735785.png"
+          }
+        },
+        {
+          "type": 0,
+          "file": {
+            "path": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/177814615372022564.jpg"
+          }
+        }
+      ],
+      "knifeFiles": [
+        {
+          "type": 1,
+          "file": {
+            "path": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/173198202290724294.pdf",
+            "name": "120044.pdf"
+          }
+        }
+      ],
+      "productSpecs": [
+        {
+          "specsValue1": "White",
+          "colorRgb": "#FFFFFF",
+          "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164559596560420229.jpg",
+          "productLengthIn": 8.64,
+          "productWidthIn": 5.08,
+          "productHeightIn": 0,
+          "productWeightKgs": 0.011,
+          "printLength": 1.6,
+          "printWidth": 1.6,
+          "packingMethodEn": "1 unit/poly bag"
+        },
+        {
+          "specsValue1": "Grey",
+          "colorRgb": "#808080",
+          "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164559597331974019.jpg",
+          "productLengthIn": 8.64,
+          "productWidthIn": 5.08,
+          "productHeightIn": 0,
+          "productWeightKgs": 0.011,
+          "printLength": 1.6,
+          "printWidth": 1.6,
+          "packingMethodEn": "1 unit/poly bag"
+        },
+        {
+          "specsValue1": "Red",
+          "colorRgb": "#ce1407",
+          "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164559598214819783.jpg",
+          "productLengthIn": 8.64,
+          "productWidthIn": 5.08,
+          "productHeightIn": 0,
+          "productWeightKgs": 0.011,
+          "printLength": 1.6,
+          "printWidth": 1.6,
+          "packingMethodEn": "1 unit/poly bag"
+        },
+        {
+          "specsValue1": "Royal Blue",
+          "colorRgb": "#163aa6",
+          "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164559599190143328.jpg",
+          "productLengthIn": 8.64,
+          "productWidthIn": 5.08,
+          "productHeightIn": 0,
+          "productWeightKgs": 0.011,
+          "printLength": 1.6,
+          "printWidth": 1.6,
+          "packingMethodEn": "1 unit/poly bag"
+        },
+        {
+          "specsValue1": "Purple",
+          "colorRgb": "#500c77",
+          "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164559600024784541.jpg",
+          "productLengthIn": 8.64,
+          "productWidthIn": 5.08,
+          "productHeightIn": 0,
+          "productWeightKgs": 0.011,
+          "printLength": 1.6,
+          "printWidth": 1.6,
+          "packingMethodEn": "1 unit/poly bag"
+        },
+        {
+          "specsValue1": "Dark Green",
+          "colorRgb": "#0f980d",
+          "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164559600909481680.jpg",
+          "productLengthIn": 8.64,
+          "productWidthIn": 5.08,
+          "productHeightIn": 0,
+          "productWeightKgs": 0.011,
+          "printLength": 1.6,
+          "printWidth": 1.6,
+          "packingMethodEn": "1 unit/poly bag"
+        },
+        {
+          "specsValue1": "Orange",
+          "colorRgb": "#d56a12",
+          "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164559601796029882.jpg",
+          "productLengthIn": 8.64,
+          "productWidthIn": 5.08,
+          "productHeightIn": 0,
+          "productWeightKgs": 0.011,
+          "printLength": 1.6,
+          "printWidth": 1.6,
+          "packingMethodEn": "1 unit/poly bag"
+        },
+        {
+          "specsValue1": "Yellow",
+          "colorRgb": "#dcca04",
+          "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164559602647576937.jpg",
+          "productLengthIn": 8.64,
+          "productWidthIn": 5.08,
+          "productHeightIn": 0,
+          "productWeightKgs": 0.011,
+          "printLength": 1.6,
+          "printWidth": 1.6,
+          "packingMethodEn": "1 unit/poly bag"
+        },
+        {
+          "specsValue1": "Pink",
+          "colorRgb": "#dd6383",
+          "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164559603391387876.jpg",
+          "productLengthIn": 8.64,
+          "productWidthIn": 5.08,
+          "productHeightIn": 0,
+          "productWeightKgs": 0.011,
+          "printLength": 1.6,
+          "printWidth": 1.6,
+          "packingMethodEn": "1 unit/poly bag"
+        },
+        {
+          "specsValue1": "Lime Green",
+          "colorRgb": "#84d02d",
+          "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164559604123714203.jpg",
+          "productLengthIn": 8.64,
+          "productWidthIn": 5.08,
+          "productHeightIn": 0,
+          "productWeightKgs": 0.011,
+          "printLength": 1.6,
+          "printWidth": 1.6,
+          "packingMethodEn": "1 unit/poly bag"
+        }
+      ],
+      "productPricingSteps": [
+        {
+          "num": 100,
+          "price": "0.783"
+        },
+        {
+          "num": 250,
+          "price": "0.705"
+        },
+        {
+          "num": 500,
+          "price": "0.638"
+        },
+        {
+          "num": 1000,
+          "price": "0.597"
+        },
+        {
+          "num": 5000,
+          "price": "0.378"
+        }
+      ],
+      "printingSurfaces": [
+        {
+          "printingPositionNameEn": "Front",
+          "printingRegions": [
+            {
+              "regionName": "Front",
+              "regionWidth": 1.6,
+              "regionHigh": 1.6
+            }
+          ]
+        },
+        {
+          "printingPositionNameEn": "Back",
+          "printingRegions": [
+            {
+              "regionName": "Back",
+              "regionWidth": 8,
+              "regionHigh": 10
+            }
+          ]
+        }
+      ],
+      "printingWays": [
+        {
+          "printingWayNameEn": "Screen Print",
+          "productPrintingWayPrices": [
+            {
+              "productPrintingWayPriceSteps": [
+                {
+                  "num": 100,
+                  "price": "0.808"
+                },
+                {
+                  "num": 250,
+                  "price": "0.782"
+                },
+                {
+                  "num": 500,
+                  "price": "0.697"
+                },
+                {
+                  "num": 1000,
+                  "price": "0.632"
+                },
+                {
+                  "num": 5000,
+                  "price": "0.48"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "120082",
+      "nameEn": "6-In-1 Metal Multi-Function Tool Pen With Stylus & Level",
+      "material": "Aluminum  + Silicone tip",
+      "imgMainUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/176880100146894508.jpg",
+      "descriptionEn": "Twist Action Pens are made of aluminum and feature a liquid level and ruler. They come with two screw heads: one flat and one Phillips, and use black ink. This pen is perfect for any touchscreen user, thanks to its stylus function. Additionally, the pen is customizable with laser engraving or silk-screen printing for your logo, making it an ideal event giveaway or corporate gift.",
+      "files": [
+        {
+          "type": 0,
+          "file": {
+            "path": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/176880118274310674.jpg"
+          }
+        }
+      ],
+      "knifeFiles": [
+        {
+          "type": 1,
+          "file": {
+            "path": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/173310507613320899.pdf",
+            "name": "120082 template.pdf"
+          }
+        }
+      ],
+      "productSpecs": [
+        {
+          "specsValue1": "Blue",
+          "colorRgb": "#343f67",
+          "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/171273915184824113.jpg",
+          "productLengthIn": 15.09,
+          "productWidthIn": 1.02,
+          "productHeightIn": 1.02,
+          "productWeightKgs": 0.035,
+          "printLength": 2.36,
+          "printWidth": 0.2,
+          "packingMethodEn": "1 unit/poly bag"
+        },
+        {
+          "specsValue1": "Black",
+          "colorRgb": "#000000",
+          "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/171273915849125152.jpg",
+          "productLengthIn": 15.09,
+          "productWidthIn": 1.02,
+          "productHeightIn": 1.02,
+          "productWeightKgs": 0.035,
+          "printLength": 2.36,
+          "printWidth": 0.2,
+          "packingMethodEn": "1 unit/poly bag"
+        },
+        {
+          "specsValue1": "Yellow",
+          "colorRgb": "#f5b000",
+          "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/171273916534677193.jpg",
+          "productLengthIn": 15.09,
+          "productWidthIn": 1.02,
+          "productHeightIn": 1.02,
+          "productWeightKgs": 0.035,
+          "printLength": 2.36,
+          "printWidth": 0.2,
+          "packingMethodEn": "1 unit/poly bag"
+        },
+        {
+          "specsValue1": "Silver",
+          "colorRgb": "#dee1db",
+          "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/171273917237367750.jpg",
+          "productLengthIn": 15.09,
+          "productWidthIn": 1.02,
+          "productHeightIn": 1.02,
+          "productWeightKgs": 0.035,
+          "printLength": 2.36,
+          "printWidth": 0.2,
+          "packingMethodEn": "1 unit/poly bag"
+        },
+        {
+          "specsValue1": "Red",
+          "colorRgb": "#af1d1c",
+          "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/171273918011780295.jpg",
+          "productLengthIn": 15.09,
+          "productWidthIn": 1.02,
+          "productHeightIn": 1.02,
+          "productWeightKgs": 0.035,
+          "printLength": 2.36,
+          "printWidth": 0.2,
+          "packingMethodEn": "1 unit/poly bag"
+        }
+      ],
+      "productPricingSteps": [
+        {
+          "num": 100,
+          "price": "2.26"
+        },
+        {
+          "num": 250,
+          "price": "1.982"
+        },
+        {
+          "num": 500,
+          "price": "1.927"
+        },
+        {
+          "num": 1000,
+          "price": "1.888"
+        },
+        {
+          "num": 2000,
+          "price": "1.852"
+        }
+      ],
+      "printingSurfaces": [
+        {
+          "printingPositionNameEn": "Front",
+          "printingRegions": [
+            {
+              "regionName": "Front",
+              "regionWidth": 2.36,
+              "regionHigh": 0.2
+            }
+          ]
+        },
+        {
+          "printingPositionNameEn": "Back",
+          "printingRegions": [
+            {
+              "regionName": "Back",
+              "regionWidth": 8,
+              "regionHigh": 10
+            }
+          ]
+        }
+      ],
+      "printingWays": [
+        {
+          "printingWayNameEn": "Screen Print",
+          "productPrintingWayPrices": [
+            {
+              "productPrintingWayPriceSteps": [
+                {
+                  "num": 100,
+                  "price": "2.107"
+                },
+                {
+                  "num": 250,
+                  "price": "1.828"
+                },
+                {
+                  "num": 500,
+                  "price": "1.773"
+                },
+                {
+                  "num": 1000,
+                  "price": "1.735"
+                },
+                {
+                  "num": 2000,
+                  "price": "1.653"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "120090",
+      "nameEn": "Metal 6-In-1 Multi Function Tool Pen",
+      "material": "Aluminum ",
+      "imgMainUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/177225828345292949.jpg",
+      "descriptionEn": "This 6-in-1 multi-functional tool pen is made of high-quality aluminum. It functions as a ballpoint pen, stylus for touch screens, ruler, spirit level gauge, Phillips screwdriver, and flat-head screwdriver. Designed for convenience and everyday use, it features a twist-action mechanism and smooth black ink (default). Custom logo options include laser engraving and full-color printing.",
+      "files": [
+        {
+          "type": 0,
+          "file": {
+            "path": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/177225836130693324.jpg"
+          }
+        },
+        {
+          "type": 0,
+          "file": {
+            "path": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/177225836477033627.jpg"
+          }
+        },
+        {
+          "type": 0,
+          "file": {
+            "path": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/177225837270914968.jpg"
+          }
+        }
+      ],
+      "knifeFiles": [
+        {
+          "type": 1,
+          "file": {
+            "path": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/177225858596935034.pdf?uploadId=4C3C490A68F34D43BFC11CE30988479C",
+            "name": "120090-template(1).pdf"
+          }
+        }
+      ],
+      "productSpecs": [
+        {
+          "specsValue1": "Yellow",
+          "colorRgb": "#f4c630",
+          "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/174712211813679976.jpg",
+          "productLengthIn": 14.99,
+          "productWidthIn": 0.99,
+          "productHeightIn": 0,
+          "productWeightKgs": 0.029,
+          "printLength": 1.57,
+          "printWidth": 0.2,
+          "packingMethodEn": "1 unit/poly bag"
+        },
+        {
+          "specsValue1": "Blue",
+          "colorRgb": "#121d5b",
+          "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/174712212947759416.jpg",
+          "productLengthIn": 14.99,
+          "productWidthIn": 0.99,
+          "productHeightIn": 0,
+          "productWeightKgs": 0.029,
+          "printLength": 1.57,
+          "printWidth": 0.2,
+          "packingMethodEn": "1 unit/poly bag"
+        },
+        {
+          "specsValue1": "Black",
+          "colorRgb": "#171717",
+          "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/174712214113548644.jpg",
+          "productLengthIn": 14.99,
+          "productWidthIn": 0.99,
+          "productHeightIn": 0,
+          "productWeightKgs": 0.029,
+          "printLength": 1.57,
+          "printWidth": 0.2,
+          "packingMethodEn": "1 unit/poly bag"
+        },
+        {
+          "specsValue1": "Silver",
+          "colorRgb": "#b0b0b0",
+          "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/174712215162074135.jpg",
+          "productLengthIn": 14.99,
+          "productWidthIn": 0.99,
+          "productHeightIn": 0,
+          "productWeightKgs": 0.029,
+          "printLength": 1.57,
+          "printWidth": 0.2,
+          "packingMethodEn": "1 unit/poly bag"
+        },
+        {
+          "specsValue1": "Red",
+          "colorRgb": "#af201f",
+          "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/174712216275029000.jpg",
+          "productLengthIn": 14.99,
+          "productWidthIn": 0.99,
+          "productHeightIn": 0,
+          "productWeightKgs": 0.029,
+          "printLength": 1.57,
+          "printWidth": 0.2,
+          "packingMethodEn": "1 unit/poly bag"
+        }
+      ],
+      "productPricingSteps": [
+        {
+          "num": 100,
+          "price": "2.00"
+        },
+        {
+          "num": 250,
+          "price": "1.95"
+        },
+        {
+          "num": 500,
+          "price": "1.87"
+        },
+        {
+          "num": 1000,
+          "price": "1.78"
+        },
+        {
+          "num": 2500,
+          "price": "1.67"
+        },
+        {
+          "num": 5000,
+          "price": "1.70"
+        }
+      ],
+      "printingSurfaces": [
+        {
+          "printingPositionNameEn": "Front",
+          "printingRegions": [
+            {
+              "regionName": "Front",
+              "regionWidth": 1.57,
+              "regionHigh": 0.2
+            }
+          ]
+        },
+        {
+          "printingPositionNameEn": "Back",
+          "printingRegions": [
+            {
+              "regionName": "Back",
+              "regionWidth": 8,
+              "regionHigh": 10
+            }
+          ]
+        }
+      ],
+      "printingWays": [
+        {
+          "printingWayNameEn": "Screen Print",
+          "productPrintingWayPrices": [
+            {
+              "productPrintingWayPriceSteps": [
+                {
+                  "num": 100,
+                  "price": "2.08"
+                },
+                {
+                  "num": 250,
+                  "price": "1.92"
+                },
+                {
+                  "num": 500,
+                  "price": "1.80"
+                },
+                {
+                  "num": 1000,
+                  "price": "1.77"
+                },
+                {
+                  "num": 2500,
+                  "price": "1.67"
+                },
+                {
+                  "num": 5000,
+                  "price": "1.63"
+                }
+              ]
+            }
+          ]
+        }
+      ]
     }
   ]
 }
