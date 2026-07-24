@@ -1,136 +1,358 @@
-import productsData from "../data/products.json";
+---
+import Base from "../../layouts/Base.astro";
+import {
+  loadProduct, getColorOptions, getPricingSteps, getPrintMethodTabs,
+  getPrintingSurfaces, getAllImages, getDownloadFiles, getTemplateFiles,
+  getSpecifications, type ProductData
+} from "../../utils/product-data";
 
-// ===== Types =====
-export interface ProductSpec {
-  specsValue1?: string; specsValue2?: string; imageUrl?: string;
-  productWeightKgs?: number; productLengthIn?: number; productWidthIn?: number;
-  productHeightIn?: number; printLength?: number; printWidth?: number;
-  packingMethodEn?: string; colorRgb?: string;
-}
-export interface PricingStep { num: number; price: string; }
-export interface PrintingSurface {
-  printingPositionNameEn?: string; printingRegions?: PrintingRegion[];
-}
-export interface PrintingRegion { regionWidth?: number; regionHigh?: number; }
-export interface PrintingWay {
-  printingWayNameEn?: string;
-  productPrintingWayPrices?: { productPrintingWayPriceSteps?: PricingStep[] }[];
-}
-export interface ProductFile { type?: number; file?: { path?: string }; }
-export interface ProductImage { path?: string; url?: string; }
-export interface ProductCategory { nameEn?: string; parent?: ProductCategory | null; }
+const url = new URL(Astro.request.url);
+const requestedCode = url.searchParams.get("code");
+const defaultCode = "120356";
+const product: ProductData | null = loadProduct(requestedCode || defaultCode);
 
-export interface ProductData {
-  id?: string; code: string; nameEn: string; type?: string;
-  descriptionEn?: string; descriptionCn?: string; material?: string;
-  imgMain?: string; imgMainUrl?: string;
-  productSpecs?: ProductSpec[]; productPricingSteps?: PricingStep[];
-  printingSurfaces?: PrintingSurface[]; printingWays?: PrintingWay[];
-  files?: ProductFile[]; knifeFiles?: ProductFile[]; imgs?: ProductImage[];
-  category?: ProductCategory;
+if (!product) {
+  return Astro.redirect("/404");
 }
 
-export interface SpecRow { label: string; value: string; }
-export interface ColorOption { name: string; rgb: string; imageUrl: string; }
-export interface PricingStepDisplay { label: string; quantity: number; price: number; formatted: string; }
-export interface SurfaceDisplay { name: string; regions: { name: string; width: number; height: number; label: string }[]; }
+const title: string = product.nameEn || "Product";
+const images: string[] = getAllImages(product);
+const mainImage: string = images[0] || product.imgMainUrl || "";
+const colors = getColorOptions(product);
+const pricingSteps = getPricingSteps(product);
+const methodTabs = getPrintMethodTabs(product);
+const surfaces = getPrintingSurfaces(product);
+const downloadFiles = getDownloadFiles(product);
+const templateFiles = getTemplateFiles(product);
+const specs = getSpecifications(product);
+const description: string = product.descriptionEn || "";
+const defaultColor: string = colors.length > 0 ? colors[0].name : "Default";
+---
 
-// ===== Color heuristic =====
-const COLOR_NAME_RGB: Record<string, string> = {
-  white:"#ffffff",black:"#000000",red:"#e74c3c",blue:"#3498db",navy:"#1f3a5f","navy blue":"#1f3a5f",
-  green:"#27ae60","forest green":"#228b22","lime green":"#32cd32","yellow":"#f1c40f",orange:"#e67e22",
-  pink:"#ff69b4",purple:"#9b59b6",gray:"#95a5a6",grey:"#95a5a6",silver:"#c0c0c0",gold:"#ffd700",
-  brown:"#8b4513",beige:"#f5f5dc",tan:"#d2b48c",clear:"#e0e0e0",transparent:"#e0e0e0",
-  bamboo:"#e8c291",wood:"#deb887",natural:"#deb887",royal:"#4169e1","royal blue":"#4169e1",
-  maroon:"#800000",burgundy:"#800020",teal:"#008080",cyan:"#00ffff",magenta:"#ff00ff",
-};
-function guessRgb(n: string): string {
-  if(!n)return"#ccc";const key=n.toLowerCase().trim();if(COLOR_NAME_RGB[key])return COLOR_NAME_RGB[key];
-  for(const[k,v]of Object.entries(COLOR_NAME_RGB))if(key.includes(k))return v;return"#ccc";
-}
+<Base title={title}>
+  <div class="product-page">
+    <div class="product-media">
+      {images.length > 1 && (
+        <div class="thumbnails">
+          {images.map((img, i) => (
+            <button class={`thumb-btn ${i === 0 ? "active" : ""}`} data-src={img}>
+              <img src={img} alt="" />
+            </button>
+          ))}
+        </div>
+      )}
+      <div class="main-image-wrap">
+        <img id="mainImg" class="main-image" src={mainImage} alt={title} />
+        {!mainImage && <div class="no-image">No Image</div>}
+      </div>
+      <div class="download-row">
+        {downloadFiles.length > 0 && (
+          <a class="download-btn" href={downloadFiles[0].path} target="_blank" download>
+            <span class="dl-icon">⬇</span> Download Hi-Res
+          </a>
+        )}
+        {templateFiles.length > 0 && (
+          <a class="download-btn" href={templateFiles[0].path} target="_blank" download>
+            <span class="dl-icon">⬇</span> Download Template
+          </a>
+        )}
+      </div>
+    </div>
 
-// ===== 单文件加载 =====
-export function getAllProducts(): ProductData[] {
-  return (productsData as any).products || [];
-}
+    <div class="product-info">
+      <h1 class="product-title">{title}</h1>
 
-export function loadProduct(code: string): ProductData | null {
-  return getAllProducts().find(p => p.code === code) || null;
-}
+      <div class="color-header">
+        <span class="color-label">PRODUCT COLOR: <strong id="currentColor">{defaultColor}</strong></span>
+        <label class="bulk-toggle">
+          <span>Bulk order: Min colors</span>
+          <input type="checkbox" />
+          <span class="toggle-track"><span class="toggle-thumb"></span></span>
+        </label>
+      </div>
 
-export function getColorOptions(p: ProductData): ColorOption[] {
-  const seen = new Map<string, ColorOption>();
-  for (const s of p.productSpecs || []) {
-    const n = (s.specsValue1 || "").trim();
-    if (!n || seen.has(n)) continue;
-    seen.set(n, { name: n, rgb: s.colorRgb || guessRgb(n), imageUrl: s.imageUrl || p.imgMainUrl || "" });
+      {colors.length > 0 && (
+        <div class="color-grid">
+          {colors.map((c, i) => (
+            <button class={`color-swatch ${i === 0 ? "selected" : ""}`} style={`background-color:${c.rgb};`} data-name={c.name} data-img={c.imageUrl || ""} title={c.name}></button>
+          ))}
+        </div>
+      )}
+
+      <div class="method-section">
+        <h3 class="section-title">IMPRINT METHOD & QUANTITY</h3>
+        <div class="tabs">
+          {methodTabs.map((tab, i) => (
+            <button class={`tab-btn ${i === 0 ? "active" : ""}`} data-method={tab.name}>{tab.name}</button>
+          ))}
+        </div>
+        {pricingSteps.length > 0 && (
+          <div class="pricing-table">
+            <div class="pricing-row header">
+              <span class="qty-col">Quantity</span>
+              {pricingSteps.map((s) => (<span class="step-col">{s.label}</span>))}
+            </div>
+            <div class="pricing-row values" id="pricingRow">
+              <span class="qty-col">Price Each (C)</span>
+              {pricingSteps.map((s) => (<span class="step-col" data-step-price={s.price}>{s.formatted}</span>))}
+            </div>
+          </div>
+        )}
+        <a class="flat-price-link" href="#">Sign in to view flat price</a>
+      </div>
+
+      <div class="quantity-section">
+        <label>Enter the quantity you'd like</label>
+        <div class="qty-input-group">
+          <button type="button" id="qtyMinus">−</button>
+          <input type="number" id="qtyInput" value="50" min="1" />
+          <button type="button" id="qtyPlus">+</button>
+          <span id="qtyTotal" class="qty-total">$0.00</span>
+        </div>
+      </div>
+
+      <h3 class="section-title">IMPRINT LOCATION(S) & OPTION</h3>
+      <div class="imprint-locations">
+        {surfaces.length > 0 ? (
+          surfaces.map((s, i) => (
+            <label class="imprint-checkbox">
+              <input type="checkbox" checked={i === 0} />
+              <span>{s.name}</span>
+            </label>
+          ))
+        ) : (<span style="color:#999">No imprint location info</span>)}
+      </div>
+
+      <div class="imprint-color">
+        <label>Imprint Color</label>
+        <select><option>1 color</option><option>2 color</option><option>3 color</option></select>
+      </div>
+
+      <div class="custom-color">
+        <label>Enter your preferred color besides the colors listed above</label>
+        <div class="custom-color-group">
+          <input type="text" placeholder="e.g. Neon Green" />
+          <button type="button">+ Add</button>
+        </div>
+      </div>
+
+      <label class="sample-checkbox">
+        <input type="checkbox" />
+        <span>Physical Sample: <strong>Send me a physical sample</strong></span>
+      </label>
+
+      <div class="zip-code">
+        <label>ZIP Code</label>
+        <div class="zip-row">
+          <input type="text" placeholder="Enter ZIP Code for shipping estimate." />
+          <label class="zip-residential"><input type="checkbox" /><span>Residential Address</span></label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="product-bottom">
+    <section class="description-section">
+      <h2>PRODUCT DESCRIPTION</h2>
+      <p>{description || "No description available."}</p>
+    </section>
+    <section class="specs-section">
+      <h2>PRODUCT SPECIFICATIONS</h2>
+      <table class="specs-table">
+        <tbody>
+          {specs.map((s) => (<tr><td class="spec-key">{s.label}</td><td class="spec-value">{s.value}</td></tr>))}
+        </tbody>
+      </table>
+    </section>
+    <section class="imprint-diagram-section">
+      <h2>IMPRINT LOCATION</h2>
+      <p class="imprint-note">The imprint area shown is for dimension and placement reference only.</p>
+      {surfaces.length > 0 ? (
+        <div class="imprint-diagram-grid">
+          {surfaces.map((s) => {
+            const r = s.regions[0];
+            const w = r ? r.width : 0;
+            const h = r ? r.height : 0;
+            const wCap = Math.min(w, 4);
+            const hCap = Math.min(h, 4);
+            return (
+              <div class="imprint-card">
+                <div class="diagram-box">
+                  <div class="product-silhouette">
+                    {r && (
+                      <div class="print-zone" style={`width:${wCap}in;height:${hCap}in;`}>
+                        <span>{w} in / {h} in</span>
+                      </div>
+                    )}
+                  </div>
+                  <div class="diagram-label">{s.name}</div>
+                </div>
+                <p class="imprint-summary">{s.name}: {r ? `W:${w} IN × H:${h} IN` : ""}</p>
+              </div>
+            );
+          })}
+        </div>
+      ) : (<p style="color:#999">No imprint location data</p>)}
+    </section>
+  </div>
+</Base>
+
+<script is:inline define:vars={{ pricingSteps, methodTabs }}>
+  window.__PS__ = pricingSteps;
+  window.__MT__ = methodTabs;
+</script>
+
+<script>
+document.querySelectorAll(".thumb-btn").forEach(function(b){
+  b.addEventListener("click", function(){
+    var s = this.getAttribute("data-src");
+    var m = document.getElementById("mainImg");
+    if (m && s) m.src = s;
+    document.querySelectorAll(".thumb-btn").forEach(function(x){ x.classList.remove("active"); });
+    this.classList.add("active");
+  });
+});
+document.querySelectorAll(".color-swatch").forEach(function(s){
+  s.addEventListener("click", function(){
+    document.querySelectorAll(".color-swatch").forEach(function(x){ x.classList.remove("selected"); });
+    this.classList.add("selected");
+    var n = this.getAttribute("data-name");
+    var i = this.getAttribute("data-img");
+    var l = document.getElementById("currentColor");
+    if (l && n) l.textContent = n;
+    if (i) {
+      var m = document.getElementById("mainImg");
+      if (m) m.src = i;
+    }
+  });
+});
+function getCS(){
+  var a = document.querySelector(".tab-btn.active");
+  var n = a ? a.getAttribute("data-method") : "Screen Print";
+  var tabs = window.__MT__ || [];
+  for (var i = 0; i < tabs.length; i++) {
+    if (tabs[i].name === n && tabs[i].pricingSteps && tabs[i].pricingSteps.length > 0) {
+      return tabs[i].pricingSteps;
+    }
   }
-  return Array.from(seen.values());
+  return window.__PS__ || [];
 }
+document.querySelectorAll(".tab-btn").forEach(function(b){
+  b.addEventListener("click", function(){
+    document.querySelectorAll(".tab-btn").forEach(function(x){ x.classList.remove("active"); });
+    this.classList.add("active");
+    recalc();
+  });
+});
+function recalc(){
+  var q = document.getElementById("qtyInput");
+  var t = document.getElementById("qtyTotal");
+  if (!q || !t) return;
+  var n = Math.max(0, parseInt(q.value) || 0);
+  var s = getCS().slice().sort(function(a,b){ return b.num - a.num; });
+  var p = 0;
+  for (var i = 0; i < s.length; i++) {
+    if (n >= s[i].num) { p = parseFloat(s[i].price) * n; break; }
+  }
+  t.textContent = "$" + p.toFixed(2);
+}
+var qm = document.getElementById("qtyMinus");
+if (qm) qm.addEventListener("click", function(){
+  var i = document.getElementById("qtyInput");
+  if (!i) return;
+  var v = parseInt(i.value) || 1;
+  if (v > 1) i.value = String(v - 1);
+  recalc();
+});
+var qp = document.getElementById("qtyPlus");
+if (qp) qp.addEventListener("click", function(){
+  var i = document.getElementById("qtyInput");
+  if (!i) return;
+  i.value = String((parseInt(i.value) || 0) + 1);
+  recalc();
+});
+var qi = document.getElementById("qtyInput");
+if (qi) qi.addEventListener("input", recalc);
+recalc();
+</script>
 
-export function getPricingSteps(p: ProductData): PricingStepDisplay[] {
-  return (p.productPricingSteps || [])
-    .filter(s => typeof s.num === "number" && s.price)
-    .sort((a, b) => a.num - b.num)
-    .map(s => ({ label: `${s.num}+`, quantity: s.num, price: parseFloat(s.price), formatted: `$${parseFloat(s.price).toFixed(2)}` }));
-}
-
-export function getPrintMethodTabs(p: ProductData): { name: string; pricingSteps: PricingStep[] }[] {
-  const base = (p.productPricingSteps || []).map(s => ({ num: s.num, price: s.price }));
-  const find = (n: string) =>
-    (p.printingWays || []).find(w => (w.printingWayNameEn || "").toLowerCase().includes(n.toLowerCase()))
-      ?.productPrintingWayPrices?.[0]?.productPrintingWayPriceSteps || base;
-  return [
-    { name: "Screen Print", pricingSteps: find("screen") },
-    { name: "Heat Transfer", pricingSteps: find("heat") },
-    { name: "Blank", pricingSteps: base },
-  ];
-}
-
-export function getPrintingSurfaces(p: ProductData): SurfaceDisplay[] {
-  return (p.printingSurfaces || []).map(surface => ({
-    name: surface.printingPositionNameEn || "Surface",
-    regions: (surface.printingRegions || []).map(r => ({
-      name: r.regionName || surface.printingPositionNameEn || "",
-      width: r.regionWidth || 0,
-      height: r.regionHigh || 0,
-      label: `${r.regionWidth || 0} in / ${r.regionHigh || 0} in`,
-    })),
-  }));
-}
-
-export function getAllImages(p: ProductData): string[] {
-  const imgs: string[] = [];
-  const push = (u?: string | null) => { if (u && !imgs.includes(u)) imgs.push(u); };
-  push(p.imgMainUrl);
-  for (const s of p.productSpecs || []) push(s.imageUrl);
-  for (const f of p.files || []) { if (f.type === 0) push(f.file?.path); }
-  for (const i of p.imgs || []) push(i.url || i.path);
-  return imgs;
-}
-
-export function getDownloadFiles(p: ProductData): { path?: string }[] {
-  return (p.files || []).filter(f => f.type === 0 && f.file?.path).map(f => f.file!);
-}
-export function getTemplateFiles(p: ProductData): { path?: string }[] {
-  return (p.knifeFiles || []).filter(f => f.file?.path).map(f => f.file!);
-}
-
-export function getSpecifications(p: ProductData): SpecRow[] {
-  const f = p.productSpecs?.[0];
-  const colors = getColorOptions(p).map(c => c.name).join(", ");
-  const size = f && (f.productLengthIn || f.productWidthIn || f.productHeightIn)
-    ? `${f.productLengthIn || "?"}" × ${f.productWidthIn || "?"}" × ${f.productHeightIn || "?"}"` : "-";
-  const wt = f?.productWeightKgs ? (f.productWeightKgs * 2.20462).toFixed(2) : "-";
-  const methods = (p.printingWays || []).map(w => w.printingWayNameEn).filter(Boolean).join(" / ") || "-";
-  const area = f && (f.printLength || f.printWidth) ? `${f.printLength || "?"}" × ${f.printWidth || "?"}"` : "-";
-  return [
-    { label: "Standard Color Options", value: colors || "-" },
-    { label: "Material", value: p.material || "-" },
-    { label: "Product Size", value: size },
-    { label: "Product Weight", value: wt === "-" ? "-" : `${wt} lbs` },
-    { label: "Imprint Method", value: methods },
-    { label: "Imprint Area (inch)", value: area },
-    { label: "Packing Method", value: f?.packingMethodEn || "-" },
-  ];
-}
+<style>
+.product-page{display:grid;grid-template-columns:460px 1fr;gap:2.5rem;max-width:1200px;margin:0 auto;padding:2rem}
+.product-media{display:flex;flex-direction:row;gap:12px;align-items:flex-start}
+.thumbnails{display:flex;flex-direction:column;gap:8px;width:72px;flex-shrink:0;max-height:500px;overflow-y:auto}
+.thumb-btn{width:72px;height:72px;padding:2px;border:1px solid #e0e0e0;border-radius:4px;background:#fff;cursor:pointer;overflow:hidden}
+.thumb-btn.active{border-color:#333}
+.thumb-btn img{width:100%;height:100%;object-fit:cover;display:block}
+.main-image-wrap{flex:1;aspect-ratio:1;background:#f8f9fa;border:1px solid #eee;border-radius:4px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.main-image{width:100%;height:100%;object-fit:contain;padding:1rem}
+.no-image{color:#999}
+.download-row{display:flex;flex-direction:column;gap:8px;width:72px;flex-shrink:0}
+.download-btn{display:flex;align-items:center;justify-content:center;gap:4px;padding:.4rem .5rem;border:1px solid #0066c0;color:#0066c0;border-radius:4px;text-decoration:none;font-size:.7rem;text-align:center;line-height:1.2}
+.download-btn:hover{background:#0066c0;color:#fff}
+.dl-icon{font-size:.85rem}
+.product-info{padding-top:.5rem}
+.product-title{font-size:1.5rem;font-weight:600;margin:0 0 1rem;line-height:1.3;color:#111}
+.color-header{display:flex;justify-content:space-between;align-items:center;font-size:.85rem;color:#555;margin-bottom:.5rem}
+.color-label strong{color:#222;font-weight:600}
+.bulk-toggle{display:inline-flex;align-items:center;gap:6px;font-size:.8rem;color:#555;cursor:pointer}
+.bulk-toggle input{display:none}
+.toggle-track{width:28px;height:16px;background:#ccc;border-radius:8px;position:relative}
+.toggle-thumb{width:12px;height:12px;background:#fff;border-radius:50%;position:absolute;top:2px;left:2px}
+.bulk-toggle input:checked + .toggle-track{background:#0066c0}
+.bulk-toggle input:checked + .toggle-track .toggle-thumb{transform:translateX(12px)}
+.color-grid{display:grid;grid-template-columns:repeat(10,1fr);gap:4px;margin-bottom:1.5rem}
+.color-swatch{width:100%;aspect-ratio:1;border:1px solid #d0d0d0;border-radius:2px;cursor:pointer;min-height:24px;padding:0}
+.color-swatch.selected{border:2px solid #333;box-shadow:0 0 0 1px #fff inset}
+.section-title{font-size:.9rem;font-weight:700;margin:0 0 .75rem;color:#222}
+.method-section{margin-bottom:1rem}
+.tabs{display:flex;border-bottom:1px solid #ddd;margin-bottom:1rem}
+.tab-btn{padding:.5rem 1.25rem;border:none;background:none;font-size:.85rem;color:#555;cursor:pointer;border-bottom:2px solid transparent}
+.tab-btn.active{color:#111;border-bottom-color:#333;font-weight:600}
+.pricing-table{border:1px solid #e0e0e0;border-radius:4px;margin-bottom:.75rem;overflow-x:auto}
+.pricing-row{display:grid;grid-template-columns:130px repeat(auto-fit,minmax(70px,1fr));border-bottom:1px solid #f0f0f0}
+.pricing-row.header{background:#f8f8f8;font-weight:600}
+.qty-col,.step-col{padding:.5rem .625rem;text-align:center;border-right:1px solid #f0f0f0;font-size:.85rem}
+.qty-col{text-align:left;font-weight:500;color:#333}
+.pricing-row.values .step-col{color:#b12704}
+.flat-price-link{display:inline-block;font-size:.85rem;color:#0066c0;text-decoration:none;margin-bottom:1.25rem}
+.quantity-section{margin-bottom:1.5rem}
+.quantity-section label{display:block;font-size:.85rem;color:#555;margin-bottom:.5rem}
+.qty-input-group{display:flex;align-items:center}
+.qty-input-group button{width:36px;height:36px;border:1px solid #ccc;background:#f8f8f8;font-size:1.1rem;cursor:pointer}
+.qty-input-group input{width:80px;height:36px;border:1px solid #ccc;border-left:none;border-right:none;text-align:center;font-size:1rem;outline:none}
+.qty-total{padding:0 1rem;height:36px;background:#cce8ff;color:#0066c0;display:flex;align-items:center;font-weight:600;border:1px solid #ccc;border-left:none;border-radius:0 4px 4px 0}
+.imprint-locations{display:flex;flex-wrap:wrap;gap:1.25rem;margin-bottom:1rem}
+.imprint-checkbox{display:inline-flex;align-items:center;gap:6px;font-size:.9rem;color:#333;cursor:pointer}
+.imprint-color{margin-bottom:1.25rem}
+.imprint-color label{display:block;font-size:.85rem;color:#555;margin-bottom:.25rem}
+.imprint-color select{width:100%;max-width:200px;padding:.5rem;border:1px solid #ccc;border-radius:4px;font-size:.85rem}
+.custom-color{margin-bottom:1.25rem}
+.custom-color label{display:block;font-size:.85rem;color:#555;margin-bottom:.5rem}
+.custom-color-group{display:flex;gap:8px}
+.custom-color-group input{flex:1;max-width:320px;padding:.5rem;border:1px solid #ccc;border-radius:4px;font-size:.85rem}
+.custom-color-group button{padding:.5rem 1.25rem;background:#fff;color:#0066c0;border:1px solid #0066c0;border-radius:4px;cursor:pointer;font-size:.85rem}
+.sample-checkbox{display:inline-flex;align-items:center;gap:8px;font-size:.85rem;color:#444;cursor:pointer;margin-bottom:1.5rem}
+.zip-code{margin-bottom:.5rem}
+.zip-code label{display:block;font-size:.85rem;color:#555;margin-bottom:.5rem}
+.zip-row{display:flex;gap:1rem;align-items:center;flex-wrap:wrap}
+.zip-row input[type=text]{flex:1;min-width:200px;padding:.5rem .75rem;border:1px solid #ccc;border-radius:4px;font-size:.85rem}
+.zip-residential{display:inline-flex;align-items:center;gap:6px;font-size:.85rem;color:#444;cursor:pointer}
+.product-bottom{max-width:1200px;margin:2rem auto 0;padding:2rem;border-top:1px solid #e0e0e0}
+.product-bottom h2{font-size:1.1rem;font-weight:700;margin:0 0 1rem;padding-bottom:.5rem;border-bottom:2px solid #111;color:#222}
+.description-section p{font-size:.9rem;line-height:1.7;color:#444;margin:0 0 2.5rem}
+.specs-table{width:100%;border-collapse:collapse;margin:0 0 2.5rem}
+.specs-table tr{border-bottom:1px solid #e8e8e8}
+.specs-table td{padding:.85rem .5rem;font-size:.9rem;vertical-align:top}
+.spec-key{width:35%;color:#555;font-weight:500}
+.spec-value{color:#222}
+.imprint-note{font-size:.85rem;color:#666;margin:0 0 1.5rem}
+.imprint-diagram-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1.5rem}
+.imprint-card{text-align:left}
+.diagram-box{width:100%;max-width:220px;aspect-ratio:1;border:1px solid #ddd;background:#fafafa;display:flex;flex-direction:column;align-items:center;justify-content:center;margin-bottom:.5rem}
+.product-silhouette{width:130px;height:100px;border:2px dashed #999;flex:1;display:flex;align-items:center;justify-content:center;position:relative}
+.print-zone{border:2px solid #e74c3c;background:rgba(231,76,60,.05);display:flex;align-items:center;justify-content:center;font-size:.7rem;color:#e74c3c;font-weight:500;text-align:center}
+.diagram-label{font-size:.85rem;font-weight:600;color:#333;margin-top:.5rem}
+.imprint-summary{font-size:.85rem;color:#333;margin:.5rem 0 0}
+@media(max-width:1024px){.product-page{grid-template-columns:1fr;max-width:700px;padding:1.5rem}.product-media{flex-direction:column}.thumbnails{flex-direction:row;width:100%;max-height:none;overflow-x:auto}.download-row{flex-direction:row;width:100%}}
+@media(max-width:640px){.product-page{padding:1rem}.product-title{font-size:1.25rem}.color-grid{grid-template-columns:repeat(6,1fr)}.qty-input-group input{width:60px}.imprint-diagram-grid{grid-template-columns:1fr}.download-row{flex-direction:column}}
+</style>
