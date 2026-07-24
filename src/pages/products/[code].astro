@@ -115,6 +115,21 @@ const setupCharge = 50;
       <div class="product-info">
         <h1 class="product-title">{title}</h1>
 
+        {product.code && (
+          <div class="product-code-line">{product.code}</div>
+        )}
+
+        <div class="quantity-picker">
+          <label>Enter the quantity you'd like</label>
+          <div class="qty-buttons">
+            {pricingSteps.map((s, i) => (
+              <button type="button" class={"qty-btn " + (i === 0 ? "selected" : "")} data-min={s.quantity}>
+                <span class="qty-label">{s.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
         <div class="color-header">
           <span class="color-label">PRODUCT COLOR: <strong id="currentColor">{defaultColor}</strong></span>
           <label class="bulk-toggle">
@@ -166,7 +181,6 @@ const setupCharge = 50;
 
         <h3 class="section-title">IMPRINT LOCATION(S) & OPTION</h3>
 
-        <!-- 表单行:label 在左,控件在右(横排) -->
         <div class="form-row">
           <label class="form-label">Imprint Location</label>
           <div class="form-control">
@@ -226,7 +240,6 @@ const setupCharge = 50;
           </div>
         </div>
 
-        <!-- 价格明细 -->
         <div class="pricing-summary">
           <a href="#" class="view-delivery-time">View Delivery Time</a>
           <table class="summary-table">
@@ -307,6 +320,16 @@ document.querySelectorAll(".tab-btn").forEach(function(b){
   b.addEventListener("click", function(){
     document.querySelectorAll(".tab-btn").forEach(function(x){ x.classList.remove("active"); });
     this.classList.add("active");
+    recalc();
+  });
+});
+document.querySelectorAll(".qty-btn").forEach(function(b){
+  b.addEventListener("click", function(){
+    document.querySelectorAll(".qty-btn").forEach(function(x){ x.classList.remove("selected"); });
+    this.classList.add("selected");
+    var min = parseInt(this.getAttribute("data-min")) || 1;
+    var inp = document.getElementById("qtyInput");
+    if (inp && parseInt(inp.value) < min) inp.value = String(min);
     recalc();
   });
 });
@@ -452,62 +475,18 @@ recalc();
 .qty-input-group input { width: 80px; height: 36px; border: 1px solid #ccc; border-left: none; border-right: none; text-align: center; font-size: 1rem; outline: none; }
 .qty-total { padding: 0 1rem; height: 36px; background: #cce8ff; color: #0066c0; display: flex; align-items: center; font-weight: 600; border: 1px solid #ccc; border-left: none; border-radius: 0 4px 4px 0; }
 
-/* ===== IMPRINT LOCATION(S) & OPTION 表单行(label 左 + 控件右) ===== */
 .form-row {
-  display: grid;
-  grid-template-columns: 200px 1fr;
-  gap: 1rem;
-  align-items: center;
-  padding: .6rem 0;
-  border-bottom: 1px solid #f0f0f0;
+  display: grid; grid-template-columns: 200px 1fr; gap: 1rem;
+  align-items: center; padding: .6rem 0; border-bottom: 1px solid #f0f0f0;
 }
-.form-label {
-  font-size: .9rem;
-  color: #555;
-  font-weight: 500;
-}
-.form-control {
-  display: flex;
-  gap: 1.25rem;
-  align-items: center;
-  flex-wrap: wrap;
-}
-.checkbox-inline {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  cursor: pointer;
-  font-size: .9rem;
-  color: #333;
-}
+.form-label { font-size: .9rem; color: #555; font-weight: 500; }
+.form-control { display: flex; gap: 1.25rem; align-items: center; flex-wrap: wrap; }
+.checkbox-inline { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; font-size: .9rem; color: #333; }
 .checkbox-inline input { margin: 0; cursor: pointer; }
-.form-select {
-  padding: .5rem .75rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: .9rem;
-  background: #fff;
-  min-width: 140px;
-}
-.form-input {
-  flex: 1;
-  max-width: 320px;
-  padding: .5rem .75rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: .9rem;
-  outline: none;
-}
+.form-select { padding: .5rem .75rem; border: 1px solid #ccc; border-radius: 4px; font-size: .9rem; background: #fff; min-width: 140px; }
+.form-input { flex: 1; max-width: 320px; padding: .5rem .75rem; border: 1px solid #ccc; border-radius: 4px; font-size: .9rem; outline: none; }
 .form-input:focus { border-color: #0066c0; }
-.add-btn {
-  padding: .5rem 1.25rem;
-  background: #fff;
-  color: #0066c0;
-  border: 1px solid #0066c0;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: .9rem;
-}
+.add-btn { padding: .5rem 1.25rem; background: #fff; color: #0066c0; border: 1px solid #0066c0; border-radius: 4px; cursor: pointer; font-size: .9rem; }
 .add-btn:hover { background: #0066c0; color: #fff; }
 
 .pricing-summary { margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #e0e0e0; }
@@ -518,6 +497,15 @@ recalc();
 .summary-table td.summary-right { text-align: right; color: #222; }
 .summary-table .total-row td { padding-top: .75rem; border-top: 1px solid #e8e8e8; font-size: 1rem; }
 .summary-table .total-row td.summary-right { color: #111; }
+
+.product-code-line { font-size: 1rem; color: #555; margin: 0 0 .75rem; }
+.quantity-picker { margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #e0e0e0; }
+.quantity-picker label { display: block; font-size: .85rem; color: #555; margin-bottom: .5rem; }
+.qty-buttons { display: grid; grid-template-columns: repeat(auto-fit, minmax(70px, 1fr)); gap: 6px; }
+.qty-btn { padding: .4rem .25rem; border: 1px solid #ccc; border-radius: 4px; background: #fff; cursor: pointer; text-align: center; transition: all .15s; }
+.qty-btn:hover { border-color: #0066c0; }
+.qty-btn.selected { border-color: #0066c0; background: #e8f0f8; }
+.qty-label { font-size: .9rem; color: #333; font-weight: 500; }
 
 @media (max-width: 1024px) {
   .product-page { grid-template-columns: 1fr; max-width: 800px; padding: 1.5rem; }
