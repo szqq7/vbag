@@ -33,9 +33,9 @@ const defaultColor: string = colors.length > 0 ? colors[0].name : "Default";
   <div class="product-page">
     <!-- ===== 顶部两栏 ===== -->
     <div class="top-section">
-      <!-- 左栏: 媒体区 -->
+      <!-- 左栏: 媒体区(主图+缩略图+下载) -->
       <div class="product-media">
-        {images.length > 1 && (
+        {images.length > 0 && (
           <div class="thumbnails">
             {images.map((img, i) => (
               <button class={`thumb-btn ${i === 0 ? "active" : ""}`} data-src={img}>
@@ -171,7 +171,7 @@ const defaultColor: string = colors.length > 0 ? colors[0].name : "Default";
 
       <section class="imprint-diagram-section">
         <h2>IMPRINT LOCATION</h2>
-        <p class="imprint-note">The imprint area shown is for dimension and placement reference only.</p>
+        <p class="imprint-note">The imprint area shown is for dimension and placement reference only. Please contact us if you have any other questions.</p>
         {surfaces.length > 0 ? (
           <div class="imprint-diagram-grid">
             {surfaces.map((s) => {
