@@ -31,9 +31,9 @@ const defaultColor: string = colors.length > 0 ? colors[0].name : "Default";
 
 <Base title={title}>
   <div class="product-page">
-    <!-- ===== 顶部两栏 ===== -->
-    <div class="top-section">
-      <!-- 左栏: 媒体区(主图+缩略图+下载) -->
+    <!-- ============ 左栏 ============ -->
+    <div class="left-column">
+      <!-- 媒体区 -->
       <div class="product-media">
         {images.length > 0 && (
           <div class="thumbnails">
@@ -48,21 +48,74 @@ const defaultColor: string = colors.length > 0 ? colors[0].name : "Default";
           <img id="mainImg" class="main-image" src={mainImage} alt={title} />
           {!mainImage && <div class="no-image">No Image</div>}
         </div>
-        <div class="download-row">
-          {downloadFiles.length > 0 && (
-            <a class="download-btn" href={downloadFiles[0].path} target="_blank" download>
-              <span class="dl-icon">⬇</span> Download Hi-Res Image
-            </a>
-          )}
-          {templateFiles.length > 0 && (
-            <a class="download-btn" href={templateFiles[0].path} target="_blank" download>
-              <span class="dl-icon">⬇</span> Download Template
-            </a>
-          )}
-        </div>
       </div>
 
-      <!-- 右栏: 产品信息 -->
+      <!-- 下载按钮 -->
+      <div class="download-row">
+        {downloadFiles.length > 0 && (
+          <a class="download-btn" href={downloadFiles[0].path} target="_blank" download>
+            <span class="dl-icon">⬇</span> Download Hi-Res Image
+          </a>
+        )}
+        {templateFiles.length > 0 && (
+          <a class="download-btn" href={templateFiles[0].path} target="_blank" download>
+            <span class="dl-icon">⬇</span> Download Template
+          </a>
+        )}
+      </div>
+
+      <!-- 左栏底部 4 个区块 -->
+      <section class="description-section">
+        <h2>PRODUCT DESCRIPTION</h2>
+        <p>{description || "No description available."}</p>
+      </section>
+
+      <section class="specs-section">
+        <h2>PRODUCT SPECIFICATIONS</h2>
+        <table class="specs-table">
+          <tbody>
+            {specs.map((s) => (<tr><td class="spec-key">{s.label}</td><td class="spec-value">{s.value}</td></tr>))}
+          </tbody>
+        </table>
+      </section>
+
+      <section class="imprint-diagram-section">
+        <h2>IMPRINT LOCATION</h2>
+        <p class="imprint-note">The imprint area shown is for dimension and placement reference only. Please contact us if you have any other questions.</p>
+        {surfaces.length > 0 ? (
+          <div class="imprint-diagram-grid">
+            {surfaces.map((s) => {
+              const r = s.regions[0];
+              const w = r ? r.width : 0;
+              const h = r ? r.height : 0;
+              return (
+                <div class="imprint-card">
+                  <div class="diagram-box">
+                    <div class="product-silhouette">
+                      {r && (
+                        <div class="print-zone" style={`width:${Math.min(w,4)}in;height:${Math.min(h,4)}in;`}>
+                          <span>{w} in / {h} in</span>
+                        </div>
+                      )}
+                    </div>
+                    <div class="diagram-label">{s.name}</div>
+                  </div>
+                  <p class="imprint-summary">{s.name}: {r ? `W:${w} IN × H:${h} IN` : ""}</p>
+                </div>
+              );
+            })}
+          </div>
+        ) : (<p style="color:#999">No imprint location data</p>)}
+      </section>
+
+      <section class="ordering-section">
+        <h2>ORDERING PROCESS</h2>
+        <p class="ordering-text">Product Ordering Process <a href="#" class="view-link">View</a></p>
+      </section>
+    </div>
+
+    <!-- ============ 右栏 ============ -->
+    <div class="right-column">
       <div class="product-info">
         <h1 class="product-title">{title}</h1>
 
@@ -152,57 +205,6 @@ const defaultColor: string = colors.length > 0 ? colors[0].name : "Default";
         </div>
       </div>
     </div>
-
-    <!-- ===== 底部单栏 ===== -->
-    <div class="bottom-section">
-      <section class="description-section">
-        <h2>PRODUCT DESCRIPTION</h2>
-        <p>{description || "No description available."}</p>
-      </section>
-
-      <section class="specs-section">
-        <h2>PRODUCT SPECIFICATIONS</h2>
-        <table class="specs-table">
-          <tbody>
-            {specs.map((s) => (<tr><td class="spec-key">{s.label}</td><td class="spec-value">{s.value}</td></tr>))}
-          </tbody>
-        </table>
-      </section>
-
-      <section class="imprint-diagram-section">
-        <h2>IMPRINT LOCATION</h2>
-        <p class="imprint-note">The imprint area shown is for dimension and placement reference only. Please contact us if you have any other questions.</p>
-        {surfaces.length > 0 ? (
-          <div class="imprint-diagram-grid">
-            {surfaces.map((s) => {
-              const r = s.regions[0];
-              const w = r ? r.width : 0;
-              const h = r ? r.height : 0;
-              return (
-                <div class="imprint-card">
-                  <div class="diagram-box">
-                    <div class="product-silhouette">
-                      {r && (
-                        <div class="print-zone" style={`width:${Math.min(w,4)}in;height:${Math.min(h,4)}in;`}>
-                          <span>{w} in / {h} in</span>
-                        </div>
-                      )}
-                    </div>
-                    <div class="diagram-label">{s.name}</div>
-                  </div>
-                  <p class="imprint-summary">{s.name}: {r ? `W:${w} IN × H:${h} IN` : ""}</p>
-                </div>
-              );
-            })}
-          </div>
-        ) : (<p style="color:#999">No imprint location data</p>)}
-      </section>
-
-      <section class="ordering-section">
-        <h2>ORDERING PROCESS</h2>
-        <p class="ordering-text">Product Ordering Process <a href="#" class="view-link">View</a></p>
-      </section>
-    </div>
   </div>
 </Base>
 
@@ -286,9 +288,9 @@ recalc();
 </script>
 
 <style>
-.product-page { max-width: 1200px; margin: 0 auto; padding: 2rem; }
-.top-section { display: grid; grid-template-columns: 460px 1fr; gap: 2.5rem; margin-bottom: 2rem; }
-.bottom-section { margin-top: 2rem; padding-top: 2rem; border-top: 1px solid #e0e0e0; }
+.product-page { display: grid; grid-template-columns: 460px 1fr; gap: 2.5rem; max-width: 1200px; margin: 0 auto; padding: 2rem; }
+.left-column { display: flex; flex-direction: column; gap: 1.5rem; }
+.right-column { /* 右栏产品信息 */ }
 
 .product-media { display: flex; flex-direction: row; gap: 12px; align-items: flex-start; }
 .thumbnails { display: flex; flex-direction: column; gap: 8px; width: 72px; flex-shrink: 0; max-height: 500px; overflow-y: auto; }
@@ -298,12 +300,33 @@ recalc();
 .main-image-wrap { flex: 1; aspect-ratio: 1; background: #f8f9fa; border: 1px solid #eee; border-radius: 4px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
 .main-image { width: 100%; height: 100%; object-fit: contain; padding: 1rem; }
 .no-image { color: #999; }
-.download-row { display: flex; flex-direction: column; gap: 8px; width: 72px; flex-shrink: 0; }
-.download-btn { display: flex; align-items: center; justify-content: center; gap: 4px; padding: .4rem .5rem; border: 1px solid #0066c0; color: #0066c0; border-radius: 4px; text-decoration: none; font-size: .7rem; text-align: center; line-height: 1.2; }
+
+.download-row { display: flex; flex-direction: row; gap: 12px; }
+.download-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: .5rem 1rem; border: 1px solid #0066c0; color: #0066c0; border-radius: 4px; text-decoration: none; font-size: .85rem; }
 .download-btn:hover { background: #0066c0; color: #fff; }
 .dl-icon { font-size: .85rem; }
 
-.product-info { padding-top: .5rem; }
+.description-section, .specs-section, .imprint-diagram-section, .ordering-section { margin-bottom: 0; }
+.description-section h2, .specs-section h2, .imprint-diagram-section h2, .ordering-section h2 { font-size: 1rem; font-weight: 700; margin: 0 0 1rem; padding-bottom: .5rem; border-bottom: 2px solid #111; color: #222; }
+.description-section p { font-size: .9rem; line-height: 1.7; color: #444; margin: 0; }
+.specs-table { width: 100%; border-collapse: collapse; }
+.specs-table tr { border-bottom: 1px solid #e8e8e8; }
+.specs-table td { padding: .85rem .5rem; font-size: .9rem; vertical-align: top; }
+.spec-key { width: 35%; color: #555; font-weight: 500; }
+.spec-value { color: #222; }
+.imprint-note { font-size: .85rem; color: #666; margin: 0 0 1.5rem; }
+.imprint-diagram-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1.5rem; }
+.imprint-card { text-align: left; }
+.diagram-box { width: 100%; max-width: 220px; aspect-ratio: 1; border: 1px solid #ddd; background: #fafafa; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: .5rem; }
+.product-silhouette { width: 130px; height: 100px; border: 2px dashed #999; flex: 1; display: flex; align-items: center; justify-content: center; position: relative; }
+.print-zone { border: 2px solid #e74c3c; background: rgba(231,76,60,.05); display: flex; align-items: center; justify-content: center; font-size: .7rem; color: #e74c3c; font-weight: 500; text-align: center; }
+.diagram-label { font-size: .85rem; font-weight: 600; color: #333; margin-top: .5rem; }
+.imprint-summary { font-size: .85rem; color: #333; margin: .5rem 0 0; }
+.ordering-text { font-size: .9rem; color: #444; margin: 0; }
+.view-link { color: #0066c0; text-decoration: none; margin-left: .5rem; }
+.view-link:hover { text-decoration: underline; }
+
+.product-info { padding-top: 0; }
 .product-title { font-size: 1.5rem; font-weight: 600; margin: 0 0 1rem; line-height: 1.3; color: #111; }
 .color-header { display: flex; justify-content: space-between; align-items: center; font-size: .85rem; color: #555; margin-bottom: .5rem; }
 .color-label strong { color: #222; font-weight: 600; }
@@ -351,31 +374,11 @@ recalc();
 .zip-row input[type=text] { flex: 1; min-width: 200px; padding: .5rem .75rem; border: 1px solid #ccc; border-radius: 4px; font-size: .85rem; }
 .zip-residential { display: inline-flex; align-items: center; gap: 6px; font-size: .85rem; color: #444; cursor: pointer; }
 
-.description-section, .specs-section, .imprint-diagram-section, .ordering-section { margin-bottom: 2rem; }
-.description-section h2, .specs-section h2, .imprint-diagram-section h2, .ordering-section h2 { font-size: 1rem; font-weight: 700; margin: 0 0 1rem; padding-bottom: .5rem; border-bottom: 2px solid #111; color: #222; }
-.description-section p { font-size: .9rem; line-height: 1.7; color: #444; margin: 0; }
-.specs-table { width: 100%; border-collapse: collapse; }
-.specs-table tr { border-bottom: 1px solid #e8e8e8; }
-.specs-table td { padding: .85rem .5rem; font-size: .9rem; vertical-align: top; }
-.spec-key { width: 35%; color: #555; font-weight: 500; }
-.spec-value { color: #222; }
-.imprint-note { font-size: .85rem; color: #666; margin: 0 0 1.5rem; }
-.imprint-diagram-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1.5rem; }
-.imprint-card { text-align: left; }
-.diagram-box { width: 100%; max-width: 220px; aspect-ratio: 1; border: 1px solid #ddd; background: #fafafa; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: .5rem; }
-.product-silhouette { width: 130px; height: 100px; border: 2px dashed #999; flex: 1; display: flex; align-items: center; justify-content: center; position: relative; }
-.print-zone { border: 2px solid #e74c3c; background: rgba(231,76,60,.05); display: flex; align-items: center; justify-content: center; font-size: .7rem; color: #e74c3c; font-weight: 500; text-align: center; }
-.diagram-label { font-size: .85rem; font-weight: 600; color: #333; margin-top: .5rem; }
-.imprint-summary { font-size: .85rem; color: #333; margin: .5rem 0 0; }
-.ordering-text { font-size: .9rem; color: #444; margin: 0; }
-.view-link { color: #0066c0; text-decoration: none; margin-left: .5rem; }
-.view-link:hover { text-decoration: underline; }
-
 @media (max-width: 1024px) {
-  .top-section { grid-template-columns: 1fr; max-width: 700px; padding: 0; }
+  .product-page { grid-template-columns: 1fr; max-width: 700px; padding: 1.5rem; }
   .product-media { flex-direction: column; }
   .thumbnails { flex-direction: row; width: 100%; max-height: none; overflow-x: auto; }
-  .download-row { flex-direction: row; width: 100%; }
+  .download-row { flex-wrap: wrap; }
 }
 @media (max-width: 640px) {
   .product-page { padding: 1rem; }
@@ -383,6 +386,5 @@ recalc();
   .color-grid { grid-template-columns: repeat(6, 1fr); }
   .qty-input-group input { width: 60px; }
   .imprint-diagram-grid { grid-template-columns: 1fr; }
-  .download-row { flex-direction: column; }
 }
 </style>
