@@ -27,6 +27,25 @@ const templateFiles = getTemplateFiles(product);
 const specs = getSpecifications(product);
 const description: string = product.descriptionEn || "";
 const defaultColor: string = colors.length > 0 ? colors[0].name : "Default";
+
+// 尺寸规格:从 productSpecs 取前 4 个的尺寸信息,无数据则降级用阶梯标签
+let productSizes: {label: string; price: number; min: number; unitPrice: number}[] = [];
+try {
+  const specsArr: any[] = (product as any).productSpecs || [];
+  productSizes = pricingSteps.slice(0, 4).map((s, i) => {
+    const spec = specsArr[i] || null;
+    let label = s.label;
+    let unitPrice = s.price;
+    if (spec && typeof spec.productLengthIn === 'number' && typeof spec.productWidthIn === 'number'
+        && spec.productLengthIn > 0 && spec.productWidthIn > 0) {
+      label = Math.round(spec.productLengthIn) + ' X ' + Math.round(spec.productWidthIn);
+    }
+    return { label, price: s.price, min: s.quantity, unitPrice };
+  });
+} catch(e) {
+  productSizes = pricingSteps.slice(0, 4).map(s => ({ label: s.label, price: s.price, min: s.quantity, unitPrice: s.price }));
+}
+const isApparel: boolean = false;  // false=非服装(单选), true=服装(多选)
 const setupCharge = 50;
 ---
 
@@ -110,6 +129,7 @@ const setupCharge = 50;
       </section>
     </div>
 
+    <!-- 右栏 -->
     <div class="right-column">
       <div class="product-info">
         <h1 class="product-title">{title}</h1>
@@ -117,6 +137,27 @@ const setupCharge = 50;
         {product.code && (
           <div class="product-code-line">{product.code}</div>
         )}
+
+        <!-- 多规格尺寸输入框 -->
+        <div class="size-selector">
+          <label>Enter the quantity you'd like</label>
+          <div class="size-inputs">
+            {productSizes.map((s, i) => (
+              <div class="size-input-item">
+                <input
+                  type="number"
+                  class="size-qty-input"
+                  min="0"
+                  value="0"
+                  data-price={s.price}
+                  data-min={s.min}
+                  data-label={s.label}
+                />
+                <span class="size-label">{s.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
 
         <div class="color-header">
           <span class="color-label">PRODUCT COLOR: <strong id="currentColor">{defaultColor}</strong></span>
@@ -155,16 +196,6 @@ const setupCharge = 50;
             </div>
           )}
           <a class="flat-price-link" href="#">Sign in to view flat price</a>
-        </div>
-
-        <div class="quantity-section">
-          <label>Enter the quantity you'd like</label>
-          <div class="qty-input-group">
-            <button type="button" id="qtyMinus">−</button>
-            <input type="number" id="qtyInput" value="50" min="1" />
-            <button type="button" id="qtyPlus">+</button>
-            <span id="qtyTotal" class="qty-total">$0.00</span>
-          </div>
         </div>
 
         <h3 class="section-title">IMPRINT LOCATION(S) & OPTION</h3>
@@ -233,12 +264,12 @@ const setupCharge = 50;
           <table class="summary-table">
             <tbody>
               <tr>
-                <td><span id="summaryQty">$1.80 (C) ea × 50 qty</span></td>
-                <td class="summary-right" id="summarySubtotal">$90.00</td>
+                <td><span id="summaryQty">—</span></td>
+                <td class="summary-right" id="summarySubtotal">$0.00</td>
               </tr>
               <tr>
                 <td>Set-Up Charge (G)</td>
-                <td class="summary-right">${setupCharge}.00</td>
+                <td class="summary-right">$50.00</td>
               </tr>
               <tr>
                 <td>Shipping Charge</td>
@@ -246,7 +277,7 @@ const setupCharge = 50;
               </tr>
               <tr class="total-row">
                 <td><strong>Total</strong></td>
-                <td class="summary-right"><strong id="summaryTotal">$140.00</strong></td>
+                <td class="summary-right"><strong id="summaryTotal">$50.00</strong></td>
               </tr>
             </tbody>
           </table>
@@ -256,9 +287,11 @@ const setupCharge = 50;
   </div>
 </Base>
 
-<script is:inline define:vars={{ pricingSteps, methodTabs, setupCharge }}>
+<script is:inline define:vars={{ pricingSteps, methodTabs, productSizes, isApparel, setupCharge }}>
   window.__PS__ = pricingSteps;
   window.__MT__ = methodTabs;
+  window.__SIZES__ = productSizes;
+  window.__APPAREL__ = isApparel;
   window.__SETUP__ = setupCharge;
 </script>
 
@@ -297,13 +330,6 @@ function getCS(){
   }
   return window.__PS__ || [];
 }
-function getUnitPrice(qty){
-  var s = getCS().slice().sort(function(a,b){ return b.num - a.num; });
-  for (var i = 0; i < s.length; i++) {
-    if (qty >= s[i].num) return parseFloat(s[i].price);
-  }
-  return 0;
-}
 document.querySelectorAll(".tab-btn").forEach(function(b){
   b.addEventListener("click", function(){
     document.querySelectorAll(".tab-btn").forEach(function(x){ x.classList.remove("active"); });
@@ -311,40 +337,47 @@ document.querySelectorAll(".tab-btn").forEach(function(b){
     recalc();
   });
 });
+
+// 尺寸输入框联动: 非服装=单选, 服装=多选
+var isApparelMode = window.__APPAREL__ || false;
+document.querySelectorAll(".size-qty-input").forEach(function(inp){
+  inp.addEventListener("input", function(){
+    var v = parseInt(this.value) || 0;
+    if (!isApparelMode && v > 0) {
+      document.querySelectorAll(".size-qty-input").forEach(function(other){
+        if (other !== inp) other.value = "0";
+      });
+    }
+    recalc();
+  });
+});
+
 function recalc(){
-  var q = document.getElementById("qtyInput");
-  var qtyTotal = document.getElementById("qtyTotal");
   var summaryQty = document.getElementById("summaryQty");
   var summarySubtotal = document.getElementById("summarySubtotal");
   var summaryTotal = document.getElementById("summaryTotal");
-  if (!q) return;
-  var n = Math.max(0, parseInt(q.value) || 0);
-  var unit = getUnitPrice(n);
-  var subtotal = unit * n;
+  var lines = [];
+  var subtotal = 0;
+  document.querySelectorAll(".size-qty-input").forEach(function(inp){
+    var v = parseInt(inp.value) || 0;
+    if (v > 0) {
+      var price = parseFloat(inp.getAttribute("data-price")) || 0;
+      var label = inp.getAttribute("data-label") || "";
+      var sub = v * price;
+      subtotal += sub;
+      lines.push("$" + price.toFixed(2) + " ea × " + v + " (" + label + ")");
+    }
+  });
   var setup = window.__SETUP__ || 50;
   var total = subtotal + setup;
-  if (qtyTotal) qtyTotal.textContent = "$" + subtotal.toFixed(2);
-  if (summaryQty) summaryQty.textContent = "$" + unit.toFixed(2) + " (C) ea × " + n + " qty";
+  if (lines.length > 0) {
+    if (summaryQty) summaryQty.innerHTML = lines.join("<br>");
+  } else {
+    if (summaryQty) summaryQty.textContent = "—";
+  }
   if (summarySubtotal) summarySubtotal.textContent = "$" + subtotal.toFixed(2);
   if (summaryTotal) summaryTotal.textContent = "$" + total.toFixed(2);
 }
-var qm = document.getElementById("qtyMinus");
-if (qm) qm.addEventListener("click", function(){
-  var i = document.getElementById("qtyInput");
-  if (!i) return;
-  var v = parseInt(i.value) || 1;
-  if (v > 1) i.value = String(v - 1);
-  recalc();
-});
-var qp = document.getElementById("qtyPlus");
-if (qp) qp.addEventListener("click", function(){
-  var i = document.getElementById("qtyInput");
-  if (!i) return;
-  i.value = String((parseInt(i.value) || 0) + 1);
-  recalc();
-});
-var qi = document.getElementById("qtyInput");
-if (qi) qi.addEventListener("input", recalc);
 
 var zipEl = document.getElementById("zipInput");
 if (zipEl) zipEl.addEventListener("input", function(){
@@ -361,15 +394,17 @@ if (zipEl) zipEl.addEventListener("input", function(){
     summaryShipping.style.color = "red";
     recalc();
   } else {
-    var n = parseInt(document.getElementById("qtyInput").value) || 0;
-    var ship = n * 0.5;
+    var qty = 0;
+    document.querySelectorAll(".size-qty-input").forEach(function(inp){ qty += parseInt(inp.value) || 0; });
+    var ship = qty * 0.5;
     summaryShipping.textContent = "$" + ship.toFixed(2);
     summaryShipping.style.color = "#222";
-    var unit = getUnitPrice(n);
-    var subtotal = unit * n;
+    var sub = 0;
+    document.querySelectorAll(".size-qty-input").forEach(function(inp){
+      sub += (parseInt(inp.value) || 0) * (parseFloat(inp.getAttribute("data-price")) || 0);
+    });
     var setup = window.__SETUP__ || 50;
-    var total = subtotal + setup + ship;
-    if (summaryTotal) summaryTotal.textContent = "$" + total.toFixed(2);
+    if (summaryTotal) summaryTotal.textContent = "$" + (sub + setup + ship).toFixed(2);
   }
 });
 
@@ -447,12 +482,6 @@ recalc();
 .qty-col { text-align: left; font-weight: 500; color: #333; }
 .pricing-row.values .step-col { color: #b12704; }
 .flat-price-link { display: inline-block; font-size: .9rem; color: #0066c0; text-decoration: none; margin-bottom: 1.25rem; }
-.quantity-section { margin-bottom: 1.5rem; }
-.quantity-section label { display: block; font-size: .9rem; color: #555; margin-bottom: .5rem; }
-.qty-input-group { display: flex; align-items: center; }
-.qty-input-group button { width: 36px; height: 36px; border: 1px solid #ccc; background: #f8f8f8; font-size: 1.1rem; cursor: pointer; }
-.qty-input-group input { width: 80px; height: 36px; border: 1px solid #ccc; border-left: none; border-right: none; text-align: center; font-size: 1rem; outline: none; }
-.qty-total { padding: 0 1rem; height: 36px; background: #cce8ff; color: #0066c0; display: flex; align-items: center; font-weight: 600; border: 1px solid #ccc; border-left: none; border-radius: 0 4px 4px 0; }
 
 .form-row {
   display: grid; grid-template-columns: 200px 1fr; gap: 1rem;
@@ -477,18 +506,35 @@ recalc();
 .summary-table .total-row td { padding-top: .75rem; border-top: 1px solid #e8e8e8; font-size: 1rem; }
 .summary-table .total-row td.summary-right { color: #111; }
 
+/* 多规格尺寸输入框 */
+.size-selector { margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #e0e0e0; }
+.size-selector label { display: block; font-size: .85rem; color: #555; margin-bottom: .5rem; }
+.size-inputs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.size-input-item { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.size-qty-input {
+  width: 100%; padding: .5rem .25rem;
+  border: 2px solid #0066c0; border-radius: 4px;
+  text-align: center; font-size: 1rem; font-weight: 600;
+  -moz-appearance: textfield;
+}
+.size-qty-input::-webkit-outer-spin-button,
+.size-qty-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.size-qty-input:focus { outline: none; border-color: #003d80; }
+.size-label { font-size: .85rem; color: #333; font-weight: 500; }
+
 @media (max-width: 1024px) {
   .product-page { grid-template-columns: 1fr; max-width: 800px; padding: 1.5rem; }
   .product-media { flex-direction: column; }
   .thumbnails { flex-direction: row; width: 100%; max-height: none; overflow-x: auto; }
   .download-row { flex-wrap: wrap; }
   .form-row { grid-template-columns: 1fr; gap: .5rem; }
+  .size-inputs { grid-template-columns: repeat(2, 1fr); }
 }
 @media (max-width: 640px) {
   .product-page { padding: 1rem; }
   .product-title { font-size: 1.3rem; }
   .color-grid { grid-template-columns: repeat(6, 1fr); }
-  .qty-input-group input { width: 60px; }
   .imprint-diagram-grid { grid-template-columns: 1fr; }
+  .size-inputs { grid-template-columns: 1fr; }
 }
 </style>
