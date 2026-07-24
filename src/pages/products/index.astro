@@ -27,11 +27,13 @@ const templateFiles = getTemplateFiles(product);
 const specs = getSpecifications(product);
 const description: string = product.descriptionEn || "";
 const defaultColor: string = colors.length > 0 ? colors[0].name : "Default";
+// Set-Up Charge 固定 $50
+const setupCharge = 50;
 ---
 
 <Base title={title}>
   <div class="product-page">
-    <!-- ============ 左栏 ============ -->
+    <!-- 左栏 -->
     <div class="left-column">
       <!-- 媒体区 -->
       <div class="product-media">
@@ -50,7 +52,6 @@ const defaultColor: string = colors.length > 0 ? colors[0].name : "Default";
         </div>
       </div>
 
-      <!-- 下载按钮 -->
       <div class="download-row">
         {downloadFiles.length > 0 && (
           <a class="download-btn" href={downloadFiles[0].path} target="_blank" download>
@@ -64,12 +65,13 @@ const defaultColor: string = colors.length > 0 ? colors[0].name : "Default";
         )}
       </div>
 
-      <!-- 左栏底部 4 个区块 -->
+      <!-- PRODUCT DESCRIPTION -->
       <section class="description-section">
         <h2>PRODUCT DESCRIPTION</h2>
         <p>{description || "No description available."}</p>
       </section>
 
+      <!-- PRODUCT SPECIFICATIONS -->
       <section class="specs-section">
         <h2>PRODUCT SPECIFICATIONS</h2>
         <table class="specs-table">
@@ -79,6 +81,7 @@ const defaultColor: string = colors.length > 0 ? colors[0].name : "Default";
         </table>
       </section>
 
+      <!-- IMPRINT LOCATION(横排两张占位图) -->
       <section class="imprint-diagram-section">
         <h2>IMPRINT LOCATION</h2>
         <p class="imprint-note">The imprint area shown is for dimension and placement reference only. Please contact us if you have any other questions.</p>
@@ -90,17 +93,14 @@ const defaultColor: string = colors.length > 0 ? colors[0].name : "Default";
               const h = r ? r.height : 0;
               return (
                 <div class="imprint-card">
-                  <div class="diagram-box">
-                    <div class="product-silhouette">
-                      {r && (
-                        <div class="print-zone" style={`width:${Math.min(w,4)}in;height:${Math.min(h,4)}in;`}>
-                          <span>{w} in / {h} in</span>
-                        </div>
-                      )}
-                    </div>
-                    <div class="diagram-label">{s.name}</div>
-                  </div>
-                  <p class="imprint-summary">{s.name}: {r ? `W:${w} IN × H:${h} IN` : ""}</p>
+                  <svg class="imprint-svg" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="40" y="40" width="120" height="170" fill="none" stroke="#999" stroke-width="2" />
+                    <path d="M70 40 Q70 15 100 15 Q130 15 130 40" fill="none" stroke="#999" stroke-width="2" />
+                    <line x1="40" y1="55" x2="160" y2="55" stroke="#999" stroke-width="1" />
+                    <text x="100" y="135" text-anchor="middle" fill="#666" font-size="11" font-family="Arial">{s.name}</text>
+                    <text x="100" y="155" text-anchor="middle" fill="#999" font-size="9" font-family="Arial">W:{w} IN × H:{h} IN</text>
+                  </svg>
+                  <p class="imprint-summary">{s.name}: W:{w} IN × H:{h} IN</p>
                 </div>
               );
             })}
@@ -114,7 +114,7 @@ const defaultColor: string = colors.length > 0 ? colors[0].name : "Default";
       </section>
     </div>
 
-    <!-- ============ 右栏 ============ -->
+    <!-- 右栏 -->
     <div class="right-column">
       <div class="product-info">
         <h1 class="product-title">{title}</h1>
@@ -199,18 +199,44 @@ const defaultColor: string = colors.length > 0 ? colors[0].name : "Default";
         <div class="zip-code">
           <label>ZIP Code</label>
           <div class="zip-row">
-            <input type="text" placeholder="Enter ZIP Code for shipping estimate." />
+            <input type="text" id="zipInput" placeholder="Enter ZIP Code for shipping estimate." />
             <label class="zip-residential"><input type="checkbox" /><span>Residential Address</span></label>
           </div>
+        </div>
+
+        <!-- ===== 价格明细(ZIP Code 之后,Artwork Upload 之前) ===== -->
+        <div class="pricing-summary" id="pricingSummary">
+          <a href="#" class="view-delivery-time">View Delivery Time</a>
+          <table class="summary-table">
+            <tbody>
+              <tr>
+                <td><span id="summaryQty">$1.80 (C) ea × 50 qty</span></td>
+                <td class="summary-right" id="summarySubtotal">$90.00</td>
+              </tr>
+              <tr>
+                <td>Set-Up Charge (G)</td>
+                <td class="summary-right">${setupCharge}.00</td>
+              </tr>
+              <tr>
+                <td>Shipping Charge</td>
+                <td class="summary-right" id="summaryShipping">Please enter ZIP Code</td>
+              </tr>
+              <tr class="total-row">
+                <td><strong>Total</strong></td>
+                <td class="summary-right"><strong id="summaryTotal">$140.00</strong></td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
   </div>
 </Base>
 
-<script is:inline define:vars={{ pricingSteps, methodTabs }}>
+<script is:inline define:vars={{ pricingSteps, methodTabs, setupCharge }}>
   window.__PS__ = pricingSteps;
   window.__MT__ = methodTabs;
+  window.__SETUP__ = setupCharge;
 </script>
 
 <script>
@@ -248,6 +274,13 @@ function getCS(){
   }
   return window.__PS__ || [];
 }
+function getUnitPrice(qty){
+  var s = getCS().slice().sort(function(a,b){ return b.num - a.num; });
+  for (var i = 0; i < s.length; i++) {
+    if (qty >= s[i].num) return parseFloat(s[i].price);
+  }
+  return 0;
+}
 document.querySelectorAll(".tab-btn").forEach(function(b){
   b.addEventListener("click", function(){
     document.querySelectorAll(".tab-btn").forEach(function(x){ x.classList.remove("active"); });
@@ -257,15 +290,20 @@ document.querySelectorAll(".tab-btn").forEach(function(b){
 });
 function recalc(){
   var q = document.getElementById("qtyInput");
-  var t = document.getElementById("qtyTotal");
-  if (!q || !t) return;
+  var qtyTotal = document.getElementById("qtyTotal");
+  var summaryQty = document.getElementById("summaryQty");
+  var summarySubtotal = document.getElementById("summarySubtotal");
+  var summaryTotal = document.getElementById("summaryTotal");
+  if (!q) return;
   var n = Math.max(0, parseInt(q.value) || 0);
-  var s = getCS().slice().sort(function(a,b){ return b.num - a.num; });
-  var p = 0;
-  for (var i = 0; i < s.length; i++) {
-    if (n >= s[i].num) { p = parseFloat(s[i].price) * n; break; }
-  }
-  t.textContent = "$" + p.toFixed(2);
+  var unit = getUnitPrice(n);
+  var subtotal = unit * n;
+  var setup = window.__SETUP__ || 50;
+  var total = subtotal + setup;
+  if (qtyTotal) qtyTotal.textContent = "$" + subtotal.toFixed(2);
+  if (summaryQty) summaryQty.textContent = "$" + unit.toFixed(2) + " (C) ea × " + n + " qty";
+  if (summarySubtotal) summarySubtotal.textContent = "$" + subtotal.toFixed(2);
+  if (summaryTotal) summaryTotal.textContent = "$" + total.toFixed(2);
 }
 var qm = document.getElementById("qtyMinus");
 if (qm) qm.addEventListener("click", function(){
@@ -284,13 +322,43 @@ if (qp) qp.addEventListener("click", function(){
 });
 var qi = document.getElementById("qtyInput");
 if (qi) qi.addEventListener("input", recalc);
+
+// ZIP Code 输入变化时更新 Shipping Charge
+var zipEl = document.getElementById("zipInput");
+if (zipEl) zipEl.addEventListener("input", function(){
+  var summaryShipping = document.getElementById("summaryShipping");
+  var summaryTotal = document.getElementById("summaryTotal");
+  if (!summaryShipping) return;
+  var zip = zipEl.value.trim();
+  if (zip === "") {
+    summaryShipping.textContent = "Please enter ZIP Code";
+    summaryShipping.style.color = "red";
+    recalc();
+  } else if (!/^\d{5}$/.test(zip)) {
+    summaryShipping.textContent = "Invalid ZIP Code";
+    summaryShipping.style.color = "red";
+    recalc();
+  } else {
+    // 简易运费估算:每件 $0.5(可根据实际调整)
+    var n = parseInt(document.getElementById("qtyInput").value) || 0;
+    var ship = n * 0.5;
+    summaryShipping.textContent = "$" + ship.toFixed(2);
+    summaryShipping.style.color = "#222";
+    var unit = getUnitPrice(n);
+    var subtotal = unit * n;
+    var setup = window.__SETUP__ || 50;
+    var total = subtotal + setup + ship;
+    if (summaryTotal) summaryTotal.textContent = "$" + total.toFixed(2);
+  }
+});
+
 recalc();
 </script>
 
 <style>
 .product-page { display: grid; grid-template-columns: 460px 1fr; gap: 2.5rem; max-width: 1200px; margin: 0 auto; padding: 2rem; }
 .left-column { display: flex; flex-direction: column; gap: 1.5rem; }
-.right-column { /* 右栏产品信息 */ }
+.right-column { }
 
 .product-media { display: flex; flex-direction: row; gap: 12px; align-items: flex-start; }
 .thumbnails { display: flex; flex-direction: column; gap: 8px; width: 72px; flex-shrink: 0; max-height: 500px; overflow-y: auto; }
@@ -315,13 +383,13 @@ recalc();
 .spec-key { width: 35%; color: #555; font-weight: 500; }
 .spec-value { color: #222; }
 .imprint-note { font-size: .85rem; color: #666; margin: 0 0 1.5rem; }
-.imprint-diagram-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1.5rem; }
-.imprint-card { text-align: left; }
-.diagram-box { width: 100%; max-width: 220px; aspect-ratio: 1; border: 1px solid #ddd; background: #fafafa; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: .5rem; }
-.product-silhouette { width: 130px; height: 100px; border: 2px dashed #999; flex: 1; display: flex; align-items: center; justify-content: center; position: relative; }
-.print-zone { border: 2px solid #e74c3c; background: rgba(231,76,60,.05); display: flex; align-items: center; justify-content: center; font-size: .7rem; color: #e74c3c; font-weight: 500; text-align: center; }
-.diagram-label { font-size: .85rem; font-weight: 600; color: #333; margin-top: .5rem; }
+
+/* IMPRINT LOCATION 图示 - 横排 */
+.imprint-diagram-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+.imprint-card { text-align: center; }
+.imprint-svg { width: 100%; max-width: 180px; height: auto; display: block; margin: 0 auto; }
 .imprint-summary { font-size: .85rem; color: #333; margin: .5rem 0 0; }
+
 .ordering-text { font-size: .9rem; color: #444; margin: 0; }
 .view-link { color: #0066c0; text-decoration: none; margin-left: .5rem; }
 .view-link:hover { text-decoration: underline; }
@@ -373,6 +441,16 @@ recalc();
 .zip-row { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
 .zip-row input[type=text] { flex: 1; min-width: 200px; padding: .5rem .75rem; border: 1px solid #ccc; border-radius: 4px; font-size: .85rem; }
 .zip-residential { display: inline-flex; align-items: center; gap: 6px; font-size: .85rem; color: #444; cursor: pointer; }
+
+/* ===== 价格明细(ZIP Code 下方) ===== */
+.pricing-summary { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #e0e0e0; }
+.view-delivery-time { display: inline-block; font-size: .85rem; color: #0066c0; text-decoration: none; margin-bottom: .5rem; }
+.view-delivery-time:hover { text-decoration: underline; }
+.summary-table { width: 100%; border-collapse: collapse; }
+.summary-table td { padding: .4rem 0; font-size: .85rem; color: #444; }
+.summary-table td.summary-right { text-align: right; color: #222; }
+.summary-table .total-row td { padding-top: .75rem; border-top: 1px solid #e8e8e8; font-size: .95rem; }
+.summary-table .total-row td.summary-right { color: #111; }
 
 @media (max-width: 1024px) {
   .product-page { grid-template-columns: 1fr; max-width: 700px; padding: 1.5rem; }
