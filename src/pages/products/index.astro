@@ -27,7 +27,6 @@ const templateFiles = getTemplateFiles(product);
 const specs = getSpecifications(product);
 const description: string = product.descriptionEn || "";
 const defaultColor: string = colors.length > 0 ? colors[0].name : "Default";
-// Set-Up Charge 固定 $50
 const setupCharge = 50;
 ---
 
@@ -52,15 +51,18 @@ const setupCharge = 50;
         </div>
       </div>
 
+      <!-- 下载按钮(横排,占满左栏宽度) -->
       <div class="download-row">
         {downloadFiles.length > 0 && (
           <a class="download-btn" href={downloadFiles[0].path} target="_blank" download>
-            <span class="dl-icon">⬇</span> Download Hi-Res Image
+            <svg class="dl-icon" viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 7V3.5L18.5 9H13z"/></svg>
+            <span>Download Hi-Res Image</span>
           </a>
         )}
         {templateFiles.length > 0 && (
           <a class="download-btn" href={templateFiles[0].path} target="_blank" download>
-            <span class="dl-icon">⬇</span> Download Template
+            <svg class="dl-icon" viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 7V3.5L18.5 9H13z"/></svg>
+            <span>Download Template</span>
           </a>
         )}
       </div>
@@ -81,7 +83,7 @@ const setupCharge = 50;
         </table>
       </section>
 
-      <!-- IMPRINT LOCATION(横排两张占位图) -->
+      <!-- IMPRINT LOCATION(横排两张) -->
       <section class="imprint-diagram-section">
         <h2>IMPRINT LOCATION</h2>
         <p class="imprint-note">The imprint area shown is for dimension and placement reference only. Please contact us if you have any other questions.</p>
@@ -204,8 +206,8 @@ const setupCharge = 50;
           </div>
         </div>
 
-        <!-- ===== 价格明细(ZIP Code 之后,Artwork Upload 之前) ===== -->
-        <div class="pricing-summary" id="pricingSummary">
+        <!-- 价格明细 -->
+        <div class="pricing-summary">
           <a href="#" class="view-delivery-time">View Delivery Time</a>
           <table class="summary-table">
             <tbody>
@@ -323,7 +325,6 @@ if (qp) qp.addEventListener("click", function(){
 var qi = document.getElementById("qtyInput");
 if (qi) qi.addEventListener("input", recalc);
 
-// ZIP Code 输入变化时更新 Shipping Charge
 var zipEl = document.getElementById("zipInput");
 if (zipEl) zipEl.addEventListener("input", function(){
   var summaryShipping = document.getElementById("summaryShipping");
@@ -339,7 +340,6 @@ if (zipEl) zipEl.addEventListener("input", function(){
     summaryShipping.style.color = "red";
     recalc();
   } else {
-    // 简易运费估算:每件 $0.5(可根据实际调整)
     var n = parseInt(document.getElementById("qtyInput").value) || 0;
     var ship = n * 0.5;
     summaryShipping.textContent = "$" + ship.toFixed(2);
@@ -356,111 +356,119 @@ recalc();
 </script>
 
 <style>
-.product-page { display: grid; grid-template-columns: 460px 1fr; gap: 2.5rem; max-width: 1200px; margin: 0 auto; padding: 2rem; }
+.product-page { display: grid; grid-template-columns: 540px 1fr; gap: 3.5rem; max-width: 1400px; margin: 0 auto; padding: 2.5rem; }
 .left-column { display: flex; flex-direction: column; gap: 1.5rem; }
 .right-column { }
 
-.product-media { display: flex; flex-direction: row; gap: 12px; align-items: flex-start; }
-.thumbnails { display: flex; flex-direction: column; gap: 8px; width: 72px; flex-shrink: 0; max-height: 500px; overflow-y: auto; }
-.thumb-btn { width: 72px; height: 72px; padding: 2px; border: 1px solid #e0e0e0; border-radius: 4px; background: #fff; cursor: pointer; overflow: hidden; }
+.product-media { display: flex; flex-direction: row; gap: 14px; align-items: flex-start; }
+.thumbnails { display: flex; flex-direction: column; gap: 10px; width: 90px; flex-shrink: 0; max-height: 600px; overflow-y: auto; }
+.thumb-btn { width: 90px; height: 90px; padding: 2px; border: 1px solid #e0e0e0; border-radius: 4px; background: #fff; cursor: pointer; overflow: hidden; }
 .thumb-btn.active { border-color: #333; }
 .thumb-btn img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.main-image-wrap { flex: 1; aspect-ratio: 1; background: #f8f9fa; border: 1px solid #eee; border-radius: 4px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-.main-image { width: 100%; height: 100%; object-fit: contain; padding: 1rem; }
+.main-image-wrap { flex: 1; aspect-ratio: 1; background: #f8f9fa; border: 1px solid #eee; border-radius: 4px; display: flex; align-items: center; justify-content: center; overflow: hidden; min-height: 450px; }
+.main-image { width: 100%; height: 100%; object-fit: contain; padding: 1.5rem; }
 .no-image { color: #999; }
 
-.download-row { display: flex; flex-direction: row; gap: 12px; }
-.download-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: .5rem 1rem; border: 1px solid #0066c0; color: #0066c0; border-radius: 4px; text-decoration: none; font-size: .85rem; }
+/* 下载按钮 - 横排,占满左栏 */
+.download-row { display: flex; flex-direction: row; gap: 12px; width: 100%; }
+.download-btn {
+  flex: 1; display: flex; align-items: center; justify-content: center;
+  gap: 8px; padding: .75rem 1rem;
+  border: 1px solid #0066c0; color: #0066c0;
+  border-radius: 4px; text-decoration: none;
+  font-size: .9rem; font-weight: 500;
+  transition: background .15s, color .15s;
+  white-space: nowrap;
+}
 .download-btn:hover { background: #0066c0; color: #fff; }
-.dl-icon { font-size: .85rem; }
+.dl-icon { flex-shrink: 0; }
 
 .description-section, .specs-section, .imprint-diagram-section, .ordering-section { margin-bottom: 0; }
-.description-section h2, .specs-section h2, .imprint-diagram-section h2, .ordering-section h2 { font-size: 1rem; font-weight: 700; margin: 0 0 1rem; padding-bottom: .5rem; border-bottom: 2px solid #111; color: #222; }
-.description-section p { font-size: .9rem; line-height: 1.7; color: #444; margin: 0; }
+.description-section h2, .specs-section h2, .imprint-diagram-section h2, .ordering-section h2 { font-size: 1.1rem; font-weight: 700; margin: 0 0 1rem; padding-bottom: .5rem; border-bottom: 2px solid #111; color: #222; }
+.description-section p { font-size: .95rem; line-height: 1.7; color: #444; margin: 0; }
 .specs-table { width: 100%; border-collapse: collapse; }
 .specs-table tr { border-bottom: 1px solid #e8e8e8; }
-.specs-table td { padding: .85rem .5rem; font-size: .9rem; vertical-align: top; }
+.specs-table td { padding: .85rem .5rem; font-size: .95rem; vertical-align: top; }
 .spec-key { width: 35%; color: #555; font-weight: 500; }
 .spec-value { color: #222; }
 .imprint-note { font-size: .85rem; color: #666; margin: 0 0 1.5rem; }
 
-/* IMPRINT LOCATION 图示 - 横排 */
-.imprint-diagram-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+/* IMPRINT LOCATION - 横排两张图 */
+.imprint-diagram-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
 .imprint-card { text-align: center; }
-.imprint-svg { width: 100%; max-width: 180px; height: auto; display: block; margin: 0 auto; }
+.imprint-svg { width: 100%; max-width: 200px; height: auto; display: block; margin: 0 auto; }
 .imprint-summary { font-size: .85rem; color: #333; margin: .5rem 0 0; }
 
-.ordering-text { font-size: .9rem; color: #444; margin: 0; }
+.ordering-text { font-size: .95rem; color: #444; margin: 0; }
 .view-link { color: #0066c0; text-decoration: none; margin-left: .5rem; }
 .view-link:hover { text-decoration: underline; }
 
 .product-info { padding-top: 0; }
-.product-title { font-size: 1.5rem; font-weight: 600; margin: 0 0 1rem; line-height: 1.3; color: #111; }
-.color-header { display: flex; justify-content: space-between; align-items: center; font-size: .85rem; color: #555; margin-bottom: .5rem; }
+.product-title { font-size: 1.6rem; font-weight: 600; margin: 0 0 1rem; line-height: 1.3; color: #111; }
+.color-header { display: flex; justify-content: space-between; align-items: center; font-size: .9rem; color: #555; margin-bottom: .5rem; }
 .color-label strong { color: #222; font-weight: 600; }
-.bulk-toggle { display: inline-flex; align-items: center; gap: 6px; font-size: .8rem; color: #555; cursor: pointer; }
+.bulk-toggle { display: inline-flex; align-items: center; gap: 6px; font-size: .85rem; color: #555; cursor: pointer; }
 .bulk-toggle input { display: none; }
 .toggle-track { width: 28px; height: 16px; background: #ccc; border-radius: 8px; position: relative; }
 .toggle-thumb { width: 12px; height: 12px; background: #fff; border-radius: 50%; position: absolute; top: 2px; left: 2px; }
 .bulk-toggle input:checked + .toggle-track { background: #0066c0; }
 .bulk-toggle input:checked + .toggle-track .toggle-thumb { transform: translateX(12px); }
-.color-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; margin-bottom: 1.5rem; }
-.color-swatch { width: 100%; aspect-ratio: 1; border: 1px solid #d0d0d0; border-radius: 2px; cursor: pointer; min-height: 24px; padding: 0; }
+.color-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 5px; margin-bottom: 1.5rem; }
+.color-swatch { width: 100%; aspect-ratio: 1; border: 1px solid #d0d0d0; border-radius: 2px; cursor: pointer; min-height: 26px; padding: 0; }
 .color-swatch.selected { border: 2px solid #333; box-shadow: 0 0 0 1px #fff inset; }
-.section-title { font-size: .9rem; font-weight: 700; margin: 0 0 .75rem; color: #222; }
+.section-title { font-size: .95rem; font-weight: 700; margin: 0 0 .75rem; color: #222; }
 .method-section { margin-bottom: 1rem; }
 .tabs { display: flex; border-bottom: 1px solid #ddd; margin-bottom: 1rem; }
-.tab-btn { padding: .5rem 1.25rem; border: none; background: none; font-size: .85rem; color: #555; cursor: pointer; border-bottom: 2px solid transparent; }
+.tab-btn { padding: .5rem 1.25rem; border: none; background: none; font-size: .9rem; color: #555; cursor: pointer; border-bottom: 2px solid transparent; }
 .tab-btn.active { color: #111; border-bottom-color: #333; font-weight: 600; }
 .pricing-table { border: 1px solid #e0e0e0; border-radius: 4px; margin-bottom: .75rem; overflow-x: auto; }
-.pricing-row { display: grid; grid-template-columns: 130px repeat(auto-fit, minmax(70px, 1fr)); border-bottom: 1px solid #f0f0f0; }
+.pricing-row { display: grid; grid-template-columns: 130px repeat(auto-fit, minmax(75px, 1fr)); border-bottom: 1px solid #f0f0f0; }
 .pricing-row.header { background: #f8f8f8; font-weight: 600; }
-.qty-col, .step-col { padding: .5rem .625rem; text-align: center; border-right: 1px solid #f0f0f0; font-size: .85rem; }
+.qty-col, .step-col { padding: .6rem .7rem; text-align: center; border-right: 1px solid #f0f0f0; font-size: .9rem; }
 .qty-col { text-align: left; font-weight: 500; color: #333; }
 .pricing-row.values .step-col { color: #b12704; }
-.flat-price-link { display: inline-block; font-size: .85rem; color: #0066c0; text-decoration: none; margin-bottom: 1.25rem; }
+.flat-price-link { display: inline-block; font-size: .9rem; color: #0066c0; text-decoration: none; margin-bottom: 1.25rem; }
 .quantity-section { margin-bottom: 1.5rem; }
-.quantity-section label { display: block; font-size: .85rem; color: #555; margin-bottom: .5rem; }
+.quantity-section label { display: block; font-size: .9rem; color: #555; margin-bottom: .5rem; }
 .qty-input-group { display: flex; align-items: center; }
 .qty-input-group button { width: 36px; height: 36px; border: 1px solid #ccc; background: #f8f8f8; font-size: 1.1rem; cursor: pointer; }
 .qty-input-group input { width: 80px; height: 36px; border: 1px solid #ccc; border-left: none; border-right: none; text-align: center; font-size: 1rem; outline: none; }
 .qty-total { padding: 0 1rem; height: 36px; background: #cce8ff; color: #0066c0; display: flex; align-items: center; font-weight: 600; border: 1px solid #ccc; border-left: none; border-radius: 0 4px 4px 0; }
 .imprint-locations { display: flex; flex-wrap: wrap; gap: 1.25rem; margin-bottom: 1rem; }
-.imprint-checkbox { display: inline-flex; align-items: center; gap: 6px; font-size: .9rem; color: #333; cursor: pointer; }
+.imprint-checkbox { display: inline-flex; align-items: center; gap: 6px; font-size: .95rem; color: #333; cursor: pointer; }
 .imprint-color { margin-bottom: 1.25rem; }
-.imprint-color label { display: block; font-size: .85rem; color: #555; margin-bottom: .25rem; }
-.imprint-color select { width: 100%; max-width: 200px; padding: .5rem; border: 1px solid #ccc; border-radius: 4px; font-size: .85rem; }
+.imprint-color label { display: block; font-size: .9rem; color: #555; margin-bottom: .25rem; }
+.imprint-color select { width: 100%; max-width: 200px; padding: .5rem; border: 1px solid #ccc; border-radius: 4px; font-size: .9rem; }
 .custom-color { margin-bottom: 1.25rem; }
-.custom-color label { display: block; font-size: .85rem; color: #555; margin-bottom: .5rem; }
+.custom-color label { display: block; font-size: .9rem; color: #555; margin-bottom: .5rem; }
 .custom-color-group { display: flex; gap: 8px; }
-.custom-color-group input { flex: 1; max-width: 320px; padding: .5rem; border: 1px solid #ccc; border-radius: 4px; font-size: .85rem; }
-.custom-color-group button { padding: .5rem 1.25rem; background: #fff; color: #0066c0; border: 1px solid #0066c0; border-radius: 4px; cursor: pointer; font-size: .85rem; }
-.sample-checkbox { display: inline-flex; align-items: center; gap: 8px; font-size: .85rem; color: #444; cursor: pointer; margin-bottom: 1.5rem; }
+.custom-color-group input { flex: 1; max-width: 320px; padding: .5rem; border: 1px solid #ccc; border-radius: 4px; font-size: .9rem; }
+.custom-color-group button { padding: .5rem 1.25rem; background: #fff; color: #0066c0; border: 1px solid #0066c0; border-radius: 4px; cursor: pointer; font-size: .9rem; }
+.sample-checkbox { display: inline-flex; align-items: center; gap: 8px; font-size: .9rem; color: #444; cursor: pointer; margin-bottom: 1.5rem; }
 .zip-code { margin-bottom: .5rem; }
-.zip-code label { display: block; font-size: .85rem; color: #555; margin-bottom: .5rem; }
+.zip-code label { display: block; font-size: .9rem; color: #555; margin-bottom: .5rem; }
 .zip-row { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
-.zip-row input[type=text] { flex: 1; min-width: 200px; padding: .5rem .75rem; border: 1px solid #ccc; border-radius: 4px; font-size: .85rem; }
-.zip-residential { display: inline-flex; align-items: center; gap: 6px; font-size: .85rem; color: #444; cursor: pointer; }
+.zip-row input[type=text] { flex: 1; min-width: 200px; padding: .5rem .75rem; border: 1px solid #ccc; border-radius: 4px; font-size: .9rem; }
+.zip-residential { display: inline-flex; align-items: center; gap: 6px; font-size: .9rem; color: #444; cursor: pointer; }
 
-/* ===== 价格明细(ZIP Code 下方) ===== */
-.pricing-summary { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #e0e0e0; }
-.view-delivery-time { display: inline-block; font-size: .85rem; color: #0066c0; text-decoration: none; margin-bottom: .5rem; }
+.pricing-summary { margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #e0e0e0; }
+.view-delivery-time { display: inline-block; font-size: .9rem; color: #0066c0; text-decoration: none; margin-bottom: .75rem; }
 .view-delivery-time:hover { text-decoration: underline; }
 .summary-table { width: 100%; border-collapse: collapse; }
-.summary-table td { padding: .4rem 0; font-size: .85rem; color: #444; }
+.summary-table td { padding: .45rem 0; font-size: .9rem; color: #444; }
 .summary-table td.summary-right { text-align: right; color: #222; }
-.summary-table .total-row td { padding-top: .75rem; border-top: 1px solid #e8e8e8; font-size: .95rem; }
+.summary-table .total-row td { padding-top: .75rem; border-top: 1px solid #e8e8e8; font-size: 1rem; }
 .summary-table .total-row td.summary-right { color: #111; }
 
 @media (max-width: 1024px) {
-  .product-page { grid-template-columns: 1fr; max-width: 700px; padding: 1.5rem; }
+  .product-page { grid-template-columns: 1fr; max-width: 800px; padding: 1.5rem; }
   .product-media { flex-direction: column; }
   .thumbnails { flex-direction: row; width: 100%; max-height: none; overflow-x: auto; }
   .download-row { flex-wrap: wrap; }
 }
 @media (max-width: 640px) {
   .product-page { padding: 1rem; }
-  .product-title { font-size: 1.25rem; }
+  .product-title { font-size: 1.3rem; }
   .color-grid { grid-template-columns: repeat(6, 1fr); }
   .qty-input-group input { width: 60px; }
   .imprint-diagram-grid { grid-template-columns: 1fr; }
