@@ -36,7 +36,7 @@ const setupCharge = 50;
       <div class="product-media">
         {images.length > 0 && (
           <div class="thumbnails">
-            {images.map((img, i) => (
+            {images.slice(0, 4).map((img, i) => (
               <button class={`thumb-btn ${i === 0 ? "active" : ""}`} data-src={img}>
                 <img src={img} alt="" />
               </button>
