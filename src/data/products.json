@@ -5,7 +5,7 @@
       "nameEn": "Non-Woven Value Tote Bag",
       "material": "80GSM Non-woven",
       "imgMainUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/178357374406755000.jpg",
-      "descriptionEn": "Made of 80gsm Non-Woven eco-friendly material, this reusable tote bag features 16'' reinforced handles and a hanging loop. Larger capacity with 8'' gusseted sides is ideal for trips, groceries, malls, picnics, supermarkets, fairs and for most occasions. Available in a variety of bright colors, the large front area of the bag provides an excellent place to display your logo for the world to see.",
+      "descriptionEn": "This spacious tote is made from durable 80 GSM non-woven polypropylene and features 24-inch reinforced handles that offer versatile carry—long enough for comfortable over-the-shoulder wear and equally convenient for hand carry. It includes a roomy main compartment that folds flat for easy storage and an extra-large imprint area to showcase your logo or message. Perfect for promotions, corporate events, trade shows, grocery runs, beach days, travel, and more, it's reusable and recyclable for an eco-conscious choice.",
       "files": [
         {
           "type": 0,
@@ -24,32 +24,70 @@
         }
       ],
       "productSpecs": [
-        {"specsValue1":"White","colorRgb":"#ffffff","imageUrl":"https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164439532712033952.jpg","productLengthIn":12,"productWidthIn":8,"productHeightIn":14,"productWeightKgs":0.05,"printLength":8,"printWidth":10,"packingMethodEn":"bulk"},
-        {"specsValue1":"Black","colorRgb":"#000000","imageUrl":"https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/176006363057508987.jpg","productLengthIn":12,"productWidthIn":8,"productHeightIn":14,"productWeightKgs":0.05,"printLength":8,"printWidth":10,"packingMethodEn":"bulk"},
-        {"specsValue1":"Royal Blue","colorRgb":"#4169e1","productLengthIn":12,"productWidthIn":8,"productHeightIn":14,"productWeightKgs":0.05,"printLength":8,"printWidth":10,"packingMethodEn":"bulk"},
-        {"specsValue1":"Red","colorRgb":"#e74c3c","productLengthIn":12,"productWidthIn":8,"productHeightIn":14,"productWeightKgs":0.05,"printLength":8,"printWidth":10,"packingMethodEn":"bulk"},
-        {"specsValue1":"Navy","colorRgb":"#1f3a5f","productLengthIn":12,"productWidthIn":8,"productHeightIn":14,"productWeightKgs":0.05,"printLength":8,"printWidth":10,"packingMethodEn":"bulk"},
-        {"specsValue1":"Forest Green","colorRgb":"#228b22","productLengthIn":12,"productWidthIn":8,"productHeightIn":14,"productWeightKgs":0.05,"printLength":8,"printWidth":10,"packingMethodEn":"bulk"},
-        {"specsValue1":"Lime Green","colorRgb":"#32cd32","productLengthIn":12,"productWidthIn":8,"productHeightIn":14,"productWeightKgs":0.05,"printLength":8,"printWidth":10,"packingMethodEn":"bulk"},
-        {"specsValue1":"Yellow","colorRgb":"#f1c40f","productLengthIn":12,"productWidthIn":8,"productHeightIn":14,"productWeightKgs":0.05,"printLength":8,"printWidth":10,"packingMethodEn":"bulk"},
-        {"specsValue1":"Orange","colorRgb":"#e67e22","productLengthIn":12,"productWidthIn":8,"productHeightIn":14,"productWeightKgs":0.05,"printLength":8,"printWidth":10,"packingMethodEn":"bulk"},
-        {"specsValue1":"Pink","colorRgb":"#ff69b4","productLengthIn":12,"productWidthIn":8,"productHeightIn":14,"productWeightKgs":0.05,"printLength":8,"printWidth":10,"packingMethodEn":"bulk"},
-        {"specsValue1":"Purple","colorRgb":"#9b59b6","productLengthIn":12,"productWidthIn":8,"productHeightIn":14,"productWeightKgs":0.05,"printLength":8,"printWidth":10,"packingMethodEn":"bulk"},
-        {"specsValue1":"Maroon","colorRgb":"#800000","productLengthIn":12,"productWidthIn":8,"productHeightIn":14,"productWeightKgs":0.05,"printLength":8,"printWidth":10,"packingMethodEn":"bulk"},
-        {"specsValue1":"Burgundy","colorRgb":"#800020","productLengthIn":12,"productWidthIn":8,"productHeightIn":14,"productWeightKgs":0.05,"printLength":8,"printWidth":10,"packingMethodEn":"bulk"},
-        {"specsValue1":"Gray","colorRgb":"#95a5a6","productLengthIn":12,"productWidthIn":8,"productHeightIn":14,"productWeightKgs":0.05,"printLength":8,"printWidth":10,"packingMethodEn":"bulk"},
-        {"specsValue1":"Tan","colorRgb":"#d2b48c","productLengthIn":12,"productWidthIn":8,"productHeightIn":14,"productWeightKgs":0.05,"printLength":8,"printWidth":10,"packingMethodEn":"bulk"},
-        {"specsValue1":"Beige","colorRgb":"#f5f5dc","productLengthIn":12,"productWidthIn":8,"productHeightIn":14,"productWeightKgs":0.05,"printLength":8,"printWidth":10,"packingMethodEn":"bulk"},
-        {"specsValue1":"Teal","colorRgb":"#008080","productLengthIn":12,"productWidthIn":8,"productHeightIn":14,"productWeightKgs":0.05,"printLength":8,"printWidth":10,"packingMethodEn":"bulk"},
-        {"specsValue1":"Natural","colorRgb":"#deb887","productLengthIn":12,"productWidthIn":8,"productHeightIn":14,"productWeightKgs":0.05,"printLength":8,"printWidth":10,"packingMethodEn":"bulk"},
-        {"specsValue1":"Lime","colorRgb":"#32cd32","productLengthIn":12,"productWidthIn":8,"productHeightIn":14,"productWeightKgs":0.05,"printLength":8,"printWidth":10,"packingMethodEn":"bulk"}
+        {
+          "specsValue1": "White",
+          "colorRgb": "#ffffff",
+          "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164439532712033952.jpg",
+          "productLengthIn": 33.02,
+          "productWidthIn": 35.56,
+          "productHeightIn": 0,
+          "productWeightKgs": 0.025,
+          "printLength": 9,
+          "printWidth": 10,
+          "packingMethodEn": "bulk"
+        },
+        {
+          "specsValue1": "Black",
+          "colorRgb": "#000000",
+          "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/176006363057508987.jpg",
+          "productLengthIn": 33.02,
+          "productWidthIn": 35.56,
+          "productHeightIn": 0,
+          "productWeightKgs": 0.025,
+          "printLength": 9,
+          "printWidth": 10,
+          "packingMethodEn": "bulk"
+        }
       ],
-      "productPricingSteps":[{"num":50,"price":"1.80"},{"num":100,"price":"1.55"},{"num":250,"price":"1.47"},{"num":500,"price":"1.43"},{"num":1000,"price":"1.37"},{"num":2500,"price":"1.33"}],
-      "printingSurfaces":[
-        {"printingPositionNameEn":"Front","printingRegions":[{"regionName":"Front","regionWidth":8,"regionHigh":10}]},
-        {"printingPositionNameEn":"Back","printingRegions":[{"regionName":"Back","regionWidth":8,"regionHigh":10}]}
+      "productPricingSteps": [
+        { "num": 50, "price": "1.80" },
+        { "num": 100, "price": "1.55" },
+        { "num": 250, "price": "1.47" },
+        { "num": 500, "price": "1.43" },
+        { "num": 1000, "price": "1.37" },
+        { "num": 2500, "price": "1.33" }
       ],
-      "printingWays":[{"printingWayNameEn":"Screen Print","productPrintingWayPrices":[{"productPrintingWayPriceSteps":[{"num":50,"price":"1.80"},{"num":100,"price":"1.55"},{"num":250,"price":"1.47"},{"num":500,"price":"1.43"},{"num":1000,"price":"1.37"},{"num":2500,"price":"1.33"}]}]}]}
+      "printingSurfaces": [
+        {
+          "printingPositionNameEn": "Front",
+          "printingRegions": [
+            { "regionName": "Front", "regionWidth": 9, "regionHigh": 10 }
+          ]
+        },
+        {
+          "printingPositionNameEn": "Back",
+          "printingRegions": [
+            { "regionName": "Back", "regionWidth": 9, "regionHigh": 10 }
+          ]
+        }
+      ],
+      "printingWays": [
+        {
+          "printingWayNameEn": "Screen Print",
+          "productPrintingWayPrices": [
+            {
+              "productPrintingWayPriceSteps": [
+                { "num": 50, "price": "1.80" },
+                { "num": 100, "price": "1.55" },
+                { "num": 250, "price": "1.47" },
+                { "num": 500, "price": "1.43" },
+                { "num": 1000, "price": "1.37" },
+                { "num": 2500, "price": "1.33" }
+              ]
+            }
+          ]
+        }
+      ]
     }
   ]
 }
