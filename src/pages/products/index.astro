@@ -27,7 +27,20 @@ const templateFiles = getTemplateFiles(product);
 const specs = getSpecifications(product);
 const description: string = product.descriptionEn || "";
 const defaultColor: string = colors.length > 0 ? colors[0].name : "Default";
-const setupCharge = 50;
+
+// 尺寸变体:从 productSpecs 取前 4 个的 lengthIn × widthIn 作为尺寸标签
+// 价格阶梯用 pricingSteps
+const productSizes = pricingSteps.slice(0, 4).map((s, i) => {
+  const spec = (product.productSpecs && product.productSpecs[i]) || null;
+  let label = s.label;
+  if (spec && spec.productLengthIn && spec.productWidthIn) {
+    const L = Math.round(spec.productLengthIn);
+    const W = Math.round(spec.productWidthIn);
+    label = L + " X " + W;
+  }
+  return { label: label, price: s.price, min: s.quantity };
+});
+const isApparel: boolean = false;  // 默认非服装=单选;服装类改 true 即可
 ---
 
 <Base title={title}>
@@ -121,11 +134,20 @@ const setupCharge = 50;
 
         <div class="quantity-picker">
           <label>Enter the quantity you'd like</label>
-          <div class="qty-buttons">
-            {pricingSteps.map((s, i) => (
-              <button type="button" class={"qty-btn " + (i === 0 ? "selected" : "")} data-min={s.quantity}>
-                <span class="qty-label">{s.label}</span>
-              </button>
+          <div class="size-inputs">
+            {productSizes.map((s, i) => (
+              <div class="size-input-item">
+                <input
+                  type="number"
+                  class="size-qty-input"
+                  min="0"
+                  value="0"
+                  data-price={s.price}
+                  data-min={s.min}
+                  data-label={s.label}
+                />
+                <span class="size-label">{s.label}</span>
+              </div>
             ))}
           </div>
         </div>
@@ -181,7 +203,6 @@ const setupCharge = 50;
 
         <h3 class="section-title">IMPRINT LOCATION(S) & OPTION</h3>
 
-        <!-- 表单行:label 在左,控件在右(横排) -->
         <div class="form-row">
           <label class="form-label">Imprint Location</label>
           <div class="form-control">
@@ -241,14 +262,13 @@ const setupCharge = 50;
           </div>
         </div>
 
-        <!-- 价格明细 -->
         <div class="pricing-summary">
           <a href="#" class="view-delivery-time">View Delivery Time</a>
           <table class="summary-table">
             <tbody>
               <tr>
-                <td><span id="summaryQty">$1.80 (C) ea × 50 qty</span></td>
-                <td class="summary-right" id="summarySubtotal">$90.00</td>
+                <td><span id="summaryQty">—</span></td>
+                <td class="summary-right" id="summarySubtotal">$0.00</td>
               </tr>
               <tr>
                 <td>Set-Up Charge (G)</td>
@@ -260,7 +280,7 @@ const setupCharge = 50;
               </tr>
               <tr class="total-row">
                 <td><strong>Total</strong></td>
-                <td class="summary-right"><strong id="summaryTotal">$140.00</strong></td>
+                <td class="summary-right"><strong id="summaryTotal">$50.00</strong></td>
               </tr>
             </tbody>
           </table>
@@ -270,9 +290,9 @@ const setupCharge = 50;
   </div>
 </Base>
 
-<script is:inline define:vars={{ pricingSteps, methodTabs, setupCharge }}>
-  window.__PS__ = pricingSteps;
-  window.__MT__ = methodTabs;
+<script is:inline define:vars={{ productSizes, isApparel, setupCharge }}>
+  window.__SIZES__ = productSizes;
+  window.__APPAREL__ = isApparel;
   window.__SETUP__ = setupCharge;
 </script>
 
@@ -309,66 +329,58 @@ function getCS(){
       return tabs[i].pricingSteps;
     }
   }
-  return window.__PS__ || [];
-}
-function getUnitPrice(qty){
-  var s = getCS().slice().sort(function(a,b){ return b.num - a.num; });
-  for (var i = 0; i < s.length; i++) {
-    if (qty >= s[i].num) return parseFloat(s[i].price);
-  }
-  return 0;
+  return [];
 }
 document.querySelectorAll(".tab-btn").forEach(function(b){
   b.addEventListener("click", function(){
     document.querySelectorAll(".tab-btn").forEach(function(x){ x.classList.remove("active"); });
     this.classList.add("active");
-    recalc();
-document.querySelectorAll(".qty-btn").forEach(function(b){
-  b.addEventListener("click", function(){
-    document.querySelectorAll(".qty-btn").forEach(function(x){ x.classList.remove("selected"); });
-    this.classList.add("selected");
-    var min = parseInt(this.getAttribute("data-min")) || 1;
-    var inp = document.getElementById("qtyInput");
-    if (inp && parseInt(inp.value) < min) inp.value = String(min);
+  });
+});
+
+// 尺寸输入框联动(单选/多选)
+var isApparelMode = false;  // 默认非服装=单选
+document.querySelectorAll(".size-qty-input").forEach(function(inp){
+  inp.addEventListener("input", function(){
+    var v = parseInt(this.value) || 0;
+    if (!isApparelMode && v > 0) {
+      // 非服装:单选,其他输入框清零
+      document.querySelectorAll(".size-qty-input").forEach(function(other){
+        if (other !== inp) other.value = "0";
+      });
+    }
     recalc();
   });
 });
-  });
-});
+
 function recalc(){
-  var q = document.getElementById("qtyInput");
-  var qtyTotal = document.getElementById("qtyTotal");
   var summaryQty = document.getElementById("summaryQty");
   var summarySubtotal = document.getElementById("summarySubtotal");
   var summaryTotal = document.getElementById("summaryTotal");
-  if (!q) return;
-  var n = Math.max(0, parseInt(q.value) || 0);
-  var unit = getUnitPrice(n);
-  var subtotal = unit * n;
+  var qtyTotal = document.getElementById("qtyTotal");
+  var lines = [];
+  var subtotal = 0;
+  document.querySelectorAll(".size-qty-input").forEach(function(inp){
+    var v = parseInt(inp.value) || 0;
+    if (v > 0) {
+      var price = parseFloat(inp.getAttribute("data-price")) || 0;
+      var label = inp.getAttribute("data-label") || "";
+      var sub = v * price;
+      subtotal += sub;
+      lines.push("$" + price.toFixed(2) + " × " + v + " [" + label + "]");
+    }
+  });
   var setup = window.__SETUP__ || 50;
   var total = subtotal + setup;
-  if (qtyTotal) qtyTotal.textContent = "$" + subtotal.toFixed(2);
-  if (summaryQty) summaryQty.textContent = "$" + unit.toFixed(2) + " (C) ea × " + n + " qty";
+  if (lines.length > 0) {
+    if (summaryQty) summaryQty.innerHTML = lines.join("<br>");
+  } else {
+    if (summaryQty) summaryQty.textContent = "—";
+  }
   if (summarySubtotal) summarySubtotal.textContent = "$" + subtotal.toFixed(2);
   if (summaryTotal) summaryTotal.textContent = "$" + total.toFixed(2);
+  if (qtyTotal) qtyTotal.textContent = "$" + subtotal.toFixed(2);
 }
-var qm = document.getElementById("qtyMinus");
-if (qm) qm.addEventListener("click", function(){
-  var i = document.getElementById("qtyInput");
-  if (!i) return;
-  var v = parseInt(i.value) || 1;
-  if (v > 1) i.value = String(v - 1);
-  recalc();
-});
-var qp = document.getElementById("qtyPlus");
-if (qp) qp.addEventListener("click", function(){
-  var i = document.getElementById("qtyInput");
-  if (!i) return;
-  i.value = String((parseInt(i.value) || 0) + 1);
-  recalc();
-});
-var qi = document.getElementById("qtyInput");
-if (qi) qi.addEventListener("input", recalc);
 
 var zipEl = document.getElementById("zipInput");
 if (zipEl) zipEl.addEventListener("input", function(){
@@ -385,14 +397,17 @@ if (zipEl) zipEl.addEventListener("input", function(){
     summaryShipping.style.color = "red";
     recalc();
   } else {
-    var n = parseInt(document.getElementById("qtyInput").value) || 0;
+    var n = 0;
+    document.querySelectorAll(".size-qty-input").forEach(function(inp){ n += parseInt(inp.value) || 0; });
     var ship = n * 0.5;
     summaryShipping.textContent = "$" + ship.toFixed(2);
     summaryShipping.style.color = "#222";
-    var unit = getUnitPrice(n);
-    var subtotal = unit * n;
+    var sub = 0;
+    document.querySelectorAll(".size-qty-input").forEach(function(inp){
+      sub += (parseInt(inp.value) || 0) * (parseFloat(inp.getAttribute("data-price")) || 0);
+    });
     var setup = window.__SETUP__ || 50;
-    var total = subtotal + setup + ship;
+    var total = sub + setup + ship;
     if (summaryTotal) summaryTotal.textContent = "$" + total.toFixed(2);
   }
 });
@@ -477,62 +492,18 @@ recalc();
 .qty-input-group input { width: 80px; height: 36px; border: 1px solid #ccc; border-left: none; border-right: none; text-align: center; font-size: 1rem; outline: none; }
 .qty-total { padding: 0 1rem; height: 36px; background: #cce8ff; color: #0066c0; display: flex; align-items: center; font-weight: 600; border: 1px solid #ccc; border-left: none; border-radius: 0 4px 4px 0; }
 
-/* ===== IMPRINT LOCATION(S) & OPTION 表单行(label 左 + 控件右) ===== */
 .form-row {
-  display: grid;
-  grid-template-columns: 200px 1fr;
-  gap: 1rem;
-  align-items: center;
-  padding: .6rem 0;
-  border-bottom: 1px solid #f0f0f0;
+  display: grid; grid-template-columns: 200px 1fr; gap: 1rem;
+  align-items: center; padding: .6rem 0; border-bottom: 1px solid #f0f0f0;
 }
-.form-label {
-  font-size: .9rem;
-  color: #555;
-  font-weight: 500;
-}
-.form-control {
-  display: flex;
-  gap: 1.25rem;
-  align-items: center;
-  flex-wrap: wrap;
-}
-.checkbox-inline {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  cursor: pointer;
-  font-size: .9rem;
-  color: #333;
-}
+.form-label { font-size: .9rem; color: #555; font-weight: 500; }
+.form-control { display: flex; gap: 1.25rem; align-items: center; flex-wrap: wrap; }
+.checkbox-inline { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; font-size: .9rem; color: #333; }
 .checkbox-inline input { margin: 0; cursor: pointer; }
-.form-select {
-  padding: .5rem .75rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: .9rem;
-  background: #fff;
-  min-width: 140px;
-}
-.form-input {
-  flex: 1;
-  max-width: 320px;
-  padding: .5rem .75rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: .9rem;
-  outline: none;
-}
+.form-select { padding: .5rem .75rem; border: 1px solid #ccc; border-radius: 4px; font-size: .9rem; background: #fff; min-width: 140px; }
+.form-input { flex: 1; max-width: 320px; padding: .5rem .75rem; border: 1px solid #ccc; border-radius: 4px; font-size: .9rem; outline: none; }
 .form-input:focus { border-color: #0066c0; }
-.add-btn {
-  padding: .5rem 1.25rem;
-  background: #fff;
-  color: #0066c0;
-  border: 1px solid #0066c0;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: .9rem;
-}
+.add-btn { padding: .5rem 1.25rem; background: #fff; color: #0066c0; border: 1px solid #0066c0; border-radius: 4px; cursor: pointer; font-size: .9rem; }
 .add-btn:hover { background: #0066c0; color: #fff; }
 
 .pricing-summary { margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #e0e0e0; }
@@ -543,6 +514,22 @@ recalc();
 .summary-table td.summary-right { text-align: right; color: #222; }
 .summary-table .total-row td { padding-top: .75rem; border-top: 1px solid #e8e8e8; font-size: 1rem; }
 .summary-table .total-row td.summary-right { color: #111; }
+
+.product-code-line { font-size: 1rem; color: #555; margin: 0 0 .75rem; }
+.quantity-picker { margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #e0e0e0; }
+.quantity-picker label { display: block; font-size: .85rem; color: #555; margin-bottom: .5rem; }
+.size-inputs { display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap: 12px; }
+.size-input-item { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.size-qty-input {
+  width: 100%; padding: .5rem .25rem;
+  border: 1px solid #0066c0; border-radius: 4px;
+  text-align: center; font-size: .95rem;
+  -moz-appearance: textfield;
+}
+.size-qty-input::-webkit-outer-spin-button,
+.size-qty-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.size-qty-input:focus { outline: none; border-color: #003d80; }
+.size-label { font-size: .85rem; color: #333; font-weight: 500; }
 
 @media (max-width: 1024px) {
   .product-page { grid-template-columns: 1fr; max-width: 800px; padding: 1.5rem; }
@@ -558,12 +545,4 @@ recalc();
   .qty-input-group input { width: 60px; }
   .imprint-diagram-grid { grid-template-columns: 1fr; }
 }
-.product-code-line { font-size: 1rem; color: #555; margin: 0 0 .75rem; }
-.quantity-picker { margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #e0e0e0; }
-.quantity-picker label { display: block; font-size: .85rem; color: #555; margin-bottom: .5rem; }
-.qty-buttons { display: grid; grid-template-columns: repeat(auto-fit, minmax(70px, 1fr)); gap: 6px; }
-.qty-btn { padding: .4rem .25rem; border: 1px solid #ccc; border-radius: 4px; background: #fff; cursor: pointer; text-align: center; transition: all .15s; }
-.qty-btn:hover { border-color: #0066c0; }
-.qty-btn.selected { border-color: #0066c0; background: #e8f0f8; }
-.qty-label { font-size: .9rem; color: #333; font-weight: 500; }
 </style>
