@@ -39,7 +39,6 @@ export interface SurfaceDisplay {
   regions: { name: string; width: number; height: number; label: string }[];
 }
 
-// ===== 颜色启发式 =====
 const COLOR_NAME_RGB: Record<string, string> = {
   white: "#ffffff", black: "#000000", red: "#e74c3c", blue: "#3498db",
   navy: "#1f3a5f", "navy blue": "#1f3a5f", green: "#27ae60",
@@ -64,7 +63,6 @@ function guessRgb(name: string): string {
   return "#cccccc";
 }
 
-// ===== 数组/字符串安全访问(替代 ?.) =====
 function safeArr<T>(v: T[] | undefined | null): T[] {
   return v || [];
 }
@@ -73,7 +71,6 @@ function safeStr(v: any, fallback: string): string {
   return String(v);
 }
 
-// ===== 加载所有产品(单文件) =====
 export function getAllProducts(): ProductData[] {
   const data = productsData as any;
   if (!data || !data.products) return [];
@@ -115,12 +112,7 @@ export function getPricingSteps(p: ProductData): PricingStepDisplay[] {
   for (let i = 0; i < filtered.length; i++) {
     const s = filtered[i];
     const price = parseFloat(s.price);
-    out.push({
-      label: s.num + "+",
-      quantity: s.num,
-      price: price,
-      formatted: "$" + price.toFixed(2)
-    });
+    out.push({ label: s.num + "+", quantity: s.num, price: price, formatted: "$" + price.toFixed(2) });
   }
   return out;
 }
@@ -135,12 +127,9 @@ export function getPrintMethodTabs(p: ProductData): { name: string; pricingSteps
   function findWay(name: string): PricingStep[] {
     const target = name.toLowerCase();
     for (let i = 0; i < ways.length; i++) {
-      const way = ways[i];
-      const wayName = safeStr(way.printingWayNameEn, "").toLowerCase();
-      if (wayName.indexOf(target) !== -1) {
-        const prices = way.productPrintingWayPrices;
-        if (prices && prices[0] && prices[0].productPrintingWayPriceSteps) {
-          return prices[0].productPrintingWayPriceSteps;
+      if (safeStr(ways[i].printingWayNameEn, "").toLowerCase().indexOf(target) !== -1) {
+        if (ways[i].productPrintingWayPrices && ways[i].productPrintingWayPrices[0] && ways[i].productPrintingWayPrices[0].productPrintingWayPriceSteps) {
+          return ways[i].productPrintingWayPrices![0].productPrintingWayPriceSteps!;
         }
       }
     }
@@ -162,13 +151,11 @@ export function getPrintingSurfaces(p: ProductData): SurfaceDisplay[] {
     const rs = safeArr(surface.printingRegions);
     for (let j = 0; j < rs.length; j++) {
       const r = rs[j];
-      const w = r.regionWidth || 0;
-      const h = r.regionHigh || 0;
       regions.push({
         name: safeStr(r.regionName, surface.printingPositionNameEn || ""),
-        width: w,
-        height: h,
-        label: w + " in / " + h + " in"
+        width: r.regionWidth || 0,
+        height: r.regionHigh || 0,
+        label: (r.regionWidth || 0) + " in / " + (r.regionHigh || 0) + " in"
       });
     }
     out.push({ name: safeStr(surface.printingPositionNameEn, "Surface"), regions });
@@ -190,10 +177,7 @@ export function getAllImages(p: ProductData): string[] {
     if (files[i].type === 0 && files[i].file) push(files[i].file.path);
   }
   const imgs = safeArr(p.imgs);
-  for (let i = 0; i < imgs.length; i++) {
-    push(imgs[i].url);
-    push(imgs[i].path);
-  }
+  for (let i = 0; i < imgs.length; i++) { push(imgs[i].url); push(imgs[i].path); }
   return out;
 }
 
@@ -201,9 +185,7 @@ export function getDownloadFiles(p: ProductData): { path?: string }[] {
   const out: { path?: string }[] = [];
   const files = safeArr(p.files);
   for (let i = 0; i < files.length; i++) {
-    if (files[i].type === 0 && files[i].file && files[i].file.path) {
-      out.push(files[i].file);
-    }
+    if (files[i].type === 0 && files[i].file && files[i].file.path) out.push(files[i].file!);
   }
   return out;
 }
@@ -212,7 +194,7 @@ export function getTemplateFiles(p: ProductData): { path?: string }[] {
   const out: { path?: string }[] = [];
   const kf = safeArr(p.knifeFiles);
   for (let i = 0; i < kf.length; i++) {
-    if (kf[i].file && kf[i].file.path) out.push(kf[i].file);
+    if (kf[i].file && kf[i].file.path) out.push(kf[i].file!);
   }
   return out;
 }
@@ -220,30 +202,18 @@ export function getTemplateFiles(p: ProductData): { path?: string }[] {
 export function getSpecifications(p: ProductData): SpecRow[] {
   const specs = safeArr(p.productSpecs);
   const f = specs[0];
-  const colors = getColorOptions(p);
-  const colorNames = colors.map(c => c.name).join(", ");
+  const colors = getColorOptions(p).map(c => c.name).join(", ");
   let size = "-";
   if (f && (f.productLengthIn || f.productWidthIn || f.productHeightIn)) {
-    size = (f.productLengthIn || "?") + '" × ' +
-           (f.productWidthIn || "?") + '" × ' +
-           (f.productHeightIn || "?") + '"';
+    size = (f.productLengthIn || "?") + '" × ' + (f.productWidthIn || "?") + '" × ' + (f.productHeightIn || "?") + '"';
   }
   let wt = "-";
-  if (f && f.productWeightKgs) {
-    wt = (f.productWeightKgs * 2.20462).toFixed(2);
-  }
-  const ways = safeArr(p.printingWays);
-  const methodNames: string[] = [];
-  for (let i = 0; i < ways.length; i++) {
-    if (ways[i].printingWayNameEn) methodNames.push(ways[i].printingWayNameEn!);
-  }
-  const methods = methodNames.join(" / ") || "-";
+  if (f && f.productWeightKgs) wt = (f.productWeightKgs * 2.20462).toFixed(2);
+  const methods = safeArr(p.printingWays).map(w => w.printingWayNameEn).filter(Boolean).join(" / ") || "-";
   let area = "-";
-  if (f && (f.printLength || f.printWidth)) {
-    area = (f.printLength || "?") + '" × ' + (f.printWidth || "?") + '"';
-  }
+  if (f && (f.printLength || f.printWidth)) area = (f.printLength || "?") + '" × ' + (f.printWidth || "?") + '"';
   return [
-    { label: "Standard Color Options", value: colorNames || "-" },
+    { label: "Standard Color Options", value: colors || "-" },
     { label: "Material", value: p.material || "-" },
     { label: "Product Size", value: size },
     { label: "Product Weight", value: wt === "-" ? "-" : wt + " lbs" },
