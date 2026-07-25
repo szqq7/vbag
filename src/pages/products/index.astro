@@ -28,7 +28,7 @@ const specs = getSpecifications(product);
 const description: string = product.descriptionEn || "";
 const defaultColor: string = colors.length > 0 ? colors[0].name : "Default";
 
-let productSizes: {label: string; price: number; min: number}[] = [];
+let productSizes: {label: string; price: number; min: number; surcharge: number}[] = [];
 try {
   const specsArr: any[] = (product as any).productSpecs || [];
   productSizes = pricingSteps.slice(0, 4).map((s, i) => {
@@ -38,13 +38,40 @@ try {
         && spec.productLengthIn > 0 && spec.productWidthIn > 0) {
       label = Math.round(spec.productLengthIn) + ' X ' + Math.round(spec.productWidthIn);
     }
-    return { label, price: s.price, min: s.quantity };
+    return { label, price: s.price, min: s.quantity, surcharge: 0 };
   });
 } catch(e) {
-  productSizes = pricingSteps.slice(0, 4).map(s => ({ label: s.label, price: s.price, min: s.quantity }));
+  productSizes = pricingSteps.slice(0, 4).map(s => ({ label: s.label, price: s.price, min: s.quantity, surcharge: 0 }));
 }
+
 // 动态判断服装(有尺码=多选,无尺码=单选)
 const isApparel: boolean = (product.productSpecs || []).some((s: any) => s.specsValue2 && (s.specsValue2 as string).trim() !== '');
+
+// 服装尺码列表(从 productSpecs.specsValue2 提取 unique,加价费=$2.50 应用在排序后最大的两个)
+const apparelSizeList: {label: string; surcharge: number}[] = (() => {
+  if (!isApparel) return [];
+  const specsArr: any[] = (product as any).productSpecs || [];
+  const seen = new Set<string>();
+  const raw: string[] = [];
+  for (const s of specsArr) {
+    const v = (s.specsValue2 || '').trim();
+    if (v && !seen.has(v)) { seen.add(v); raw.push(v); }
+  }
+  if (raw.length === 0) return [];
+  // 排序:数字升序,字母相同保持原顺序
+  const sorted = raw.slice().sort((a, b) => {
+    const va = parseInt(a) || 0;
+    const vb = parseInt(b) || 0;
+    if (va !== vb) return va - vb;
+    return 0;
+  });
+  // 最大的 2 个尺码 = 加价 $2.50(如果至少 2 个)
+  const surchargeLabels = new Set(sorted.length >= 2 ? sorted.slice(-2) : sorted);
+  return raw.map(label => ({
+    label,
+    surcharge: surchargeLabels.has(label) ? 2.50 : 0,
+  }));
+})();
 const setupCharge = 50;
 ---
 
@@ -154,18 +181,17 @@ const setupCharge = 50;
               </div>
             ) : (
               <div class="size-inputs">
-                {productSizes.map((s, i) => (
+                {apparelSizeList.map((s, i) => (
                   <div class="size-input-item">
                     <input
                       type="number"
                       class="size-qty-input"
                       min="0"
                       value="0"
-                      data-price={s.price}
-                      data-min={s.min}
+                      data-surcharge={s.surcharge}
                       data-label={s.label}
                     />
-                    <span class="size-label">{s.label}</span>
+                    <span class="size-label">{s.label}{s.surcharge > 0 ? <span class="size-surcharge-tag"> +${s.surcharge.toFixed(2)}</span> : ''}</span>
                   </div>
                 ))}
               </div>
@@ -295,6 +321,10 @@ const setupCharge = 50;
               <tr>
                 <td>Set-Up Charge (G)</td>
                 <td class="summary-right">$50.00</td>
+              </tr>
+              <tr id="summaryAdditionalRow" style="display:none">
+                <td>Additional Charges <span id="summaryAdditionalDetail"></span></td>
+                <td class="summary-right" id="summaryAdditional">$0.00</td>
               </tr>
               <tr>
                 <td>Shipping Charge</td>
@@ -450,17 +480,39 @@ function recalc(){
 
   if (isApparelMode) {
     var lines = [];
+    var totalQty = 0;
+    var totalSurcharge = 0;
+    var surchargeDetails: string[] = [];
     document.querySelectorAll(".size-qty-input").forEach(function(inp){
       var v = parseInt(inp.value) || 0;
       if (v > 0) {
-        var price = parseFloat(inp.getAttribute("data-price")) || 0;
+        totalQty += v;
         var label = inp.getAttribute("data-label") || "";
-        var sub = v * price;
+        var surcharge = parseFloat(inp.getAttribute("data-surcharge")) || 0;
+        var unit = getUnitPrice(v);  // 基础单价(按数量匹配阶梯)
+        var totalUnit = unit + surcharge;  // 加价后的单价
+        var sub = v * totalUnit;
         subtotal += sub;
-        lines.push("$" + price.toFixed(2) + " ea × " + v + " (" + label + ")");
+        var labelText = label + (surcharge > 0 ? " (incl +$" + surcharge.toFixed(2) + ")" : "");
+        lines.push("$" + totalUnit.toFixed(2) + " ea × " + v + " " + labelText);
+        if (surcharge > 0) {
+          totalSurcharge += v * surcharge;
+          surchargeDetails.push("Garment-Size: " + label + " $" + surcharge.toFixed(2));
+        }
       }
     });
     if (summaryQty) summaryQty.innerHTML = lines.length > 0 ? lines.join("<br>") : "—";
+    // 服装模式下显示 Additional Charges 行
+    var addRow = document.getElementById("summaryAdditionalRow");
+    var addCell = document.getElementById("summaryAdditional");
+    var addDetail = document.getElementById("summaryAdditionalDetail");
+    if (totalSurcharge > 0) {
+      if (addRow) addRow.style.display = "";
+      if (addCell) addCell.textContent = "$" + totalSurcharge.toFixed(2);
+      if (addDetail) addDetail.innerHTML = surchargeDetails.map(function(d){ return "<div style='font-size:.7rem;color:#888'>" + d + "</div>"; }).join("");
+    } else {
+      if (addRow) addRow.style.display = "none";
+    }
   } else {
     var qInput = document.getElementById("qtyInput");
     var n = parseInt(qInput && qInput.value) || 0;
@@ -472,6 +524,9 @@ function recalc(){
       summaryQty.textContent = "$" + unit.toFixed(2) + " ea × " + n + " (" + label + ")";
     }
     highlightPricingTier(n);
+    // 非服装模式隐藏 Additional Charges 行
+    var addRow2 = document.getElementById("summaryAdditionalRow");
+    if (addRow2) addRow2.style.display = "none";
   }
 
   if (summarySubtotal) summarySubtotal.textContent = "$" + subtotal.toFixed(2);
@@ -493,7 +548,10 @@ function getApparelSubtotal(){
   var sub = 0;
   if (isApparelMode) {
     document.querySelectorAll(".size-qty-input").forEach(function(inp){
-      sub += (parseInt(inp.value) || 0) * (parseFloat(inp.getAttribute("data-price")) || 0);
+      var v = parseInt(inp.value) || 0;
+      var surcharge = parseFloat(inp.getAttribute("data-surcharge")) || 0;
+      var unit = getUnitPrice(v);
+      sub += v * (unit + surcharge);
     });
   } else {
     var qInput = document.getElementById("qtyInput");
@@ -651,6 +709,7 @@ recalc();
 .size-qty-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 .size-qty-input:focus { outline: none; border-color: #003d80; }
 .size-label { font-size: .85rem; color: #333; font-weight: 500; }
+.size-surcharge-tag { display: inline-block; margin-left: 4px; padding: 1px 5px; background: #fff3e0; color: #c75000; border-radius: 3px; font-size: .7rem; font-weight: 600; }
 
 .qty-input-card { margin-top: .5rem; padding: .85rem; background: #f8f9fa; border: 1px solid #e0e0e0; border-radius: 4px; }
 .qty-input-card label { display: block; font-size: .85rem; color: #555; margin-bottom: .5rem; font-weight: 500; }
