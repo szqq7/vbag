@@ -1,4 +1,3 @@
----
 import Base from "../../layouts/Base.astro";
 import {
   loadProduct, getColorOptions, getPricingSteps, getPrintMethodTabs,
@@ -28,7 +27,6 @@ const specs = getSpecifications(product);
 const description: string = product.descriptionEn || "";
 const defaultColor: string = colors.length > 0 ? colors[0].name : "Default";
 
-// 规格选项:从 productSpecs 取前 4 个的尺寸信息,无数据则降级用阶梯标签
 let productSizes: {label: string; price: number; min: number}[] = [];
 try {
   const specsArr: any[] = (product as any).productSpecs || [];
@@ -44,7 +42,7 @@ try {
 } catch(e) {
   productSizes = pricingSteps.slice(0, 4).map(s => ({ label: s.label, price: s.price, min: s.quantity }));
 }
-const isApparel: boolean = false;  // false=非服装(单选), true=服装(多选)
+const isApparel: boolean = false;
 const setupCharge = 50;
 ---
 
@@ -128,7 +126,6 @@ const setupCharge = 50;
       </section>
     </div>
 
-    <!-- 右栏 -->
     <div class="right-column">
       <div class="product-info">
         <h1 class="product-title">{title}</h1>
@@ -137,7 +134,6 @@ const setupCharge = 50;
           <div class="product-code-line">{product.code}</div>
         )}
 
-        <!-- 规格区: 非服装=单选标签 / 服装=多选输入框 -->
         {productSizes.length > 0 && (
           <div class="size-selector">
             {!isApparel ? (
@@ -213,12 +209,11 @@ const setupCharge = 50;
           )}
           <a class="flat-price-link" href="#">Sign in to view flat price</a>
 
-          <!-- 数量输入框(非服装模式联动阶梯价) -->
           {!isApparel && (
             <div class="qty-input-card">
               <label>Enter the quantity you'd like</label>
               <div class="qty-input-row">
-                <input type="number" id="qtyInput" value="50" min="1" />
+                <input type="number" id="qtyInput" value="0" min="1" />
                 <span class="qty-mult">×</span>
                 <span id="qtyUnitPrice" class="qty-unit-price">$0.00 (C) ea</span>
               </div>
@@ -348,14 +343,6 @@ document.querySelectorAll(".color-swatch").forEach(function(s){
   });
 });
 function getCS(){
-  var a = document.querySelector(".tab-btn.active");
-  var n = a ? a.getAttribute("data-method") : "Screen Print";
-  var tabs = window.__MT__ || [];
-  for (var i = 0; i < tabs.length; i++) {
-    if (tabs[i].name === n && tabs[i].pricingSteps && tabs[i].pricingSteps.length > 0) {
-      return tabs[i].pricingSteps;
-    }
-  }
   return window.__PS__ || [];
 }
 function getUnitPrice(qty){
@@ -365,10 +352,22 @@ function getUnitPrice(qty){
   }
   return 0;
 }
+function highlightPricingTier(qty){
+  var steps = window.__PS__ || [];
+  var matchedIdx = -1;
+  for (var i = 0; i < steps.length; i++) {
+    if (qty >= steps[i].num) matchedIdx = i;
+  }
+  document.querySelectorAll(".pricing-row .step-col.highlighted").forEach(function(el){ el.classList.remove("highlighted"); });
+  if (matchedIdx < 0) return;
+  var headerCells = document.querySelectorAll(".pricing-row.header .step-col");
+  var valueCells  = document.querySelectorAll(".pricing-row.values .step-col");
+  if (headerCells[matchedIdx]) headerCells[matchedIdx].classList.add("highlighted");
+  if (valueCells[matchedIdx])  valueCells[matchedIdx].classList.add("highlighted");
+}
 
 var isApparelMode = window.__APPAREL__ || false;
 
-// 非服装: 规格单选标签(点击切换)
 document.querySelectorAll(".size-tag").forEach(function(b){
   b.addEventListener("click", function(){
     document.querySelectorAll(".size-tag").forEach(function(x){ x.classList.remove("selected"); });
@@ -378,12 +377,10 @@ document.querySelectorAll(".size-tag").forEach(function(b){
   });
 });
 
-// 服装: 多选输入框(每个独立)
 document.querySelectorAll(".size-qty-input").forEach(function(inp){
   inp.addEventListener("input", recalc);
 });
 
-// 非服装: 数量输入框联动阶梯价
 var qInput = document.getElementById("qtyInput");
 if (qInput) {
   qInput.addEventListener("input", function(){
@@ -392,7 +389,6 @@ if (qInput) {
   });
 }
 
-// Tab 切换: 更新单价 + recalc
 document.querySelectorAll(".tab-btn").forEach(function(b){
   b.addEventListener("click", function(){
     document.querySelectorAll(".tab-btn").forEach(function(x){ x.classList.remove("active"); });
@@ -402,7 +398,6 @@ document.querySelectorAll(".tab-btn").forEach(function(b){
   });
 });
 
-// 根据 qtyInput 数值 + 当前 Tab, 更新单价显示
 function updateUnitPrice(){
   if (isApparelMode) return;
   var qInput = document.getElementById("qtyInput");
@@ -411,6 +406,7 @@ function updateUnitPrice(){
   var unit = getUnitPrice(n);
   var display = document.getElementById("qtyUnitPrice");
   if (display) display.textContent = "$" + unit.toFixed(2) + " (C) ea";
+  highlightPricingTier(n);
 }
 
 function recalc(){
@@ -443,6 +439,7 @@ function recalc(){
       var label = tag ? (tag.getAttribute("data-label") || "") : "";
       summaryQty.textContent = "$" + unit.toFixed(2) + " ea × " + n + " (" + label + ")";
     }
+    highlightPricingTier(n);
   }
 
   if (summarySubtotal) summarySubtotal.textContent = "$" + subtotal.toFixed(2);
@@ -572,6 +569,7 @@ recalc();
 .qty-col, .step-col { padding: .6rem .7rem; text-align: center; border-right: 1px solid #f0f0f0; font-size: .9rem; }
 .qty-col { text-align: left; font-weight: 500; color: #333; }
 .pricing-row.values .step-col { color: #b12704; }
+.pricing-row .step-col.highlighted { background: #e8f4fc; color: #0066c0; font-weight: 600; }
 .flat-price-link { display: inline-block; font-size: .9rem; color: #0066c0; text-decoration: none; margin-bottom: 1.25rem; }
 
 .form-row {
@@ -597,10 +595,7 @@ recalc();
 .summary-table .total-row td { padding-top: .75rem; border-top: 1px solid #e8e8e8; font-size: 1rem; }
 .summary-table .total-row td.summary-right { color: #111; }
 
-/* 规格选择区 */
 .size-selector { margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #e0e0e0; }
-
-/* 非服装: 单选标签 */
 .size-tags { display: flex; flex-wrap: wrap; gap: 8px; }
 .size-tag {
   padding: .5rem 1rem; border: 1px solid #ccc; border-radius: 4px;
@@ -612,7 +607,6 @@ recalc();
   border-color: #0066c0; background: #0066c0; color: #fff; font-weight: 600;
 }
 
-/* 服装: 多选输入框 */
 .size-inputs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
 .size-input-item { display: flex; flex-direction: column; align-items: center; gap: 4px; }
 .size-qty-input {
@@ -626,7 +620,6 @@ recalc();
 .size-qty-input:focus { outline: none; border-color: #003d80; }
 .size-label { font-size: .85rem; color: #333; font-weight: 500; }
 
-/* 非服装数量输入卡(在阶梯价下方) */
 .qty-input-card { margin-top: .5rem; padding: .85rem; background: #f8f9fa; border: 1px solid #e0e0e0; border-radius: 4px; }
 .qty-input-card label { display: block; font-size: .85rem; color: #555; margin-bottom: .5rem; font-weight: 500; }
 .qty-input-row { display: flex; align-items: center; gap: 0; }
@@ -639,6 +632,10 @@ recalc();
 }
 .qty-input-row input[type=number]::-webkit-outer-spin-button,
 .qty-input-row input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.qty-input-row input[type=number]::-webkit-search-cancel-button,
+.qty-input-row input[type=number]::-webkit-search-decoration {
+  -webkit-appearance: none; display: none;
+}
 .qty-mult { padding: 0 .5rem; height: 36px; background: #0066c0; color: #fff;
   display: flex; align-items: center; font-weight: 500; }
 .qty-unit-price {
