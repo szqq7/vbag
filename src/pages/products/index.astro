@@ -43,7 +43,8 @@ try {
 } catch(e) {
   productSizes = pricingSteps.slice(0, 4).map(s => ({ label: s.label, price: s.price, min: s.quantity }));
 }
-const isApparel: boolean = false;
+// 动态判断服装(有尺码=多选,无尺码=单选)
+const isApparel: boolean = (product.productSpecs || []).some((s: any) => s.specsValue2 && (s.specsValue2 as string).trim() !== '');
 const setupCharge = 50;
 ---
 
@@ -343,6 +344,7 @@ document.querySelectorAll(".color-swatch").forEach(function(s){
     }
   });
 });
+// 从 DOM 阶梯价表读取(自包含,不依赖 is:inline 注入)
 function getCS(){
   var result = [];
   var headers = document.querySelectorAll(".pricing-row.header .step-col");
@@ -369,7 +371,7 @@ function getUnitPrice(qty){
   for (var i = 0; i < sorted.length; i++) {
     if (qty >= sorted[i].num) return sorted[i].price;
   }
-  return s[0].price;
+  return s[0].price; // 兜底
 }
 function highlightPricingTier(qty){
   var steps = getCS();
@@ -432,7 +434,7 @@ function updateUnitPrice(){
   if (isApparelMode) return;
   var qInput = document.getElementById("qtyInput");
   if (!qInput) return;
-  var n = parseInt(qInput.value) || 0;
+  var n = parseInt(qInput.value) || 1;
   var unit = getUnitPrice(n);
   var display = document.getElementById("qtyUnitPrice");
   if (display) display.textContent = "$" + unit.toFixed(2) + " (C) ea";
@@ -535,7 +537,7 @@ recalc();
 .right-column { }
 
 .product-media { display: flex; flex-direction: row; gap: 14px; align-items: flex-start; }
-.thumbnails { display: flex; flex-direction: column; gap: 10px; width: 90px; flex-shrink: 0; max-height: 600px; overflow-x: auto; }
+.thumbnails { display: flex; flex-direction: column; gap: 10px; width: 90px; flex-shrink: 0; max-height: 600px; overflow-y: auto; }
 .thumb-btn { width: 90px; height: 90px; padding: 2px; border: 1px solid #e0e0e0; border-radius: 4px; background: #fff; cursor: pointer; overflow: hidden; }
 .thumb-btn.active { border-color: #333; }
 .thumb-btn img { width: 100%; height: 100%; object-fit: cover; display: block; }
