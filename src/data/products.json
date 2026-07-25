@@ -6132,6 +6132,167 @@
           ]
         }
       ]
+    },
+    {
+      "code": "1812092",
+      "nameEn": "Small Cotton and Linen Drawstring Bag",
+      "material": "Cotton + Linen",
+      "imgMainUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/178272113584345861.jpg",
+      "descriptionEn": "The drawstring pouch is made out of 250g natural cotton and linen. There are four available sizes:4''x 4.7'', 4.7\" x 5.9\", 5\" x 7\", and 5.9\" x 7.87\". These pouches are suitable for carrying coins, accessories, jewelry, spices, and nuts, or any other small item you need handy. It is featured in a natural color that is reusable and washable. It is made out of low-carbon and it is economical.",
+      "files": [],
+      "knifeFiles": [
+        {
+          "type": 1,
+          "file": {
+            "path": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/173381254156995360.pdf?uploadId=2367F8CF02D149598BA3BCADCFA5496D",
+            "name": "1812092 5in W.pdf"
+          }
+        },
+        {
+          "type": 1,
+          "file": {
+            "path": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/173381254156362071.pdf?uploadId=7C4F256156EA431784E7C31B79BE2C9A",
+            "name": "1812092 4in W.pdf"
+          }
+        },
+        {
+          "type": 1,
+          "file": {
+            "path": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/173381254157255817.pdf?uploadId=598195A9ADE046EEA17F994616685D8C",
+            "name": "1812092 4.7in W.pdf"
+          }
+        },
+        {
+          "type": 1,
+          "file": {
+            "path": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/173381254156828138.pdf?uploadId=A2351CB35B1347EAB963D793DBF46262",
+            "name": "1812092 5.9in W.pdf"
+          }
+        }
+      ],
+      "productSpecs": [
+        {
+          "specsValue1": "Natural",
+          "specsValue2": "4 X 4.7",
+          "colorRgb": "#d8d8ce",
+          "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164698166158943190.jpg",
+          "productLengthIn": 10.16,
+          "productWidthIn": 11.94,
+          "productHeightIn": 0,
+          "productWeightKgs": 0.001,
+          "printLength": 3,
+          "printWidth": 3,
+          "packingMethodEn": "bulk"
+        },
+        {
+          "specsValue1": "Natural",
+          "specsValue2": "4.7 X 5.9",
+          "colorRgb": "#d8d8ce",
+          "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164698180467355350.jpg",
+          "productLengthIn": 11.94,
+          "productWidthIn": 14.99,
+          "productHeightIn": 0,
+          "productWeightKgs": 0.011,
+          "printLength": 3.1,
+          "printWidth": 3.1,
+          "packingMethodEn": "bulk"
+        },
+        {
+          "specsValue1": "Natural",
+          "specsValue2": "5 X 7",
+          "colorRgb": "#d8d8ce",
+          "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164698181819234514.jpg",
+          "productLengthIn": 12.7,
+          "productWidthIn": 17.78,
+          "productHeightIn": 0,
+          "productWeightKgs": 0.013,
+          "printLength": 3.1,
+          "printWidth": 3.1,
+          "packingMethodEn": "bulk"
+        },
+        {
+          "specsValue1": "Natural",
+          "specsValue2": "5.9 X 7.87",
+          "colorRgb": "#d8d8ce",
+          "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164698182996080149.jpg",
+          "productLengthIn": 14.99,
+          "productWidthIn": 19.99,
+          "productHeightIn": 0,
+          "productWeightKgs": 0.016,
+          "printLength": 3.9,
+          "printWidth": 3.9,
+          "packingMethodEn": "bulk"
+        }
+      ],
+      "productPricingSteps": [
+        {
+          "num": 100,
+          "price": "0.763"
+        },
+        {
+          "num": 250,
+          "price": "0.652"
+        },
+        {
+          "num": 500,
+          "price": "0.588"
+        },
+        {
+          "num": 1000,
+          "price": "0.542"
+        },
+        {
+          "num": 2000,
+          "price": "0.418"
+        }
+      ],
+      "printingSurfaces": [
+        {
+          "printingPositionNameEn": "Front",
+          "printingRegions": [
+            {
+              "id": "1256958023558021213",
+              "regionName": "Front",
+              "regionWidth": 3.1,
+              "regionHigh": 3.1,
+              "regionX": 6.16,
+              "regionY": 6.3,
+              "regionExtend": "[{\"width\":\"0.2070\",\"height\":\"0.2070\",\"top\":\"0.4206\",\"left\":\"0.4113\",\"regionWidth\":3.1,\"regionHigh\":3.1}]"
+            }
+          ]
+        }
+      ],
+      "printingWays": [
+        {
+          "printingWayNameEn": "Sublimation",
+          "productPrintingWayPrices": [
+            {
+              "productPrintingWayPriceSteps": [
+                {
+                  "num": 100,
+                  "price": "0.76"
+                },
+                {
+                  "num": 250,
+                  "price": "0.65"
+                },
+                {
+                  "num": 500,
+                  "price": "0.59"
+                },
+                {
+                  "num": 1000,
+                  "price": "0.54"
+                },
+                {
+                  "num": 2000,
+                  "price": "0.42"
+                }
+              ]
+            }
+          ]
+        }
+      ]
     }
   ]
 }
