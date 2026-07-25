@@ -342,6 +342,9 @@ const setupCharge = 50;
   </div>
 </Base>
 
+<!-- 静态嵌入 Tab 阶梯价数据(不依赖 is:inline) -->
+<script id="static-tab-data" type="application/json">{JSON.stringify({ tabs: methodTabs })}</script>
+
 <script is:inline define:vars={{ pricingSteps, methodTabs, productSizes, isApparel, setupCharge }}>
   window.__PS__ = pricingSteps;
   window.__MT__ = methodTabs;
@@ -374,8 +377,25 @@ document.querySelectorAll(".color-swatch").forEach(function(s){
     }
   });
 });
-// 从 DOM 阶梯价表读取(自包含,不依赖 is:inline 注入)
+// 从静态 JSON 加载 Tab 阶梯价数据
+var __METHOD_TABS__ = [];
+try {
+  var dataScript = document.getElementById("static-tab-data");
+  if (dataScript) __METHOD_TABS__ = JSON.parse(dataScript.textContent).tabs;
+} catch(e) { __METHOD_TABS__ = []; }
+
+// 获取当前 Tab 对应的阶梯价
 function getCS(){
+  if (__METHOD_TABS__.length > 0) {
+    var a = document.querySelector(".tab-btn.active");
+    var n = a ? a.getAttribute("data-method") : "Screen Print";
+    for (var i = 0; i < __METHOD_TABS__.length; i++) {
+      if (__METHOD_TABS__[i].name === n && __METHOD_TABS__[i].pricingSteps && __METHOD_TABS__[i].pricingSteps.length > 0) {
+        return __METHOD_TABS__[i].pricingSteps;
+      }
+    }
+  }
+  // 兜底:从 DOM 阶梯表读取基础价
   var result = [];
   var headers = document.querySelectorAll(".pricing-row.header .step-col");
   var values  = document.querySelectorAll(".pricing-row.values .step-col");
@@ -390,6 +410,23 @@ function getCS(){
     }
   }
   return result;
+}
+// 更新表格文字为当前 Tab 的阶梯价
+function updatePricingTable(){
+  var steps = getCS();
+  var cols = document.querySelectorAll("#pricingRow .step-col");
+  for (var i = 0; i < cols.length; i++) {
+    if (steps[i]) {
+      var price = parseFloat(steps[i].price);
+      if (!isNaN(price)) {
+        cols[i].textContent = "$" + price.toFixed(2);
+        cols[i].setAttribute("data-step-price", String(price));
+      }
+    }
+  }
+  var qInput = document.getElementById("qtyInput");
+  var n = parseInt(qInput && qInput.value) || 0;
+  highlightPricingTier(n);
 }
 function getUnitPrice(qty){
   var s = getCS();
@@ -455,6 +492,7 @@ document.querySelectorAll(".tab-btn").forEach(function(b){
   b.addEventListener("click", function(){
     document.querySelectorAll(".tab-btn").forEach(function(x){ x.classList.remove("active"); });
     this.classList.add("active");
+    updatePricingTable();
     updateUnitPrice();
     recalc();
   });
