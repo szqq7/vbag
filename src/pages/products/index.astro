@@ -343,7 +343,6 @@ document.querySelectorAll(".color-swatch").forEach(function(s){
     }
   });
 });
-// 从 DOM 阶梯价表读取(自包含,不依赖 is:inline 注入)
 function getCS(){
   var result = [];
   var headers = document.querySelectorAll(".pricing-row.header .step-col");
@@ -361,20 +360,32 @@ function getCS(){
   return result;
 }
 function getUnitPrice(qty){
-  var s = getCS().slice().sort(function(a,b){ return b.num - a.num; });
-  for (var i = 0; i < s.length; i++) {
-    if (qty >= s[i].num) return s[i].price;
+  var s = getCS();
+  if (s.length === 0) return 0;
+  // 数量为 0 或小于最小档,按最小档(第一档)价格计算
+  if (qty <= 0 || qty < s[0].num) return s[0].price;
+  // 否则从高到低找匹配的档位
+  var sorted = s.slice().sort(function(a,b){ return b.num - a.num; });
+  for (var i = 0; i < sorted.length; i++) {
+    if (qty >= sorted[i].num) return sorted[i].price;
   }
-  return 0;
+  return s[0].price;
 }
 function highlightPricingTier(qty){
   var steps = getCS();
-  var matchedIdx = -1;
-  for (var i = 0; i < steps.length; i++) {
-    if (qty >= steps[i].num) matchedIdx = i;
+  if (steps.length === 0) return;
+  // 数量为 0 或小于最小档,默认高亮第一档(最小 num)
+  var matchedIdx;
+  if (qty <= 0 || qty < steps[0].num) {
+    matchedIdx = 0;
+  } else {
+    matchedIdx = -1;
+    for (var i = steps.length - 1; i >= 0; i--) {
+      if (qty >= steps[i].num) { matchedIdx = i; break; }
+    }
+    if (matchedIdx < 0) matchedIdx = 0;
   }
   document.querySelectorAll(".pricing-row .step-col.highlighted").forEach(function(el){ el.classList.remove("highlighted"); });
-  if (matchedIdx < 0) return;
   var headerCells = document.querySelectorAll(".pricing-row.header .step-col");
   var valueCells  = document.querySelectorAll(".pricing-row.values .step-col");
   if (headerCells[matchedIdx]) headerCells[matchedIdx].classList.add("highlighted");
@@ -421,7 +432,7 @@ function updateUnitPrice(){
   if (isApparelMode) return;
   var qInput = document.getElementById("qtyInput");
   if (!qInput) return;
-  var n = parseInt(qInput.value) || 1;
+  var n = parseInt(qInput.value) || 0;
   var unit = getUnitPrice(n);
   var display = document.getElementById("qtyUnitPrice");
   if (display) display.textContent = "$" + unit.toFixed(2) + " (C) ea";
