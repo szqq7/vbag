@@ -47,8 +47,8 @@ try {
 // 动态判断服装(有尺码=多选,无尺码=单选)
 const isApparel: boolean = (product.productSpecs || []).some((s: any) => s.specsValue2 && (s.specsValue2 as string).trim() !== '');
 
-// 服装尺码列表(从 productSpecs.specsValue2 提取 unique,加价费=$2.50 应用在排序后最大的两个)
-const apparelSizeList: {label: string; surcharge: number}[] = (() => {
+// 服装尺码列表(从 productSpecs.specsValue2 提取 unique)
+const apparelSizeList: {label: string; surcharge: number; basePrice: number; min: number}[] = (() => {
   if (!isApparel) return [];
   const specsArr: any[] = (product as any).productSpecs || [];
   const seen = new Set<string>();
@@ -58,18 +58,28 @@ const apparelSizeList: {label: string; surcharge: number}[] = (() => {
     if (v && !seen.has(v)) { seen.add(v); raw.push(v); }
   }
   if (raw.length === 0) return [];
-  // 排序:数字升序,字母相同保持原顺序
-  const sorted = raw.slice().sort((a, b) => {
-    const va = parseInt(a) || 0;
-    const vb = parseInt(b) || 0;
-    if (va !== vb) return va - vb;
-    return 0;
-  });
-  // 最大的 2 个尺码 = 加价 $2.50(如果至少 2 个)
+  const basePrice = parseFloat(pricingSteps[0]?.price || '0');
+  const minQty = pricingSteps[0]?.quantity || 1;
+  // 判断是否"多规格单选模式":规格里都没有字母尺码(S/M/L/XL)
+  const hasLetterSize = raw.some(label => /\b(XS|S|M|L|XL|XXL|XXXL)\b/i.test(label));
+  // 多规格单选:加价按规格索引递增(0, 0.10, 0.20, 0.30, ...)
+  // 服装尺码多选:最大的 2 个加价 $2.50(原逻辑)
+  if (!hasLetterSize && raw.length >= 2) {
+    return raw.map((label, i) => ({
+      label,
+      surcharge: Math.round(i * 0.10 * 100) / 100,
+      basePrice,
+      min: minQty,
+    }));
+  }
+  // 服装尺码多选:最大 2 个加价 $2.50
+  const sorted = raw.slice().sort((a, b) => (parseInt(a) || 0) - (parseInt(b) || 0));
   const surchargeLabels = new Set(sorted.length >= 2 ? sorted.slice(-2) : sorted);
   return raw.map(label => ({
     label,
     surcharge: surchargeLabels.has(label) ? 2.50 : 0,
+    basePrice,
+    min: minQty,
   }));
 })();
 const setupCharge = 50;
@@ -189,6 +199,8 @@ const setupCharge = 50;
                       min="0"
                       value="0"
                       data-surcharge={s.surcharge}
+                      data-base-price={s.basePrice}
+                      data-min={s.min}
                       data-label={s.label}
                     />
                     <span class="size-label">{s.label}{s.surcharge > 0 ? <span class="size-surcharge-tag"> +${s.surcharge.toFixed(2)}</span> : ''}</span>
@@ -465,6 +477,37 @@ function highlightPricingTier(qty){
 }
 
 var isApparelMode = document.querySelectorAll(".size-qty-input").length > 0;
+// 多规格单选模式:从 HTML 标签的 data-label 推断(包含 X 格式尺寸如 "4 X 4.7")
+var apparelSizeListIsMulti = isApparelMode && (function(){
+  var labels = [];
+  document.querySelectorAll(".size-qty-input").forEach(function(inp){
+    var lbl = inp.getAttribute("data-label") || "";
+    labels.push(lbl);
+  });
+  // 任一规格含 S/M/L/XL = 服装尺码多选模式;全 X 格式尺寸 = 多规格单选模式
+  return labels.length > 1 && !labels.some(function(l){ return /\b(XS|S|M|L|XL|XXL|XXXL)\b/i.test(l); });
+})();
+
+// 根据规格加价更新表格"Price Each (C)"行
+function updatePricingTableForSize(surcharge){
+  var baseSteps = getCS();  // 当前 Tab 的基础阶梯价
+  var cols = document.querySelectorAll("#pricingRow .step-col");
+  for (var i = 0; i < cols.length; i++) {
+    if (baseSteps[i]) {
+      var basePrice = parseFloat(baseSteps[i].price);
+      if (!isNaN(basePrice)) {
+        var finalPrice = basePrice + (surcharge || 0);
+        cols[i].textContent = "$" + finalPrice.toFixed(2);
+        cols[i].setAttribute("data-step-price", String(finalPrice));
+        cols[i].setAttribute("data-base-price", String(basePrice));
+      }
+    }
+  }
+  // 高亮当前数量档
+  var qtyInput = document.getElementById("qtyInput");
+  var n = parseInt(qtyInput && qtyInput.value) || 0;
+  highlightPricingTier(n);
+}
 
 document.querySelectorAll(".size-tag").forEach(function(b){
   b.addEventListener("click", function(){
@@ -476,7 +519,25 @@ document.querySelectorAll(".size-tag").forEach(function(b){
 });
 
 document.querySelectorAll(".size-qty-input").forEach(function(inp){
-  inp.addEventListener("input", recalc);
+  inp.addEventListener("input", function(){
+    var v = parseInt(this.value) || 0;
+    // 多规格单选模式:有非零值时清空其他输入框
+    if (isApparelMode && apparelSizeListIsMulti && v > 0) {
+      document.querySelectorAll(".size-qty-input").forEach(function(other){
+        if (other !== inp) other.value = "0";
+      });
+    }
+    // 多规格单选模式:在 recalc 前先把表格更新到当前规格的最终价
+    if (isApparelMode && apparelSizeListIsMulti) {
+      var selected = null;
+      document.querySelectorAll(".size-qty-input").forEach(function(inp2){
+        if (parseInt(inp2.value) > 0) selected = inp2;
+      });
+      var sur = selected ? (parseFloat(selected.getAttribute("data-surcharge")) || 0) : 0;
+      updatePricingTableForSize(sur);
+    }
+    recalc();
+  });
 });
 
 var qInput = document.getElementById("qtyInput");
