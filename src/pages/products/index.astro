@@ -343,18 +343,32 @@ document.querySelectorAll(".color-swatch").forEach(function(s){
     }
   });
 });
+// 从 DOM 阶梯价表读取(自包含,不依赖 is:inline 注入)
 function getCS(){
-  return window.__PS__ || [];
+  var result = [];
+  var headers = document.querySelectorAll(".pricing-row.header .step-col");
+  var values  = document.querySelectorAll(".pricing-row.values .step-col");
+  for (var i = 0; i < headers.length; i++) {
+    var label = (headers[i].textContent || "").trim();
+    var numMatch = label.match(/^(\d+)/);
+    var num = numMatch ? parseInt(numMatch[1]) : NaN;
+    var priceRaw = values[i] ? values[i].getAttribute("data-step-price") : null;
+    var price = priceRaw ? parseFloat(priceRaw) : NaN;
+    if (!isNaN(num) && !isNaN(price)) {
+      result.push({ num: num, price: price });
+    }
+  }
+  return result;
 }
 function getUnitPrice(qty){
   var s = getCS().slice().sort(function(a,b){ return b.num - a.num; });
   for (var i = 0; i < s.length; i++) {
-    if (qty >= s[i].num) return parseFloat(s[i].price);
+    if (qty >= s[i].num) return s[i].price;
   }
   return 0;
 }
 function highlightPricingTier(qty){
-  var steps = window.__PS__ || [];
+  var steps = getCS();
   var matchedIdx = -1;
   for (var i = 0; i < steps.length; i++) {
     if (qty >= steps[i].num) matchedIdx = i;
@@ -367,7 +381,7 @@ function highlightPricingTier(qty){
   if (valueCells[matchedIdx])  valueCells[matchedIdx].classList.add("highlighted");
 }
 
-var isApparelMode = window.__APPAREL__ || false;
+var isApparelMode = document.querySelectorAll(".size-qty-input").length > 0;
 
 document.querySelectorAll(".size-tag").forEach(function(b){
   b.addEventListener("click", function(){
@@ -385,6 +399,10 @@ document.querySelectorAll(".size-qty-input").forEach(function(inp){
 var qInput = document.getElementById("qtyInput");
 if (qInput) {
   qInput.addEventListener("input", function(){
+    updateUnitPrice();
+    recalc();
+  });
+  qInput.addEventListener("change", function(){
     updateUnitPrice();
     recalc();
   });
@@ -414,7 +432,7 @@ function recalc(){
   var summaryQty = document.getElementById("summaryQty");
   var summarySubtotal = document.getElementById("summarySubtotal");
   var summaryTotal = document.getElementById("summaryTotal");
-  var setup = window.__SETUP__ || 50;
+  var setup = 50;
   var subtotal = 0;
 
   if (isApparelMode) {
@@ -492,7 +510,7 @@ if (zipEl) zipEl.addEventListener("input", function(){
     summaryShipping.textContent = "$" + ship.toFixed(2);
     summaryShipping.style.color = "#222";
     var sub = getApparelSubtotal();
-    var setup = window.__SETUP__ || 50;
+    var setup = 50;
     if (summaryTotal) summaryTotal.textContent = "$" + (sub + setup + ship).toFixed(2);
   }
 });
@@ -506,7 +524,7 @@ recalc();
 .right-column { }
 
 .product-media { display: flex; flex-direction: row; gap: 14px; align-items: flex-start; }
-.thumbnails { display: flex; flex-direction: column; gap: 10px; width: 90px; flex-shrink: 0; max-height: 600px; overflow-y: auto; }
+.thumbnails { display: flex; flex-direction: column; gap: 10px; width: 90px; flex-shrink: 0; max-height: 600px; overflow-x: auto; }
 .thumb-btn { width: 90px; height: 90px; padding: 2px; border: 1px solid #e0e0e0; border-radius: 4px; background: #fff; cursor: pointer; overflow: hidden; }
 .thumb-btn.active { border-color: #333; }
 .thumb-btn img { width: 100%; height: 100%; object-fit: cover; display: block; }
