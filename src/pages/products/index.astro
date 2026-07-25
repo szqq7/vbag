@@ -342,8 +342,10 @@ const setupCharge = 50;
   </div>
 </Base>
 
-<!-- 静态嵌入 Tab 阶梯价数据(不依赖 is:inline) -->
-<script id="static-tab-data" type="application/json">{JSON.stringify({ tabs: methodTabs })}</script>
+<!-- 静态嵌入 Tab 阶梯价数据(直接写入 window,最可靠) -->
+<script is:inline define:vars={{ methodTabs }}>
+  window.__METHOD_TABS_JSON__ = JSON.stringify({ tabs: methodTabs });
+</script>
 
 <script is:inline define:vars={{ pricingSteps, methodTabs, productSizes, isApparel, setupCharge }}>
   window.__PS__ = pricingSteps;
@@ -377,11 +379,12 @@ document.querySelectorAll(".color-swatch").forEach(function(s){
     }
   });
 });
-// 从静态 JSON 加载 Tab 阶梯价数据
+// 从静态注入加载 Tab 阶梯价数据
 var __METHOD_TABS__ = [];
 try {
-  var dataScript = document.getElementById("static-tab-data");
-  if (dataScript) __METHOD_TABS__ = JSON.parse(dataScript.textContent).tabs;
+  if (window.__METHOD_TABS_JSON__) {
+    __METHOD_TABS__ = JSON.parse(window.__METHOD_TABS_JSON__).tabs;
+  }
 } catch(e) { __METHOD_TABS__ = []; }
 
 // 获取当前 Tab 对应的阶梯价
