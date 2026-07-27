@@ -545,16 +545,15 @@ document.querySelectorAll(".size-tag").forEach(function(b){
   b.addEventListener("click", function(){
     document.querySelectorAll(".size-tag").forEach(function(x){ x.classList.remove("selected"); });
     this.classList.add("selected");
-    // 多规格单选模式(服装尺寸格式如 4 X 4.7):点击新规格 → 重置数量 + 更新价格表
+    // 多规格单选模式(服装尺寸格式如 4 X 4.7):重置数量 + 更新价格表 + 更新单价显示
     if (apparelSizeListIsMulti) {
       var qInput = document.getElementById("qtyInput");
       if (qInput) qInput.value = "0";
       var sur = parseFloat(this.getAttribute("data-surcharge")) || 0;
       updatePricingTableForSize(sur);
-    } else {
-      // 非服装模式:只更新单价
-      updateUnitPrice();
     }
+    // 始终更新单价显示(无论哪种模式,让右侧 $X.XX 实时反映新规格)
+    updateUnitPrice();
     recalc();
   });
 });
