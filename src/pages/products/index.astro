@@ -519,16 +519,6 @@ function highlightPricingTier(qty){
   if (headerCells[matchedIdx]) headerCells[matchedIdx].classList.add("highlighted");
   if (valueCells[matchedIdx])  valueCells[matchedIdx].classList.add("highlighted");
 }
-  // 清除所有高亮
-  document.querySelectorAll(".pricing-row .step-col.highlighted").forEach(function(el){
-    el.classList.remove("highlighted");
-  });
-  // 给匹配列加高亮
-  var headerCells = document.querySelectorAll(".pricing-row.header .step-col");
-  var valueCells  = document.querySelectorAll(".pricing-row.values .step-col");
-  if (headerCells[matchedIdx]) headerCells[matchedIdx].classList.add("highlighted");
-  if (valueCells[matchedIdx])  valueCells[matchedIdx].classList.add("highlighted");
-}
 
 // 服装模式判断:有任何 .size-qty-input(多选模式) 或 .size-tags[data-mode="multi-spec-single"](单选模式)
 var isApparelMode = document.querySelectorAll(".size-qty-input, .size-tags[data-mode='multi-spec-single']").length > 0;
