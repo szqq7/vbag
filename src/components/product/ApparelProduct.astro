@@ -35,34 +35,21 @@ const specs = getSpecifications(product);
 const description: string = product.descriptionEn || "";
 const defaultColor: string = colors.length > 0 ? colors[0].name : "Default";
 
-// 服装尺码列表(从 productSpecs.specsValue2 提取 unique)
-// 字母尺码:最大的 2 个加价 $2.50(原有逻辑,保持原样)
-type ApparelSizeRow = {
+// 分尺码数量输入组 - 9 个标准尺码,加价全部置 0(待后续加价数据接入)
+// 顺序固定: S → M → L → XL → 2XL → 3XL → 4XL → 5XL → 6XL
+type InputSizeRow = {
   label: string;
   surcharge: number;
   basePrice: number;
   min: number;
 };
-const apparelSizeList: ApparelSizeRow[] = (() => {
-  const specsArr: any[] = (product as any).productSpecs || [];
-  const seen = new Set<string>();
-  const raw: string[] = [];
-  for (const s of specsArr) {
-    const v = (s.specsValue2 || "").trim();
-    if (v && !seen.has(v)) { seen.add(v); raw.push(v); }
-  }
-  if (raw.length === 0) return [];
-  const basePrice = parseFloat(pricingSteps[0]?.price?.toString() || "0");
-  const minQty = pricingSteps[0]?.quantity || 1;
-  const sorted = raw.slice().sort((a, b) => (parseInt(a) || 0) - (parseInt(b) || 0));
-  const surchargeLabels = new Set(sorted.length >= 2 ? sorted.slice(-2) : sorted);
-  return raw.map(label => ({
-    label,
-    surcharge: surchargeLabels.has(label) ? 2.50 : 0,
-    basePrice,
-    min: minQty,
-  }));
-})();
+const STANDARD_INPUT_SIZES = ["S", "M", "L", "XL", "2XL", "3XL", "4XL", "5XL", "6XL"];
+const inputSizeList: InputSizeRow[] = STANDARD_INPUT_SIZES.map(label => ({
+  label,
+  surcharge: 0,
+  basePrice: parseFloat(pricingSteps[0]?.price?.toString() || "0"),
+  min: pricingSteps[0]?.quantity || 1,
+}));
 
 const setupCharge = 50;
 ---
@@ -155,28 +142,6 @@ const setupCharge = 50;
           <div class="product-code-line">{product.code}</div>
         )}
 
-        {apparelSizeList.length > 0 && (
-          <div class="size-selector">
-            <div class="size-inputs">
-              {apparelSizeList.map((s, i) => (
-                <div class="size-input-item">
-                  <input
-                    type="number"
-                    class="size-qty-input"
-                    min="0"
-                    value="0"
-                    data-surcharge={s.surcharge}
-                    data-base-price={s.basePrice}
-                    data-min={s.min}
-                    data-label={s.label}
-                  />
-                  <span class="size-label">{s.label}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
         <div class="color-header">
           <span class="color-label">PRODUCT COLOR: <strong id="currentColor">{defaultColor}</strong></span>
           <label class="bulk-toggle">
@@ -214,6 +179,30 @@ const setupCharge = 50;
             </div>
           )}
           <a class="flat-price-link" href="#">Sign in to view flat price</a>
+
+        {/* 分尺码数量输入组 - 9 个标准尺码,每个独立填数量 */}
+        {inputSizeList.length > 0 && (
+          <div class="qty-input-card">
+            <label class="qty-input-label">Enter the quantity you'd like</label>
+            <div class="size-inputs">
+              {inputSizeList.map((s) => (
+                <div class="size-input-item">
+                  <input
+                    type="number"
+                    class="size-qty-input"
+                    min="0"
+                    value="0"
+                    data-surcharge={s.surcharge}
+                    data-base-price={s.basePrice}
+                    data-min={s.min}
+                    data-label={s.label}
+                  />
+                  <span class="size-label">{s.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
         </div>
 
         <h3 class="section-title">IMPRINT LOCATION(S) & OPTION</h3>
@@ -628,12 +617,12 @@ highlightPricingTier(0);
 .summary-table .total-row td.summary-right { color: #111; }
 
 .size-selector { margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #e0e0e0; }
-.size-inputs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.size-inputs { display: grid; grid-template-columns: repeat(auto-fit, minmax(56px, 1fr)); gap: 8px; }
 .size-input-item { display: flex; flex-direction: column; align-items: center; gap: 4px; }
 .size-qty-input {
-  width: 100%; padding: .5rem .25rem;
+  width: 100%; padding: .45rem .25rem;
   border: 2px solid #0066c0; border-radius: 4px;
-  text-align: center; font-size: 1rem; font-weight: 600;
+  text-align: center; font-size: .95rem; font-weight: 600;
   -moz-appearance: textfield;
 }
 .size-qty-input::-webkit-outer-spin-button,
@@ -641,6 +630,9 @@ highlightPricingTier(0);
 .size-qty-input:focus { outline: none; border-color: #003d80; }
 .size-label { font-size: .85rem; color: #333; font-weight: 500; }
 .size-surcharge-tag { display: inline-block; margin-left: 4px; padding: 1px 5px; background: #fff3e0; color: #c75000; border-radius: 3px; font-size: .7rem; font-weight: 600; }
+
+.qty-input-card { margin-top: .5rem; padding: .85rem .95rem; background: #f8f9fa; border: 1px solid #e0e0e0; border-radius: 4px; }
+.qty-input-card .qty-input-label { display: block; font-size: .9rem; color: #333; margin-bottom: .6rem; font-weight: 500; }
 
 @media (max-width: 1024px) {
   .product-page { grid-template-columns: 1fr; max-width: 800px; padding: 1.5rem; }
