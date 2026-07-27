@@ -469,33 +469,46 @@ function updatePricingTable(){
   var n = parseInt(qInput && qInput.value) || 0;
   highlightPricingTier(n);
 }
+// 根据数量计算对应档位的单价
+// 区间规则:qty < 最小档 → 第一档;qty 落在某个档位区间 → 该档位;qty >= 最大档 → 最大档
 function getUnitPrice(qty){
   var s = getCS();
-  if (s.length === 0) return 0;
-  // 数量为 0 或小于最小档,按最小档(第一档)价格计算
-  if (qty <= 0 || qty < s[0].num) return s[0].price;
-  // 否则从高到低找匹配的档位
-  var sorted = s.slice().sort(function(a,b){ return b.num - a.num; });
-  for (var i = 0; i < sorted.length; i++) {
-    if (qty >= sorted[i].num) return sorted[i].price;
+  if (!s || s.length === 0) return 0;
+  // 1. 数量为 0 / 空 / 负数 / 小于最小档 → 返回第一档(最小 num)的价格
+  if (!qty || qty <= 0 || qty < s[0].num) {
+    return parseFloat(s[0].price) || 0;
   }
-  return s[0].price; // 兜底
+  // 2. 找到满足 qty >= num 的最大 num 档(降序遍历)
+  for (var i = s.length - 1; i >= 0; i--) {
+    if (qty >= s[i].num) {
+      return parseFloat(s[i].price) || 0;
+    }
+  }
+  // 3. 兜底:返回第一档
+  return parseFloat(s[0].price) || 0;
 }
+
+// 高亮数量对应的阶梯档
+// 区间规则:qty < 最小档 → 高亮第一档;qty 在某档区间 → 高亮该档
 function highlightPricingTier(qty){
   var steps = getCS();
-  if (steps.length === 0) return;
-  // 数量为 0 或小于最小档,默认高亮第一档(最小 num)
-  var matchedIdx;
-  if (qty <= 0 || qty < steps[0].num) {
-    matchedIdx = 0;
-  } else {
-    matchedIdx = -1;
-    for (var i = steps.length - 1; i >= 0; i--) {
-      if (qty >= steps[i].num) { matchedIdx = i; break; }
+  if (!steps || steps.length === 0) return;
+  // 找出 qty 落在哪个档
+  var matchedIdx = 0;  // 默认高亮第一档
+  for (var i = 0; i < steps.length; i++) {
+    if (qty >= steps[i].num) {
+      matchedIdx = i;
+    } else {
+      break;  // qty < steps[i].num,后续档位也用不到
     }
-    if (matchedIdx < 0) matchedIdx = 0;
   }
-  document.querySelectorAll(".pricing-row .step-col.highlighted").forEach(function(el){ el.classList.remove("highlighted"); });
+  // 如果 qty 小于所有档位,默认高亮第一档
+  if (!qty || qty <= 0) matchedIdx = 0;
+  // 清除所有高亮
+  document.querySelectorAll(".pricing-row .step-col.highlighted").forEach(function(el){
+    el.classList.remove("highlighted");
+  });
+  // 给匹配列加高亮
   var headerCells = document.querySelectorAll(".pricing-row.header .step-col");
   var valueCells  = document.querySelectorAll(".pricing-row.values .step-col");
   if (headerCells[matchedIdx]) headerCells[matchedIdx].classList.add("highlighted");
@@ -578,7 +591,7 @@ function updateUnitPrice(){
   if (isApparelMode && !apparelSizeListIsMulti) return;
   var qInput = document.getElementById("qtyInput");
   if (!qInput) return;
-  var n = parseInt(qInput.value) || 1;
+  var n = parseInt(qInput.value) || 0;
   var unit = getUnitPrice(n);
   var display = document.getElementById("qtyUnitPrice");
   if (display) display.textContent = "$" + unit.toFixed(2) + " (C) ea";
@@ -726,6 +739,17 @@ if (zipEl) zipEl.addEventListener("input", function(){
 });
 
 recalc();
+// 页面加载时初始化数量显示和高亮(显示第一档最终价)
+updateUnitPrice();
+highlightPricingTier(0);
+// 页面加载时如果默认选中规格有加价,刷新表格
+if (apparelSizeListIsMulti) {
+  var initialSelected = document.querySelector(".size-tags[data-mode='multi-spec-single'] .size-tag.selected");
+  if (initialSelected) {
+    var initSur = parseFloat(initialSelected.getAttribute("data-surcharge")) || 0;
+    updatePricingTableForSize(initSur);
+  }
+}
 </script>
 
 <style>
