@@ -83,6 +83,13 @@ const apparelSizeList: {label: string; surcharge: number; basePrice: number; min
   }));
 })();
 const setupCharge = 50;
+
+// 多规格单选判断(尺寸格式如 "4 X 4.7" vs 字母尺码 S/M/L):决定 HTML 模板渲染哪种 UI
+const apparelSizeListIsMulti: boolean = (() => {
+  if (!isApparel || apparelSizeList.length === 0) return false;
+  const hasLetter = apparelSizeList.some((s: any) => /\b(XS|S|M|L|XL|XXL|XXXL)\b/i.test(s.label));
+  return !hasLetter;
+})();
 ---
 
 <Base title={title}>
