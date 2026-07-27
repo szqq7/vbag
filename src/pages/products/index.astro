@@ -209,7 +209,7 @@ const apparelSizeListIsMulti: boolean = (() => {
                       data-min={s.min}
                       data-label={s.label}
                     >
-                      {s.label}{s.surcharge > 0 ? <span class="size-surcharge-tag"> +${s.surcharge.toFixed(2)}</span> : ''}
+                      {s.label}
                     </button>
                   ))}
                 </div>
@@ -227,24 +227,12 @@ const apparelSizeListIsMulti: boolean = (() => {
                         data-min={s.min}
                         data-label={s.label}
                       />
-                      <span class="size-label">{s.label}{s.surcharge > 0 ? <span class="size-surcharge-tag"> +${s.surcharge.toFixed(2)}</span> : ''}</span>
+                      <span class="size-label">{s.label}</span>
                     </div>
                   ))}
                 </div>
               )
             )}
-          </div>
-        )}
-
-        {/* 数量输入框:非服装 + 多规格单选(服装) 都显示 */}
-        {( !isApparel || (isApparel && apparelSizeListIsMulti) ) && (
-          <div class="qty-input-card">
-            <label>Enter the quantity you'd like</label>
-            <div class="qty-input-row">
-              <input type="number" id="qtyInput" value="0" min="1" />
-              <span class="qty-mult">×</span>
-              <span id="qtyUnitPrice" class="qty-unit-price">$0.00 (C) ea</span>
-            </div>
           </div>
         )}
 
@@ -285,6 +273,18 @@ const apparelSizeListIsMulti: boolean = (() => {
             </div>
           )}
           <a class="flat-price-link" href="#">Sign in to view flat price</a>
+
+          {/* 数量输入框:非服装 + 多规格单选 显示 */}
+          {( !isApparel || (isApparel && apparelSizeListIsMulti) ) && (
+            <div class="qty-input-card">
+              <label>Enter the quantity you'd like</label>
+              <div class="qty-input-row">
+                <input type="number" id="qtyInput" value="0" min="1" />
+                <span class="qty-mult">×</span>
+                <span id="qtyUnitPrice" class="qty-unit-price">$0.00 (C) ea</span>
+              </div>
+            </div>
+          )}
         </div>
 
         <h3 class="section-title">IMPRINT LOCATION(S) & OPTION</h3>
