@@ -232,12 +232,21 @@ const setupCharge = 50;
           <label class="form-label">Imprint Location</label>
           <div class="form-control">
             {surfaces.length > 0 ? (
-              surfaces.map((s, i) => (
-                <label class="checkbox-inline">
-                  <input type="checkbox" checked={i === 0} />
-                  <span>{s.name}</span>
-                </label>
-              ))
+              <>
+                {surfaces.map((s, i) => (
+                  <label class="checkbox-inline">
+                    <input type="checkbox" checked={i === 0} />
+                    <span>{s.name}</span>
+                  </label>
+                ))}
+                {/* 数据里没有 Back 时,自动补一个默认的 Back 复选框 */}
+                {!surfaces.some(s => s.name.toLowerCase().includes("back")) && (
+                  <label class="checkbox-inline">
+                    <input type="checkbox" />
+                    <span>Back</span>
+                  </label>
+                )}
+              </>
             ) : (
               <span style="color:#999">No imprint location info</span>
             )}
