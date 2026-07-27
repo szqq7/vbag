@@ -6182,7 +6182,29 @@
           "productWeightKgs": 0.001,
           "printLength": 3,
           "printWidth": 3,
-          "packingMethodEn": "bulk"
+          "packingMethodEn": "bulk",
+          "priceTiers": [
+            {
+              "num": 100,
+              "price": 0.763
+            },
+            {
+              "num": 250,
+              "price": 0.652
+            },
+            {
+              "num": 500,
+              "price": 0.588
+            },
+            {
+              "num": 1000,
+              "price": 0.542
+            },
+            {
+              "num": 2000,
+              "price": 0.418
+            }
+          ]
         },
         {
           "specsValue1": "Natural",
@@ -6195,7 +6217,29 @@
           "productWeightKgs": 0.011,
           "printLength": 3.1,
           "printWidth": 3.1,
-          "packingMethodEn": "bulk"
+          "packingMethodEn": "bulk",
+          "priceTiers": [
+            {
+              "num": 100,
+              "price": 0.843
+            },
+            {
+              "num": 250,
+              "price": 0.732
+            },
+            {
+              "num": 500,
+              "price": 0.668
+            },
+            {
+              "num": 1000,
+              "price": 0.622
+            },
+            {
+              "num": 2000,
+              "price": 0.498
+            }
+          ]
         },
         {
           "specsValue1": "Natural",
@@ -6208,7 +6252,29 @@
           "productWeightKgs": 0.013,
           "printLength": 3.1,
           "printWidth": 3.1,
-          "packingMethodEn": "bulk"
+          "packingMethodEn": "bulk",
+          "priceTiers": [
+            {
+              "num": 100,
+              "price": 0.943
+            },
+            {
+              "num": 250,
+              "price": 0.832
+            },
+            {
+              "num": 500,
+              "price": 0.768
+            },
+            {
+              "num": 1000,
+              "price": 0.722
+            },
+            {
+              "num": 2000,
+              "price": 0.598
+            }
+          ]
         },
         {
           "specsValue1": "Natural",
@@ -6221,29 +6287,29 @@
           "productWeightKgs": 0.016,
           "printLength": 3.9,
           "printWidth": 3.9,
-          "packingMethodEn": "bulk"
-        }
-      ],
-      "productPricingSteps": [
-        {
-          "num": 100,
-          "price": "0.763"
-        },
-        {
-          "num": 250,
-          "price": "0.652"
-        },
-        {
-          "num": 500,
-          "price": "0.588"
-        },
-        {
-          "num": 1000,
-          "price": "0.542"
-        },
-        {
-          "num": 2000,
-          "price": "0.418"
+          "packingMethodEn": "bulk",
+          "priceTiers": [
+            {
+              "num": 100,
+              "price": 1.183
+            },
+            {
+              "num": 250,
+              "price": 1.072
+            },
+            {
+              "num": 500,
+              "price": 1.008
+            },
+            {
+              "num": 1000,
+              "price": 0.962
+            },
+            {
+              "num": 2000,
+              "price": 0.838
+            }
+          ]
         }
       ],
       "printingSurfaces": [
