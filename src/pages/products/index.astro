@@ -190,24 +190,54 @@ const setupCharge = 50;
                 ))}
               </div>
             ) : (
-              <div class="size-inputs">
-                {apparelSizeList.map((s, i) => (
-                  <div class="size-input-item">
-                    <input
-                      type="number"
-                      class="size-qty-input"
-                      min="0"
-                      value="0"
+              // 服装模式:多规格单选(尺寸格式)=size-tags + qtyInput;服装尺码多选=size-inputs
+              apparelSizeListIsMulti ? (
+                <div class="size-tags" data-mode="multi-spec-single">
+                  {apparelSizeList.map((s, i) => (
+                    <button
+                      type="button"
+                      class={"size-tag " + (i === 0 ? "selected" : "")}
                       data-surcharge={s.surcharge}
                       data-base-price={s.basePrice}
                       data-min={s.min}
                       data-label={s.label}
-                    />
-                    <span class="size-label">{s.label}{s.surcharge > 0 ? <span class="size-surcharge-tag"> +${s.surcharge.toFixed(2)}</span> : ''}</span>
-                  </div>
-                ))}
-              </div>
+                    >
+                      {s.label}{s.surcharge > 0 ? <span class="size-surcharge-tag"> +${s.surcharge.toFixed(2)}</span> : ''}
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <div class="size-inputs">
+                  {apparelSizeList.map((s, i) => (
+                    <div class="size-input-item">
+                      <input
+                        type="number"
+                        class="size-qty-input"
+                        min="0"
+                        value="0"
+                        data-surcharge={s.surcharge}
+                        data-base-price={s.basePrice}
+                        data-min={s.min}
+                        data-label={s.label}
+                      />
+                      <span class="size-label">{s.label}{s.surcharge > 0 ? <span class="size-surcharge-tag"> +${s.surcharge.toFixed(2)}</span> : ''}</span>
+                    </div>
+                  ))}
+                </div>
+              )
             )}
+          </div>
+        )}
+
+        {/* 数量输入框:非服装 + 多规格单选(服装) 都显示 */}
+        {( !isApparel || (isApparel && apparelSizeListIsMulti) ) && (
+          <div class="qty-input-card">
+            <label>Enter the quantity you'd like</label>
+            <div class="qty-input-row">
+              <input type="number" id="qtyInput" value="0" min="1" />
+              <span class="qty-mult">×</span>
+              <span id="qtyUnitPrice" class="qty-unit-price">$0.00 (C) ea</span>
+            </div>
           </div>
         )}
 
@@ -248,17 +278,6 @@ const setupCharge = 50;
             </div>
           )}
           <a class="flat-price-link" href="#">Sign in to view flat price</a>
-
-          {!isApparel && (
-            <div class="qty-input-card">
-              <label>Enter the quantity you'd like</label>
-              <div class="qty-input-row">
-                <input type="number" id="qtyInput" value="0" min="1" />
-                <span class="qty-mult">×</span>
-                <span id="qtyUnitPrice" class="qty-unit-price">$0.00 (C) ea</span>
-              </div>
-            </div>
-          )}
         </div>
 
         <h3 class="section-title">IMPRINT LOCATION(S) & OPTION</h3>
@@ -476,17 +495,10 @@ function highlightPricingTier(qty){
   if (valueCells[matchedIdx])  valueCells[matchedIdx].classList.add("highlighted");
 }
 
-var isApparelMode = document.querySelectorAll(".size-qty-input").length > 0;
-// 多规格单选模式:从 HTML 标签的 data-label 推断(包含 X 格式尺寸如 "4 X 4.7")
-var apparelSizeListIsMulti = isApparelMode && (function(){
-  var labels = [];
-  document.querySelectorAll(".size-qty-input").forEach(function(inp){
-    var lbl = inp.getAttribute("data-label") || "";
-    labels.push(lbl);
-  });
-  // 任一规格含 S/M/L/XL = 服装尺码多选模式;全 X 格式尺寸 = 多规格单选模式
-  return labels.length > 1 && !labels.some(function(l){ return /\b(XS|S|M|L|XL|XXL|XXXL)\b/i.test(l); });
-})();
+// 服装模式判断:有任何 .size-qty-input(多选模式) 或 .size-tags[data-mode="multi-spec-single"](单选模式)
+var isApparelMode = document.querySelectorAll(".size-qty-input, .size-tags[data-mode='multi-spec-single']").length > 0;
+// 多规格单选模式(尺寸格式如 "4 X 4.7"):HTML 上有 .size-tags[data-mode="multi-spec-single"]
+var apparelSizeListIsMulti = document.querySelector(".size-tags[data-mode='multi-spec-single']") !== null;
 
 // 根据规格加价更新表格"Price Each (C)"行
 function updatePricingTableForSize(surcharge){
@@ -513,31 +525,23 @@ document.querySelectorAll(".size-tag").forEach(function(b){
   b.addEventListener("click", function(){
     document.querySelectorAll(".size-tag").forEach(function(x){ x.classList.remove("selected"); });
     this.classList.add("selected");
-    updateUnitPrice();
+    // 多规格单选模式(服装尺寸格式如 4 X 4.7):点击新规格 → 重置数量 + 更新价格表
+    if (apparelSizeListIsMulti) {
+      var qInput = document.getElementById("qtyInput");
+      if (qInput) qInput.value = "0";
+      var sur = parseFloat(this.getAttribute("data-surcharge")) || 0;
+      updatePricingTableForSize(sur);
+    } else {
+      // 非服装模式:只更新单价
+      updateUnitPrice();
+    }
     recalc();
   });
 });
 
+// 服装尺码多选模式:每个 size-qty-input 独立 input
 document.querySelectorAll(".size-qty-input").forEach(function(inp){
-  inp.addEventListener("input", function(){
-    var v = parseInt(this.value) || 0;
-    // 多规格单选模式:有非零值时清空其他输入框
-    if (isApparelMode && apparelSizeListIsMulti && v > 0) {
-      document.querySelectorAll(".size-qty-input").forEach(function(other){
-        if (other !== inp) other.value = "0";
-      });
-    }
-    // 多规格单选模式:在 recalc 前先把表格更新到当前规格的最终价
-    if (isApparelMode && apparelSizeListIsMulti) {
-      var selected = null;
-      document.querySelectorAll(".size-qty-input").forEach(function(inp2){
-        if (parseInt(inp2.value) > 0) selected = inp2;
-      });
-      var sur = selected ? (parseFloat(selected.getAttribute("data-surcharge")) || 0) : 0;
-      updatePricingTableForSize(sur);
-    }
-    recalc();
-  });
+  inp.addEventListener("input", recalc);
 });
 
 var qInput = document.getElementById("qtyInput");
@@ -563,7 +567,8 @@ document.querySelectorAll(".tab-btn").forEach(function(b){
 });
 
 function updateUnitPrice(){
-  if (isApparelMode) return;
+  // 服装尺码多选模式(无 qtyInput):跳过
+  if (isApparelMode && !apparelSizeListIsMulti) return;
   var qInput = document.getElementById("qtyInput");
   if (!qInput) return;
   var n = parseInt(qInput.value) || 1;
@@ -580,7 +585,8 @@ function recalc(){
   var setup = 50;
   var subtotal = 0;
 
-  if (isApparelMode) {
+  if (isApparelMode && !apparelSizeListIsMulti) {
+    // === 服装尺码多选模式:每个 size-qty-input 独立填数量 ===
     var lines = [];
     var totalQty = 0;
     var totalSurcharge = 0;
@@ -604,7 +610,7 @@ function recalc(){
       }
     });
     if (summaryQty) summaryQty.innerHTML = lines.length > 0 ? lines.join("<br>") : "—";
-    // 服装模式下显示 Additional Charges 行
+    // 服装多选模式:显示 Additional Charges 行
     var addRow = document.getElementById("summaryAdditionalRow");
     var addCell = document.getElementById("summaryAdditional");
     var addDetail = document.getElementById("summaryAdditionalDetail");
@@ -615,7 +621,32 @@ function recalc(){
     } else {
       if (addRow) addRow.style.display = "none";
     }
+  } else if (isApparelMode && apparelSizeListIsMulti) {
+    // === 多规格单选模式(服装尺寸格式如 4 X 4.7):单个 qtyInput + 选中 size-tag ===
+    var qInput = document.getElementById("qtyInput");
+    var n = parseInt(qInput && qInput.value) || 0;
+    var selectedTag = document.querySelector(".size-tag.selected");
+    var label = selectedTag ? (selectedTag.getAttribute("data-label") || "") : "";
+    var sur = selectedTag ? (parseFloat(selectedTag.getAttribute("data-surcharge")) || 0) : 0;
+    var unit = getUnitPrice(n);  // 已叠加规格加价(因为 updatePricingTableForSize 已更新 DOM)
+    subtotal = unit * n;
+    if (summaryQty) {
+      summaryQty.textContent = n > 0 ? "$" + unit.toFixed(2) + " ea × " + n + " (" + label + ")" : "—";
+    }
+    if (n > 0) highlightPricingTier(n);
+    // Additional Charges:始终显示(因为总有加价)
+    var addRow3 = document.getElementById("summaryAdditionalRow");
+    var addCell3 = document.getElementById("summaryAdditional");
+    var addDetail3 = document.getElementById("summaryAdditionalDetail");
+    if (n > 0 && sur > 0) {
+      if (addRow3) addRow3.style.display = "";
+      if (addCell3) addCell3.textContent = "$" + (n * sur).toFixed(2);
+      if (addDetail3) addDetail3.innerHTML = "<div style='font-size:.7rem;color:#888'>Garment-Size: " + label + " $" + sur.toFixed(2) + "</div>";
+    } else {
+      if (addRow3) addRow3.style.display = "none";
+    }
   } else {
+    // === 非服装模式:qtyInput + size-tag ===
     var qInput = document.getElementById("qtyInput");
     var n = parseInt(qInput && qInput.value) || 0;
     var unit = getUnitPrice(n);
@@ -626,7 +657,6 @@ function recalc(){
       summaryQty.textContent = "$" + unit.toFixed(2) + " ea × " + n + " (" + label + ")";
     }
     highlightPricingTier(n);
-    // 非服装模式隐藏 Additional Charges 行
     var addRow2 = document.getElementById("summaryAdditionalRow");
     if (addRow2) addRow2.style.display = "none";
   }
