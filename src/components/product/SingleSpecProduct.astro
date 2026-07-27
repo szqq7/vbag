@@ -34,18 +34,30 @@ const specs = getSpecifications(product);
 const description: string = product.descriptionEn || "";
 const defaultColor: string = colors.length > 0 ? colors[0].name : "Default";
 
-// 单规格 size 标签:从 productSpecs[0..3] 取尺寸拼装
+// 单规格 size 标签:从 productSpecs 中按"长 × 宽"去重提取唯一尺寸
+// (旧逻辑用 pricingSteps.slice(0,4) 会拼出 4 个相同 tag,已修复)
 const productSizes: {label: string; price: number; min: number; surcharge: number}[] = (() => {
   const specsArr: any[] = (product as any).productSpecs || [];
-  return pricingSteps.slice(0, 4).map((s, i) => {
-    const spec = specsArr[i] || null;
-    let label = s.label;
-    if (spec && typeof spec.productLengthIn === "number" && typeof spec.productWidthIn === "number"
-        && spec.productLengthIn > 0 && spec.productWidthIn > 0) {
-      label = Math.round(spec.productLengthIn) + " X " + Math.round(spec.productWidthIn);
-    }
-    return { label, price: s.price, min: s.quantity, surcharge: 0 };
-  });
+  const seen = new Set<string>();
+  const out: {label: string; price: number; min: number; surcharge: number}[] = [];
+  for (const spec of specsArr) {
+    if (!spec || typeof spec.productLengthIn !== "number" || typeof spec.productWidthIn !== "number"
+        || spec.productLengthIn <= 0 || spec.productWidthIn <= 0) continue;
+    const label = Math.round(spec.productLengthIn) + " X " + Math.round(spec.productWidthIn);
+    if (seen.has(label)) continue;
+    seen.add(label);
+    out.push({
+      label,
+      price: pricingSteps[0]?.price ?? 0,
+      min: pricingSteps[0]?.quantity ?? 1,
+      surcharge: 0,
+    });
+  }
+  // 兜底:productSpecs 全部没有尺寸信息时,显示一个空标签
+  if (out.length === 0) {
+    out.push({ label: "Default", price: pricingSteps[0]?.price ?? 0, min: pricingSteps[0]?.quantity ?? 1, surcharge: 0 });
+  }
+  return out;
 })();
 
 const setupCharge = 50;
