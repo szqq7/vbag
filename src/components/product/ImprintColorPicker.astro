@@ -35,7 +35,7 @@ const triggerText = `${idPrefix}-imprint-trigger-text`;
       </select>
 
       <div class="imprint-dropdown">
-        <button type="button" class="imprint-trigger" id={triggerId} aria-haspopup="listbox" aria-expanded="false">
+        <button type="button" class="imprint-trigger is-placeholder" id={triggerId} aria-haspopup="listbox" aria-expanded="false">
           <span id={triggerText}>Select Imprint Color</span>
           <svg class="imprint-caret" viewBox="0 0 12 8" width="10" height="6"><path d="M1 1l5 5 5-5" fill="none" stroke="#666" stroke-width="2"/></svg>
         </button>
@@ -132,10 +132,13 @@ const triggerText = `${idPrefix}-imprint-trigger-text`;
       var checked = root.querySelectorAll(".popover-option input:checked");
       if (checked.length === 0) {
         triggerTxt.textContent = "Select Imprint Color";
+        trigger.classList.add("is-placeholder");
       } else if (checked.length === 1) {
         triggerTxt.textContent = checked[0].getAttribute("data-name");
+        trigger.classList.remove("is-placeholder");
       } else {
         triggerTxt.textContent = checked.length + " colors selected";
+        trigger.classList.remove("is-placeholder");
       }
     }
     root.querySelectorAll(".popover-option input").forEach(function(cb){
@@ -257,6 +260,8 @@ const triggerText = `${idPrefix}-imprint-trigger-text`;
     align-items: center;
     text-align: left;
   }
+  /* 占位提示状态:浅灰色,与下方 .e.g. Neon Green 输入框 placeholder 一致 */
+  .imprint-trigger.is-placeholder { color: #999; font-weight: 400; }
   .imprint-trigger:hover, .imprint-trigger:focus {
     border-color: #0066c0;
     outline: none;
