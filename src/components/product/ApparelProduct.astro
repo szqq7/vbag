@@ -52,8 +52,8 @@ const inputSizeList: InputSizeRow[] = STANDARD_INPUT_SIZES.map(label => ({
   min: pricingSteps[0]?.quantity || 1,
 }));
 
-// 印刷版费表 + 各 way 的基础版费
-const { feeMap, baseFees } = getPublishFeeData(product);
+// 印刷版费表 + 单价表 + 各 way 的基础值
+const { setUpFeeMap, unitPriceMap, baseSetUpFees, baseUnitPrices } = getPublishFeeData(product);
 const setupCharge = 50;
 ---
 
@@ -290,11 +290,16 @@ const setupCharge = 50;
   window.__AP_METHOD_TABS_JSON__ = JSON.stringify({ tabs: methodTabs });
 </script>
 
-<script is:inline define:vars={{ pricingSteps, methodTabs, setupCharge, feeMap, baseFees }}>
+<script is:inline define:vars={{ pricingSteps, methodTabs, setupCharge, setUpFeeMap, unitPriceMap, baseSetUpFees, baseUnitPrices }}>
   window.__AP_PS__ = pricingSteps;
   window.__AP_MT__ = methodTabs;
   window.__AP_SETUP__ = setupCharge;
-  window.__AP_PUBLISH_FEE_DATA__ = JSON.stringify({ feeMap: feeMap, baseFees: baseFees });
+  window.__AP_PUBLISH_FEE_DATA__ = JSON.stringify({
+    setUpFeeMap: setUpFeeMap,
+    unitPriceMap: unitPriceMap,
+    baseSetUpFees: baseSetUpFees,
+    baseUnitPrices: baseUnitPrices
+  });
 </script>
 
 <script>
@@ -459,21 +464,32 @@ function recalc(){
     if (addRow) addRow.style.display = "none";
   }
   if (summarySubtotal) summarySubtotal.textContent = "$" + subtotal.toFixed(2);
-  // Set-Up + Imprint(印刷差价) 计入 Total
+  // Set-Up + Imprint(单价差价×数量) 计入 Total
   var s = updateSetupCharge();
   setup = s.fee;
-  if (summaryTotal) summaryTotal.textContent = "$" + (subtotal + setup + s.diff).toFixed(2);
+  var qty = getTotalQty();
+  var imprintAmount = Math.max(0, s.unitDiff) * qty;
+  if (s.unitDiff > 0 && qty > 0) {
+    var impRow2 = document.getElementById("summaryImprintRow");
+    var impCell2 = document.getElementById("summaryImprint");
+    if (impRow2) impRow2.style.display = "";
+    if (impCell2) impCell2.textContent = "$" + imprintAmount.toFixed(2);
+  } else {
+    var impRow2 = document.getElementById("summaryImprintRow");
+    if (impRow2) impRow2.style.display = "none";
+  }
+  if (summaryTotal) summaryTotal.textContent = "$" + (subtotal + setup + imprintAmount).toFixed(2);
 }
 
 // ============================================================
-// 印刷版费联动: Set-Up Charge + Imprint (印刷差价)
+// 印刷版费联动(V3.0): Set-Up Charge + Imprint (单价差价×数量)
 // ============================================================
-var __FEE_DATA__ = { feeMap: {}, baseFees: {} };
+var __FEE_DATA__ = { setUpFeeMap: {}, unitPriceMap: {}, baseSetUpFees: {}, baseUnitPrices: {} };
 try {
   if (window.__AP_PUBLISH_FEE_DATA__) {
     __FEE_DATA__ = JSON.parse(window.__AP_PUBLISH_FEE_DATA__);
   }
-} catch(e) { __FEE_DATA__ = { feeMap: {}, baseFees: {} }; }
+} catch(e) { __FEE_DATA__ = { setUpFeeMap: {}, unitPriceMap: {}, baseSetUpFees: {}, baseUnitPrices: {} }; }
 
 function mapCountToMethod(val) {
   if (!val) return "1-color";
@@ -491,23 +507,22 @@ function getCurrentSetupCharge() {
   var pos = 1;
   var boxes = document.querySelectorAll(".imprint-location-row input[type=checkbox]:checked");
   pos = Math.max(1, boxes.length);
-  var fee = __FEE_DATA__.feeMap[way + "|" + method + "|" + pos] || 0;
-  var base = __FEE_DATA__.baseFees[way] || 0;
-  return { fee: fee, base: base, diff: fee - base };
+  var key = way + "|" + method + "|" + pos;
+  var fee = __FEE_DATA__.setUpFeeMap[key] || 0;
+  var unitPrice = __FEE_DATA__.unitPriceMap[key] || 0;
+  var baseUnitPrice = __FEE_DATA__.baseUnitPrices[way] || 0;
+  return {
+    fee: fee,
+    unitPrice: unitPrice,
+    baseUnitPrice: baseUnitPrice,
+    unitDiff: unitPrice - baseUnitPrice,
+  };
 }
 
 function updateSetupCharge() {
   var s = getCurrentSetupCharge();
   var sc = document.getElementById("summarySetupCharge");
   if (sc) sc.textContent = "$" + s.fee.toFixed(2);
-  var impRow = document.getElementById("summaryImprintRow");
-  var impCell = document.getElementById("summaryImprint");
-  if (s.diff > 0) {
-    if (impRow) impRow.style.display = "";
-    if (impCell) impCell.textContent = "$" + s.diff.toFixed(2);
-  } else {
-    if (impRow) impRow.style.display = "none";
-  }
   return s;
 }
 
@@ -549,7 +564,9 @@ if (zipEl) zipEl.addEventListener("input", function(){
     summaryShipping.style.color = "#222";
     var sub = getApparelSubtotal();
     var s = getCurrentSetupCharge();
-    if (summaryTotal) summaryTotal.textContent = "$" + (sub + s.fee + s.diff + ship).toFixed(2);
+    var qty = getTotalQty();
+    var imprintAmount = Math.max(0, s.unitDiff) * qty;
+    if (summaryTotal) summaryTotal.textContent = "$" + (sub + s.fee + imprintAmount + ship).toFixed(2);
   }
 });
 
