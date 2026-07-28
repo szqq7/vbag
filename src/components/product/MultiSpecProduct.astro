@@ -7,6 +7,7 @@
 // - 价格来源:每个 SKU 自带的 priceTiers 静态阶梯价(不计算、不叠加)
 // =====================================================================
 import Base from "../../layouts/Base.astro";
+import ImprintColorPicker from "../../components/product/ImprintColorPicker.astro";
 import {
   loadProduct, getColorOptions, getPrintMethodTabs,
   getPrintingSurfaces, getAllImages, getDownloadFiles, getTemplateFiles,
@@ -50,7 +51,7 @@ const productSizes: SizeRow[] = (() => {
     const v2 = (s.specsValue2 || "").trim();
     if (!v2 || seen.has(v2)) continue;
     seen.add(v2);
-    const tiers: any[] = Array.isArray(s.priceTiers) ? s.priceTiers : [];
+    const tiers: any[] = Array.isArray(s.specsPricingSteps) ? s.specsPricingSteps : [];
     const priceTiers = tiers
       .filter(t => typeof t.num === "number" && t.price !== undefined)
       .sort((a, b) => a.num - b.num)
@@ -253,27 +254,7 @@ const setupCharge = 50;
           </div>
         </div>
 
-        <div class="form-row">
-          <label class="form-label">Imprint Color</label>
-          <div class="form-control">
-            <select class="form-select">
-              <option>1 color</option><option>2 color</option><option>3 color</option>
-            </select>
-            <select class="form-select">
-              <option>Select Imprint Color</option>
-              <option>Standard colors</option>
-              <option>Pantone Matching</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="form-row">
-          <label class="form-label">Enter your preferred color besides the colors listed above.</label>
-          <div class="form-control">
-            <input type="text" class="form-input" placeholder="e.g. Neon Green" />
-            <button type="button" class="add-btn">+ Add</button>
-          </div>
-        </div>
+        <ImprintColorPicker colors={colors} idPrefix="ms" />
 
         <div class="form-row">
           <label class="form-label">Physical Sample</label>
