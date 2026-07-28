@@ -1,0 +1,369 @@
+---
+// =====================================================================
+// Imprint Color Picker (共享组件 - 纯展示型)
+// - 弹层下拉选择器：标准颜色 + Pantone Matching
+// - 自定义输入：onBlur 校验(空/长度/字符/重复/Hex/PMS)
+// - 由三个产品页独立引用,运行实例彼此隔离
+// =====================================================================
+import type { ColorOption } from "../../utils/product-data";
+
+interface Props {
+  colors: ColorOption[];
+  idPrefix?: string;  // 同页多次出现时避免 ID 冲突
+}
+const { colors, idPrefix = "ic" } = Astro.props;
+
+const triggerId  = `${idPrefix}-imprint-trigger`;
+const popoverId  = `${idPrefix}-imprint-popover`;
+const customId   = `${idPrefix}-imprint-custom`;
+const errorId    = `${idPrefix}-imprint-error`;
+const countId    = `${idPrefix}-imprint-count`;
+const triggerText = `${idPrefix}-imprint-trigger-text`;
+---
+
+<div class="imprint-picker" data-prefix={idPrefix}>
+  <!-- Row 1: Imprint Location (only the count + dropdown) -->
+  <div class="form-row">
+    <label class="form-label">Imprint Color</label>
+    <div class="form-control">
+      <select class="form-select" id={countId}>
+        <option>1 color</option>
+        <option>2 color</option>
+        <option>3 color</option>
+        <option>4 color</option>
+        <option>Full Color</option>
+      </select>
+
+      <div class="imprint-dropdown">
+        <button type="button" class="imprint-trigger" id={triggerId} aria-haspopup="listbox" aria-expanded="false">
+          <span id={triggerText}>Select Imprint Color</span>
+          <svg class="imprint-caret" viewBox="0 0 12 8" width="10" height="6"><path d="M1 1l5 5 5-5" fill="none" stroke="#666" stroke-width="2"/></svg>
+        </button>
+        <div class="imprint-popover" id={popoverId} role="listbox" hidden>
+          <div class="popover-section">
+            <div class="popover-header">Standard colors</div>
+            <div class="popover-options">
+              {colors.map((c) => (
+                <label class="popover-option">
+                  <input type="checkbox" data-name={c.name} data-rgb={c.rgb} />
+                  <span class="popover-swatch" style={`background-color:${c.rgb};`}></span>
+                  <span class="popover-name">{c.name}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+          <div class="popover-divider"></div>
+          <div class="popover-section">
+            <div class="popover-header">Pantone Matching</div>
+            <div class="popover-options">
+              <label class="popover-option">
+                <input type="checkbox" data-name="Pantone Matching" data-special="1" />
+                <span class="popover-swatch popover-swatch-pantone">P</span>
+                <span class="popover-name">Pantone Matching</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Row 2: Custom color input -->
+  <div class="form-row">
+    <label class="form-label">Enter your preferred color besides the colors listed above.</label>
+    <div class="form-control imprint-custom-row">
+      <input
+        type="text"
+        class="form-input imprint-custom-input"
+        id={customId}
+        placeholder="e.g. Neon Green"
+        maxlength="50"
+        autocomplete="off"
+      />
+      <button type="button" class="add-btn">+ Add</button>
+    </div>
+    <div class="form-control imprint-error-row">
+      <span class="imprint-error" id={errorId}></span>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ============================================================================
+  // Imprint Color Picker - 独立脚本(每个 popover 实例都跑一遍,DOM 隔离)
+  // ============================================================================
+  var EMOJI_RE   = /[\u{1F300}-\u{1FAFF}\u{1F1E6}-\u{1F1FF}\u{2600}-\u{27BF}\u{1F900}-\u{1F9FF}]/u;
+  var TAG_RE     = /<[^>]+>/;
+  var CHAR_RE    = /^[A-Za-z0-9 \-#]+$/;
+  var HEX_RE     = /^#?([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
+  var PMS_RE     = /^(PMS|PANTONE)\s+(\d+|[A-Z]?\d+[A-Z]?)\s*([A-Z])?\s*$/i;
+
+  function setupPicker(prefix) {
+    var trigger    = document.getElementById(prefix + "-imprint-trigger");
+    var popover    = document.getElementById(prefix + "-imprint-popover");
+    var triggerTxt = document.getElementById(prefix + "-imprint-trigger-text");
+    var customIn   = document.getElementById(prefix + "-imprint-custom");
+    var errEl      = document.getElementById(prefix + "-imprint-error");
+    var root       = document.querySelector('[data-prefix="' + prefix + '"]');
+    if (!trigger || !popover || !root) return;
+
+    // === 1. 打开/关闭 popover ===
+    function close() {
+      popover.hidden = true;
+      trigger.setAttribute("aria-expanded", "false");
+    }
+    function open() {
+      popover.hidden = false;
+      trigger.setAttribute("aria-expanded", "true");
+    }
+    trigger.addEventListener("click", function(e) {
+      e.stopPropagation();
+      if (popover.hidden) open(); else close();
+    });
+    document.addEventListener("click", function(e) {
+      if (!root.contains(e.target)) close();
+    });
+    document.addEventListener("keydown", function(e) {
+      if (e.key === "Escape") close();
+    });
+
+    // === 2. 已选项更新触发器文字 ===
+    function refreshTrigger() {
+      var checked = root.querySelectorAll(".popover-option input:checked");
+      if (checked.length === 0) {
+        triggerTxt.textContent = "Select Imprint Color";
+      } else if (checked.length === 1) {
+        triggerTxt.textContent = checked[0].getAttribute("data-name");
+      } else {
+        triggerTxt.textContent = checked.length + " colors selected";
+      }
+    }
+    root.querySelectorAll(".popover-option input").forEach(function(cb){
+      cb.addEventListener("change", refreshTrigger);
+    });
+
+    // === 3. 自定义输入 - onBlur 校验 ===
+    function setError(msg) {
+      if (!errEl) return;
+      errEl.textContent = msg || "";
+      errEl.style.display = msg ? "block" : "none";
+      customIn.classList.toggle("has-error", !!msg);
+    }
+
+    function validate(val) {
+      var v = val.trim();
+      if (!v) return "";  // 空不报错(允许不清空就离开)
+
+      // 长度
+      if (v.length > 50) return "输入内容过长，请控制在 50 字符以内";
+      // Emoji
+      if (EMOJI_RE.test(v)) return "输入包含非法字符，请修改后重试";
+      // HTML/脚本
+      if (TAG_RE.test(v)) return "输入格式无效，请使用英文名称或 Hex 色值";
+      // 字符限定
+      if (!CHAR_RE.test(v)) return "输入包含非法字符，请修改后重试";
+
+      // Hex-only 检测
+      if (/^[#A-Fa-f0-9]+$/.test(v)) {
+        if (!HEX_RE.test(v)) return "输入格式无效，请使用英文名称或 Hex 色值";
+        return "";
+      }
+      // PMS/PANTONE 检测(以 PMS 或 PANTONE 开头)
+      if (/^(PMS|PANTONE)\b/i.test(v)) {
+        if (!PMS_RE.test(v)) return "Pantone 编码格式应为 PMS 186 C";
+        return "";
+      }
+      // 重复性检查 vs Standard colors
+      var opts = root.querySelectorAll(".popover-option input");
+      for (var i = 0; i < opts.length; i++) {
+        var n = opts[i].getAttribute("data-name") || "";
+        if (n && n.toLowerCase() === v.toLowerCase()) {
+          return "该颜色已在标准列表中，请直接选择";
+        }
+      }
+      return "";
+    }
+
+    customIn.addEventListener("blur", function() {
+      setError(validate(customIn.value));
+    });
+    customIn.addEventListener("input", function() {
+      if (errEl && errEl.style.display === "block") {
+        setError(validate(customIn.value));  // 已经有错误时,边输入边重新校验
+      }
+    });
+
+    // === 4. Add 按钮 ===
+    var addBtn = root.querySelector(".add-btn");
+    if (addBtn) {
+      addBtn.addEventListener("click", function() {
+        var v = customIn.value.trim();
+        var err = validate(v);
+        if (err) { setError(err); return; }
+        if (!v) { setError("请输入颜色名称或色值"); return; }
+        // 简单加到一个内嵌列表(不影响主流程)
+        setError("");
+        customIn.value = "";
+      });
+    }
+  }
+
+  // 找出所有实例,逐一初始化
+  document.querySelectorAll(".imprint-picker").forEach(function(el){
+    var p = el.getAttribute("data-prefix") || "ic";
+    setupPicker(p);
+  });
+</script>
+
+<style>
+  .imprint-picker { width: 100%; }
+  .imprint-picker .form-row {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 1rem;
+    align-items: center;
+    padding: .6rem 0;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .imprint-picker .form-label { font-size: .9rem; color: #555; font-weight: 500; }
+  .imprint-picker .form-control {
+    display: flex;
+    gap: 1.25rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .imprint-picker .form-select {
+    padding: .5rem .75rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: .9rem;
+    background: #fff;
+    min-width: 140px;
+  }
+
+  /* Popover trigger */
+  .imprint-dropdown { position: relative; flex: 1; max-width: 320px; }
+  .imprint-trigger {
+    width: 100%;
+    padding: .5rem .75rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: #fff;
+    font-size: .9rem;
+    color: #333;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-align: left;
+  }
+  .imprint-trigger:hover, .imprint-trigger:focus {
+    border-color: #0066c0;
+    outline: none;
+  }
+  .imprint-caret { flex-shrink: 0; }
+
+  /* Popover panel */
+  .imprint-popover {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    z-index: 50;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    box-shadow: 0 4px 16px rgba(0,0,0,.12);
+    width: 280px;
+    max-height: 320px;
+    overflow-y: auto;
+    padding: .4rem 0;
+  }
+  .popover-section { padding: .25rem 0; }
+  .popover-header {
+    font-size: .75rem;
+    font-weight: 700;
+    color: #0066c0;
+    text-transform: uppercase;
+    padding: .35rem .85rem;
+    letter-spacing: .04em;
+  }
+  .popover-divider {
+    height: 1px;
+    background: #eee;
+    margin: .25rem 0;
+  }
+  .popover-options { display: flex; flex-direction: column; }
+  .popover-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: .35rem .85rem;
+    cursor: pointer;
+    font-size: .85rem;
+  }
+  .popover-option:hover { background: #f5f8fc; }
+  .popover-option input {
+    margin: 0;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .popover-swatch {
+    width: 18px;
+    height: 18px;
+    border-radius: 3px;
+    border: 1px solid rgba(0,0,0,.15);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 0 2px rgba(0,0,0,.5);
+    flex-shrink: 0;
+  }
+  .popover-swatch-pantone {
+    background: linear-gradient(135deg, #ff6b35 0%, #f7c948 50%, #4ecdc4 100%);
+  }
+  .popover-name {
+    flex: 1;
+    color: #333;
+  }
+
+  /* Custom input + error */
+  .imprint-custom-row { align-items: center; }
+  .imprint-custom-input {
+    flex: 1;
+    max-width: 320px;
+    padding: .5rem .75rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: .9rem;
+    outline: none;
+    transition: border-color .15s;
+  }
+  .imprint-custom-input:focus { border-color: #0066c0; }
+  .imprint-custom-input.has-error { border-color: #c00; }
+  .add-btn {
+    padding: .5rem 1.25rem;
+    background: #fff;
+    color: #0066c0;
+    border: 1px solid #0066c0;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: .9rem;
+  }
+  .add-btn:hover { background: #0066c0; color: #fff; }
+  .imprint-error-row { padding-top: .25rem; }
+  .imprint-error {
+    display: none;
+    font-size: .78rem;
+    color: #c00;
+    flex: 1;
+    line-height: 1.4;
+  }
+
+  @media (max-width: 1024px) {
+    .imprint-picker .form-row { grid-template-columns: 1fr; gap: .5rem; }
+    .imprint-dropdown { max-width: none; }
+  }
+</style>
