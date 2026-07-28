@@ -36,7 +36,9 @@ const triggerText = `${idPrefix}-imprint-trigger-text`;
 
       <div class="imprint-dropdown">
         <button type="button" class="imprint-trigger is-placeholder" id={triggerId} aria-haspopup="listbox" aria-expanded="false">
-          <span id={triggerText}>Select Imprint Color</span>
+          <span class="imprint-trigger-content" id={triggerText}>
+            <span class="imprint-trigger-placeholder">Select Imprint Color</span>
+          </span>
           <svg class="imprint-caret" viewBox="0 0 12 8" width="10" height="6"><path d="M1 1l5 5 5-5" fill="none" stroke="#666" stroke-width="2"/></svg>
         </button>
         <div class="imprint-popover" id={popoverId} role="listbox" hidden>
@@ -127,23 +129,81 @@ const triggerText = `${idPrefix}-imprint-trigger-text`;
       if (e.key === "Escape") close();
     });
 
-    // === 2. 已选项更新触发器文字 ===
+    // === 2. 已选项更新触发器: 平铺标签模式 ===
     function refreshTrigger() {
       var checked = root.querySelectorAll(".popover-option input:checked");
       if (checked.length === 0) {
-        triggerTxt.textContent = "Select Imprint Color";
+        triggerTxt.innerHTML = '<span class="imprint-trigger-placeholder">Select Imprint Color</span>';
         trigger.classList.add("is-placeholder");
-      } else if (checked.length === 1) {
-        triggerTxt.textContent = checked[0].getAttribute("data-name");
-        trigger.classList.remove("is-placeholder");
       } else {
-        triggerTxt.textContent = checked.length + " colors selected";
+        var html = "";
+        checked.forEach(function(cb){
+          var n = cb.getAttribute("data-name") || "";
+          var rgb = cb.getAttribute("data-rgb") || "#cccccc";
+          html += '<span class="imprint-tag" data-name="' + escapeHtml(n) + '">' +
+                  '<span class="imprint-tag-swatch" style="background-color:' + escapeHtml(rgb) + ';"></span>' +
+                  '<span class="imprint-tag-name">' + escapeHtml(n) + '</span>' +
+                  '<span class="imprint-tag-x" data-name="' + escapeHtml(n) + '" title="移除">×</span>' +
+                  '</span>';
+        });
+        triggerTxt.innerHTML = html;
         trigger.classList.remove("is-placeholder");
+
+        // 绑定 × 删除按钮
+        triggerTxt.querySelectorAll(".imprint-tag-x").forEach(function(x){
+          x.addEventListener("click", function(e){
+            e.stopPropagation();
+            var target = this.getAttribute("data-name");
+            root.querySelectorAll(".popover-option input").forEach(function(cb){
+              if (cb.getAttribute("data-name") === target) cb.checked = false;
+            });
+            refreshTrigger();
+          });
+        });
       }
     }
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, function(c){
+        return ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"})[c];
+      });
+    }
+
+    // === 3. 单色互斥逻辑 ===
+    // "1 color" / "Full Color" 视为单色:选中新的会自动取消旧的
+    function isSingleMode(val) {
+      if (!val) return true;
+      if (val === "1 color" || val === "Full Color") return true;
+      return false;
+    }
+
     root.querySelectorAll(".popover-option input").forEach(function(cb){
-      cb.addEventListener("change", refreshTrigger);
+      cb.addEventListener("change", function(){
+        var countSel = document.getElementById(prefix + "-imprint-count");
+        var single = isSingleMode(countSel ? countSel.value : "1 color");
+        if (single && cb.checked) {
+          // 单色模式:取消其他所有勾选
+          root.querySelectorAll(".popover-option input").forEach(function(other){
+            if (other !== cb) other.checked = false;
+          });
+        }
+        refreshTrigger();
+      });
     });
+
+    // 切换颜色数下拉:进入单色时强制只保留第一个
+    var countSelForLock = document.getElementById(prefix + "-imprint-count");
+    if (countSelForLock) {
+      countSelForLock.addEventListener("change", function(){
+        if (isSingleMode(countSelForLock.value)) {
+          var first = null;
+          root.querySelectorAll(".popover-option input").forEach(function(cb){
+            if (cb.checked && !first) first = cb;
+            else cb.checked = false;
+          });
+          refreshTrigger();
+        }
+      });
+    }
 
     // === 3. 自定义输入 - onBlur 校验 ===
     function setError(msg) {
@@ -259,9 +319,65 @@ const triggerText = `${idPrefix}-imprint-trigger-text`;
     justify-content: space-between;
     align-items: center;
     text-align: left;
+    min-height: 38px;
   }
   /* 占位提示状态:浅灰色,与下方 .e.g. Neon Green 输入框 placeholder 一致 */
   .imprint-trigger.is-placeholder { color: #999; font-weight: 400; }
+  /* 选中状态下的内容容器:横向滚动 + 不换行 */
+  .imprint-trigger-content {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 4px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    align-items: center;
+    scrollbar-width: thin;
+  }
+  .imprint-trigger-content::-webkit-scrollbar { height: 4px; }
+  .imprint-trigger-content::-webkit-scrollbar-thumb { background: #ccc; border-radius: 2px; }
+  .imprint-trigger-content::-webkit-scrollbar-track { background: transparent; }
+  .imprint-trigger-placeholder {
+    color: #999;
+    font-weight: 400;
+  }
+  /* 已选颜色标签(色块 + 名字 + ×) */
+  .imprint-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 4px 2px 2px;
+    background: #f5f5f5;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    font-size: .8rem;
+    color: #333;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .imprint-tag-swatch {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 1px solid rgba(0,0,0,.2);
+    flex-shrink: 0;
+  }
+  .imprint-tag-name {
+    color: #333;
+    line-height: 1;
+  }
+  .imprint-tag-x {
+    cursor: pointer;
+    margin-left: 1px;
+    color: #999;
+    font-size: 1rem;
+    line-height: 1;
+    padding: 0 3px;
+    border-radius: 50%;
+    user-select: none;
+  }
+  .imprint-tag-x:hover { color: #c00; background: rgba(204,0,0,.08); }
   .imprint-trigger:hover, .imprint-trigger:focus {
     border-color: #0066c0;
     outline: none;
