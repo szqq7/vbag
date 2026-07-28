@@ -14701,7 +14701,28 @@
               "price": 0.42
             }
           ],
-          "specsPricingSteps": []
+          "specsPricingSteps": [
+            {
+              "num": 100,
+              "price": 0.76
+            },
+            {
+              "num": 250,
+              "price": 0.65
+            },
+            {
+              "num": 500,
+              "price": 0.59
+            },
+            {
+              "num": 1000,
+              "price": 0.54
+            },
+            {
+              "num": 2000,
+              "price": 0.42
+            }
+          ]
         },
         {
           "specsValue1": "Natural",
@@ -14737,7 +14758,28 @@
               "price": 0.46
             }
           ],
-          "specsPricingSteps": []
+          "specsPricingSteps": [
+            {
+              "num": 100,
+              "price": 0.84
+            },
+            {
+              "num": 250,
+              "price": 0.72
+            },
+            {
+              "num": 500,
+              "price": 0.65
+            },
+            {
+              "num": 1000,
+              "price": 0.6
+            },
+            {
+              "num": 2000,
+              "price": 0.46
+            }
+          ]
         },
         {
           "specsValue1": "Natural",
@@ -14773,7 +14815,28 @@
               "price": 0.51
             }
           ],
-          "specsPricingSteps": []
+          "specsPricingSteps": [
+            {
+              "num": 100,
+              "price": 0.94
+            },
+            {
+              "num": 250,
+              "price": 0.8
+            },
+            {
+              "num": 500,
+              "price": 0.72
+            },
+            {
+              "num": 1000,
+              "price": 0.67
+            },
+            {
+              "num": 2000,
+              "price": 0.51
+            }
+          ]
         },
         {
           "specsValue1": "Natural",
@@ -14809,7 +14872,28 @@
               "price": 0.65
             }
           ],
-          "specsPricingSteps": []
+          "specsPricingSteps": [
+            {
+              "num": 100,
+              "price": 1.18
+            },
+            {
+              "num": 250,
+              "price": 1.01
+            },
+            {
+              "num": 500,
+              "price": 0.91
+            },
+            {
+              "num": 1000,
+              "price": 0.84
+            },
+            {
+              "num": 2000,
+              "price": 0.65
+            }
+          ]
         }
       ],
       "printingSurfaces": [
