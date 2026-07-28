@@ -10,7 +10,7 @@ import ImprintColorPicker from "../../components/product/ImprintColorPicker.astr
 import {
   loadProduct, getColorOptions, getPricingSteps, getPrintMethodTabs,
   getPrintingSurfaces, getAllImages, getDownloadFiles, getTemplateFiles,
-  getSpecifications, type ProductData
+  getSpecifications, getPublishFeeData, type ProductData
 } from "../../utils/product-data";
 
 const url = new URL(Astro.request.url);
@@ -61,7 +61,9 @@ const productSizes: {label: string; price: number; min: number; surcharge: numbe
   return out;
 })();
 
-const setupCharge = 50;
+// 印刷版费表 + 各 way 的基础版费（用于动态 Set-Up Charge / Imprint 计算）
+const { feeMap, baseFees } = getPublishFeeData(product);
+const setupCharge = 50;  // 占位初值,运行时被 JS 根据当前选中的 tab/count/position 覆盖
 ---
 
 <Base title={title}>
@@ -220,7 +222,7 @@ const setupCharge = 50;
 
         <h3 class="section-title">IMPRINT LOCATION(S) & OPTION</h3>
 
-        <div class="form-row">
+        <div class="form-row imprint-location-row">
           <label class="form-label">Imprint Location</label>
           <div class="form-control">
             {surfaces.length > 0 ? (
@@ -269,7 +271,15 @@ const setupCharge = 50;
               </tr>
               <tr>
                 <td>Set-Up Charge (G)</td>
-                <td class="summary-right">${setupCharge.toFixed(2)}</td>
+                <td class="summary-right" id="summarySetupCharge">${setupCharge.toFixed(2)}</td>
+              </tr>
+              <tr id="summaryAdditionalRow" style="display:none">
+                <td>Additional Charges (C)</td>
+                <td class="summary-right"></td>
+              </tr>
+              <tr id="summaryImprintRow" class="summary-sub-row" style="display:none">
+                <td style="padding-left: 1.5rem; color:#666;">Imprint</td>
+                <td class="summary-right" id="summaryImprint">$0.00</td>
               </tr>
               <tr>
                 <td>Shipping Charge</td>
@@ -287,9 +297,10 @@ const setupCharge = 50;
   </div>
 </Base>
 
-<!-- 静态嵌入 Tab 阶梯价数据 -->
-<script is:inline define:vars={{ methodTabs }}>
+<!-- 静态嵌入 Tab 阶梯价 + 印刷版费表数据 -->
+<script is:inline define:vars={{ methodTabs, feeMap, baseFees }}>
   window.__SS_METHOD_TABS_JSON__ = JSON.stringify({ tabs: methodTabs });
+  window.__SS_PUBLISH_FEE_DATA__ = JSON.stringify({ feeMap: feeMap, baseFees: baseFees });
 </script>
 
 <script>
@@ -426,6 +437,60 @@ function updateUnitPrice() {
   highlightTier(n);
 }
 
+// ============================================================
+// 印刷版费联动: Set-Up Charge + Additional Charges (Imprint)
+// - 当前 Set-Up = 当前(way, method, position) 的 publishFee
+// - Imprint = 当前 fee - 基础方案 fee
+// ============================================================
+var __FEE_DATA__ = { feeMap: {}, baseFees: {} };
+try {
+  if (window.__SS_PUBLISH_FEE_DATA__) {
+    __FEE_DATA__ = JSON.parse(window.__SS_PUBLISH_FEE_DATA__);
+  }
+} catch(e) { __FEE_DATA__ = { feeMap: {}, baseFees: {} }; }
+
+function mapCountToMethod(val) {
+  // "1 color" / "2 color" / "3 color" → "1-color" / "2-color" / "3-color"
+  // "Full Color" → "full-color"
+  if (!val) return "1-color";
+  if (val === "Full Color") return "full-color";
+  var m = val.replace(/\s*color\s*$/i, "");
+  if (/^\d+$/.test(m)) return m + "-color";
+  return val;
+}
+
+function getCurrentSetupCharge() {
+  var activeTab = document.querySelector(".tab-btn.active");
+  var way = activeTab ? (activeTab.getAttribute("data-method") || "") : "";
+  var countSel = document.getElementById("ss-imprint-count");
+  var method = mapCountToMethod(countSel ? countSel.value : "1 color");
+  // position: 数 imprint-location-row 里的 checked 数量,至少 1
+  var pos = 1;
+  var boxes = document.querySelectorAll(".imprint-location-row input[type=checkbox]:checked");
+  pos = Math.max(1, boxes.length);
+  var fee = __FEE_DATA__.feeMap[way + "|" + method + "|" + pos] || 0;
+  var base = __FEE_DATA__.baseFees[way] || 0;
+  return { fee: fee, base: base, diff: fee - base };
+}
+
+function updateSetupCharge() {
+  var s = getCurrentSetupCharge();
+  var sc = document.getElementById("summarySetupCharge");
+  if (sc) sc.textContent = "$" + s.fee.toFixed(2);
+  var addRow = document.getElementById("summaryAdditionalRow");
+  var impRow = document.getElementById("summaryImprintRow");
+  var impCell = document.getElementById("summaryImprint");
+  if (s.diff > 0) {
+    if (addRow) addRow.style.display = "";
+    if (impRow) impRow.style.display = "";
+    if (impCell) impCell.textContent = "$" + s.diff.toFixed(2);
+  } else {
+    if (addRow) addRow.style.display = "none";
+    if (impRow) impRow.style.display = "none";
+  }
+  return s;
+}
+
 function recalc() {
   var summaryQty = document.getElementById("summaryQty");
   var summarySubtotal = document.getElementById("summarySubtotal");
@@ -438,7 +503,9 @@ function recalc() {
   var label = tag ? (tag.getAttribute("data-label") || "") : "";
   if (summaryQty) summaryQty.textContent = "$" + unit.toFixed(2) + " ea × " + n + " (" + label + ")";
   if (summarySubtotal) summarySubtotal.textContent = "$" + subtotal.toFixed(2);
-  if (summaryTotal) summaryTotal.textContent = "$" + (subtotal + 50).toFixed(2);
+  // Set-Up + Imprint(差价) 都计入 Total
+  var s = updateSetupCharge();
+  if (summaryTotal) summaryTotal.textContent = "$" + (subtotal + s.fee + s.diff).toFixed(2);
   highlightTier(n);
 }
 
@@ -472,12 +539,25 @@ if (zipEl) zipEl.addEventListener("input", function(){
     summaryShipping.textContent = "$" + ship.toFixed(2);
     summaryShipping.style.color = "#222";
     var sub = getSubtotal();
-    if (summaryTotal) summaryTotal.textContent = "$" + (sub + 50 + ship).toFixed(2);
+    var s = getCurrentSetupCharge();
+    if (summaryTotal) summaryTotal.textContent = "$" + (sub + s.fee + s.diff + ship).toFixed(2);
   }
 });
 
+// Imprint Location 复选框联动 Set-Up / Imprint
+document.querySelectorAll(".imprint-location-row input[type=checkbox]").forEach(function(cb){
+  cb.addEventListener("change", function(){ recalc(); });
+});
+
+// 颜色数量下拉联动 (来自 ImprintColorPicker,id="ss-imprint-count")
+var colorCountSel = document.getElementById("ss-imprint-count");
+if (colorCountSel) {
+  colorCountSel.addEventListener("change", function(){ recalc(); });
+}
+
 recalc();
 updateUnitPrice();
+updateSetupCharge();
 </script>
 
 <style>
