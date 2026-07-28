@@ -6,6 +6,7 @@
 // - 与 multi-spec / apparel 页面互不耦合,任何一边修改都不会影响本页面
 // =====================================================================
 import Base from "../../layouts/Base.astro";
+import ImprintColorPicker from "../../components/product/ImprintColorPicker.astro";
 import {
   loadProduct, getColorOptions, getPricingSteps, getPrintMethodTabs,
   getPrintingSurfaces, getAllImages, getDownloadFiles, getTemplateFiles,
@@ -235,27 +236,7 @@ const setupCharge = 50;
           </div>
         </div>
 
-        <div class="form-row">
-          <label class="form-label">Imprint Color</label>
-          <div class="form-control">
-            <select class="form-select">
-              <option>1 color</option><option>2 color</option><option>3 color</option>
-            </select>
-            <select class="form-select">
-              <option>Select Imprint Color</option>
-              <option>Standard colors</option>
-              <option>Pantone Matching</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="form-row">
-          <label class="form-label">Enter your preferred color besides the colors listed above.</label>
-          <div class="form-control">
-            <input type="text" class="form-input" placeholder="e.g. Neon Green" />
-            <button type="button" class="add-btn">+ Add</button>
-          </div>
-        </div>
+        <ImprintColorPicker colors={colors} idPrefix="ss" />
 
         <div class="form-row">
           <label class="form-label">Physical Sample</label>
