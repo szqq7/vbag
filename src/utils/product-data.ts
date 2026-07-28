@@ -86,6 +86,34 @@ export function loadProduct(code: string): ProductData | null {
   return null;
 }
 
+/**
+ * 提取产品的印刷版费表,用于 Set-Up Charge / Additional Charges 计算
+ * - feeMap["Screen Print|1-color|1"] => 50.00
+ * - baseFees["Screen Print"] => 50.00 (基础方案,1-color 1-pos)
+ */
+export function getPublishFeeData(p: ProductData): {
+  feeMap: Record<string, number>;
+  baseFees: Record<string, number>;
+} {
+  const feeMap: Record<string, number> = {};
+  const baseFees: Record<string, number> = {};
+  const ways = safeArr((p as any).printingWays);
+  for (const way of ways) {
+    const wn: string = (way as any).printingWayNameEn || "";
+    const prices = safeArr((way as any).productPrintingWayPrices);
+    for (const pp of prices) {
+      const method = pp.pricingMethod;
+      const pos = pp.printingPositionNum;
+      const fee = parseFloat(pp.publishFee) || 0;
+      feeMap[wn + "|" + method + "|" + pos] = fee;
+      if (pp.isBaseOption && baseFees[wn] === undefined) {
+        baseFees[wn] = fee;
+      }
+    }
+  }
+  return { feeMap, baseFees };
+}
+
 export function getColorOptions(p: ProductData): ColorOption[] {
   const seen: Record<string, ColorOption> = {};
   const result: ColorOption[] = [];
