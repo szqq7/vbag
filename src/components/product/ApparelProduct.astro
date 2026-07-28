@@ -11,7 +11,7 @@ import ImprintColorPicker from "../../components/product/ImprintColorPicker.astr
 import {
   loadProduct, getColorOptions, getPricingSteps, getPrintMethodTabs,
   getPrintingSurfaces, getAllImages, getDownloadFiles, getTemplateFiles,
-  getSpecifications, type ProductData
+  getSpecifications, getPublishFeeData, type ProductData
 } from "../../utils/product-data";
 
 const url = new URL(Astro.request.url);
@@ -52,6 +52,8 @@ const inputSizeList: InputSizeRow[] = STANDARD_INPUT_SIZES.map(label => ({
   min: pricingSteps[0]?.quantity || 1,
 }));
 
+// 印刷版费表 + 各 way 的基础版费
+const { feeMap, baseFees } = getPublishFeeData(product);
 const setupCharge = 50;
 ---
 
@@ -208,7 +210,7 @@ const setupCharge = 50;
 
         <h3 class="section-title">IMPRINT LOCATION(S) & OPTION</h3>
 
-        <div class="form-row">
+        <div class="form-row imprint-location-row">
           <label class="form-label">Imprint Location</label>
           <div class="form-control">
             {surfaces.length > 0 ? (
@@ -257,7 +259,11 @@ const setupCharge = 50;
               </tr>
               <tr>
                 <td>Set-Up Charge (G)</td>
-                <td class="summary-right">${setupCharge.toFixed(2)}</td>
+                <td class="summary-right" id="summarySetupCharge">${setupCharge.toFixed(2)}</td>
+              </tr>
+              <tr id="summaryImprintRow" class="summary-sub-row" style="display:none">
+                <td style="padding-left: 1.5rem; color:#666;">Imprint</td>
+                <td class="summary-right" id="summaryImprint">$0.00</td>
               </tr>
               <tr id="summaryAdditionalRow" style="display:none">
                 <td>Additional Charges <span id="summaryAdditionalDetail"></span></td>
@@ -284,10 +290,11 @@ const setupCharge = 50;
   window.__AP_METHOD_TABS_JSON__ = JSON.stringify({ tabs: methodTabs });
 </script>
 
-<script is:inline define:vars={{ pricingSteps, methodTabs, setupCharge }}>
+<script is:inline define:vars={{ pricingSteps, methodTabs, setupCharge, feeMap, baseFees }}>
   window.__AP_PS__ = pricingSteps;
   window.__AP_MT__ = methodTabs;
   window.__AP_SETUP__ = setupCharge;
+  window.__AP_PUBLISH_FEE_DATA__ = JSON.stringify({ feeMap: feeMap, baseFees: baseFees });
 </script>
 
 <script>
@@ -452,7 +459,56 @@ function recalc(){
     if (addRow) addRow.style.display = "none";
   }
   if (summarySubtotal) summarySubtotal.textContent = "$" + subtotal.toFixed(2);
-  if (summaryTotal) summaryTotal.textContent = "$" + (subtotal + setup).toFixed(2);
+  // Set-Up + Imprint(印刷差价) 计入 Total
+  var s = updateSetupCharge();
+  setup = s.fee;
+  if (summaryTotal) summaryTotal.textContent = "$" + (subtotal + setup + s.diff).toFixed(2);
+}
+
+// ============================================================
+// 印刷版费联动: Set-Up Charge + Imprint (印刷差价)
+// ============================================================
+var __FEE_DATA__ = { feeMap: {}, baseFees: {} };
+try {
+  if (window.__AP_PUBLISH_FEE_DATA__) {
+    __FEE_DATA__ = JSON.parse(window.__AP_PUBLISH_FEE_DATA__);
+  }
+} catch(e) { __FEE_DATA__ = { feeMap: {}, baseFees: {} }; }
+
+function mapCountToMethod(val) {
+  if (!val) return "1-color";
+  if (val === "Full Color") return "full-color";
+  var m = val.replace(/\s*color\s*$/i, "");
+  if (/^\d+$/.test(m)) return m + "-color";
+  return val;
+}
+
+function getCurrentSetupCharge() {
+  var activeTab = document.querySelector(".tab-btn.active");
+  var way = activeTab ? (activeTab.getAttribute("data-method") || "") : "";
+  var countSel = document.getElementById("ap-imprint-count");
+  var method = mapCountToMethod(countSel ? countSel.value : "1 color");
+  var pos = 1;
+  var boxes = document.querySelectorAll(".imprint-location-row input[type=checkbox]:checked");
+  pos = Math.max(1, boxes.length);
+  var fee = __FEE_DATA__.feeMap[way + "|" + method + "|" + pos] || 0;
+  var base = __FEE_DATA__.baseFees[way] || 0;
+  return { fee: fee, base: base, diff: fee - base };
+}
+
+function updateSetupCharge() {
+  var s = getCurrentSetupCharge();
+  var sc = document.getElementById("summarySetupCharge");
+  if (sc) sc.textContent = "$" + s.fee.toFixed(2);
+  var impRow = document.getElementById("summaryImprintRow");
+  var impCell = document.getElementById("summaryImprint");
+  if (s.diff > 0) {
+    if (impRow) impRow.style.display = "";
+    if (impCell) impCell.textContent = "$" + s.diff.toFixed(2);
+  } else {
+    if (impRow) impRow.style.display = "none";
+  }
+  return s;
 }
 
 function getTotalQty(){
@@ -492,10 +548,21 @@ if (zipEl) zipEl.addEventListener("input", function(){
     summaryShipping.textContent = "$" + ship.toFixed(2);
     summaryShipping.style.color = "#222";
     var sub = getApparelSubtotal();
-    var setup = 50;
-    if (summaryTotal) summaryTotal.textContent = "$" + (sub + setup + ship).toFixed(2);
+    var s = getCurrentSetupCharge();
+    if (summaryTotal) summaryTotal.textContent = "$" + (sub + s.fee + s.diff + ship).toFixed(2);
   }
 });
+
+// Imprint Location 复选框联动
+document.querySelectorAll(".imprint-location-row input[type=checkbox]").forEach(function(cb){
+  cb.addEventListener("change", function(){ recalc(); });
+});
+
+// 颜色数量下拉联动
+var colorCountSel = document.getElementById("ap-imprint-count");
+if (colorCountSel) {
+  colorCountSel.addEventListener("change", function(){ recalc(); });
+}
 
 recalc();
 highlightPricingTier(0);
