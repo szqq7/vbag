@@ -87,16 +87,22 @@ export function loadProduct(code: string): ProductData | null {
 }
 
 /**
- * 提取产品的印刷版费表,用于 Set-Up Charge / Additional Charges 计算
- * - feeMap["Screen Print|1-color|1"] => 50.00
- * - baseFees["Screen Print"] => 50.00 (基础方案,1-color 1-pos)
+ * 提取产品的印刷版费表 + 单价表(V3.0)
+ * - setUpFeeMap["Screen Print|1-color|1"] = 50.00  (set_up_charge)
+ * - unitPriceMap["Screen Print|1-color|1"] = 1.30  (unit_price)
+ * - baseSetUpFees["Screen Print"]    = 50.00
+ * - baseUnitPrices["Screen Print"]   = 1.30
  */
 export function getPublishFeeData(p: ProductData): {
-  feeMap: Record<string, number>;
-  baseFees: Record<string, number>;
+  setUpFeeMap: Record<string, number>;
+  unitPriceMap: Record<string, number>;
+  baseSetUpFees: Record<string, number>;
+  baseUnitPrices: Record<string, number>;
 } {
-  const feeMap: Record<string, number> = {};
-  const baseFees: Record<string, number> = {};
+  const setUpFeeMap: Record<string, number> = {};
+  const unitPriceMap: Record<string, number> = {};
+  const baseSetUpFees: Record<string, number> = {};
+  const baseUnitPrices: Record<string, number> = {};
   const ways = safeArr((p as any).printingWays);
   for (const way of ways) {
     const wn: string = (way as any).printingWayNameEn || "";
@@ -104,14 +110,18 @@ export function getPublishFeeData(p: ProductData): {
     for (const pp of prices) {
       const method = pp.pricingMethod;
       const pos = pp.printingPositionNum;
-      const fee = parseFloat(pp.publishFee) || 0;
-      feeMap[wn + "|" + method + "|" + pos] = fee;
-      if (pp.isBaseOption && baseFees[wn] === undefined) {
-        baseFees[wn] = fee;
+      const key = wn + "|" + method + "|" + pos;
+      setUpFeeMap[key] = parseFloat(pp.set_up_charge ?? pp.publishFee ?? "0") || 0;
+      // unit_price 优先取字段,否则取第一档
+      const upRaw = pp.unit_price ?? (pp.productPrintingWayPriceSteps?.[0]?.price ?? "0");
+      unitPriceMap[key] = parseFloat(upRaw) || 0;
+      if (pp.isBaseOption) {
+        if (baseSetUpFees[wn] === undefined) baseSetUpFees[wn] = setUpFeeMap[key];
+        if (baseUnitPrices[wn] === undefined) baseUnitPrices[wn] = unitPriceMap[key];
       }
     }
   }
-  return { feeMap, baseFees };
+  return { setUpFeeMap, unitPriceMap, baseSetUpFees, baseUnitPrices };
 }
 
 export function getColorOptions(p: ProductData): ColorOption[] {
