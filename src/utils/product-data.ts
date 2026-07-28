@@ -6,6 +6,7 @@ export interface ProductSpec {
   productWeightKgs?: number; productLengthIn?: number; productWidthIn?: number;
   productHeightIn?: number; printLength?: number; printWidth?: number;
   packingMethodEn?: string; colorRgb?: string;
+  specsPricingSteps?: { num: number; price: number }[];
 }
 export interface PricingStep { num: number; price: string; }
 export interface PrintingSurface {
@@ -104,9 +105,22 @@ export function getColorOptions(p: ProductData): ColorOption[] {
   return result;
 }
 
+/**
+ * 获取产品的有效阶梯价：优先 productPricingSteps，回退到第一个 SKU 的 specsPricingSteps
+ */
+function getEffectivePricingSteps(p: ProductData): PricingStep[] {
+  const topSteps = safeArr(p.productPricingSteps);
+  if (topSteps.length > 0) return topSteps;
+  const specs = safeArr(p.productSpecs);
+  if (specs.length > 0 && Array.isArray((specs[0] as any).specsPricingSteps)) {
+    return (specs[0] as any).specsPricingSteps.map((t: any) => ({ num: t.num, price: String(t.price) }));
+  }
+  return [];
+}
+
 export function getPricingSteps(p: ProductData): PricingStepDisplay[] {
   const out: PricingStepDisplay[] = [];
-  const steps = safeArr(p.productPricingSteps);
+  const steps = getEffectivePricingSteps(p);
   const filtered = steps.filter(s => typeof s.num === "number" && s.price);
   filtered.sort((a, b) => a.num - b.num);
   for (let i = 0; i < filtered.length; i++) {
@@ -119,7 +133,7 @@ export function getPricingSteps(p: ProductData): PricingStepDisplay[] {
 
 export function getPrintMethodTabs(p: ProductData): { name: string; pricingSteps: PricingStep[] }[] {
   const base: PricingStep[] = [];
-  const steps = safeArr(p.productPricingSteps);
+  const steps = getEffectivePricingSteps(p);
   for (let i = 0; i < steps.length; i++) {
     base.push({ num: steps[i].num, price: steps[i].price });
   }
