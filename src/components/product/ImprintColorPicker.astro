@@ -183,7 +183,7 @@ const triggerText = `${idPrefix}-imprint-trigger-text`;
       });
     }
 
-    // === 3. 数量限制联动(单色互斥 + 多色上限) ===
+    // === 3. 数量限制联动(单色互斥 + 多色 Auto-Replace) ===
     // 解析"1 color"/"2 color"等 → 数字上限
     function getColorLimit(val) {
       if (!val) return 1;
@@ -197,28 +197,6 @@ const triggerText = `${idPrefix}-imprint-trigger-text`;
     function isSingleMode(val) {
       return getColorLimit(val) === 1;
     }
-    // 根据已选数量 + 上限,刷新每个未选项的 disabled 状态
-    function applyColorLimit() {
-      var countSel = document.getElementById(prefix + "-imprint-count");
-      var limit = getColorLimit(countSel ? countSel.value : "1 color");
-      var allBoxes = root.querySelectorAll(".popover-option");
-      var checkedCount = root.querySelectorAll(".popover-option input:checked").length;
-      allBoxes.forEach(function(box){
-        var cb = box.querySelector("input");
-        if (!cb) return;
-        if (cb.checked) {
-          // 已选的永远不禁用
-          cb.disabled = false;
-          box.classList.remove("is-disabled");
-        } else {
-          // 未选:达到上限就禁用
-          var disable = checkedCount >= limit;
-          cb.disabled = disable;
-          if (disable) box.classList.add("is-disabled");
-          else box.classList.remove("is-disabled");
-        }
-      });
-    }
 
     root.querySelectorAll(".popover-option input").forEach(function(cb){
       cb.addEventListener("change", function(){
@@ -227,29 +205,34 @@ const triggerText = `${idPrefix}-imprint-trigger-text`;
         var limit = getColorLimit(val);
 
         if (limit === 1) {
-          // 单色模式:取消其他所有勾选
+          // 单色模式:Auto-Replace — 取消其他所有
           if (cb.checked) {
             root.querySelectorAll(".popover-option input").forEach(function(other){
               if (other !== cb) other.checked = false;
             });
           }
         } else {
-          // 多色模式:校验不超过上限
+          // 多色模式:Auto-Replace — 满数量时取消最早勾选的那个
           var checkedCount = root.querySelectorAll(".popover-option input:checked").length;
           if (checkedCount > limit) {
-            cb.checked = false;
-            setError("You have selected the maximum of " + limit + " colors for this option. Please uncheck one to add another.");
+            // 找到第一个 checked 但不是当前 cb 的,取消它
+            var allInputs = root.querySelectorAll(".popover-option input");
+            for (var i = 0; i < allInputs.length; i++) {
+              if (allInputs[i].checked && allInputs[i] !== cb) {
+                allInputs[i].checked = false;
+                break;  // 只取消最早的一个
+              }
+            }
           }
         }
 
-        applyColorLimit();
         refreshTrigger();
       });
     });
 
     // 切换颜色数下拉:
     // - 单色:只保留第一个
-    // - 多色切到更小的数字:超出部分自动取消
+    // - 多色切到更小的数字:取消超出部分(保留最早N个)
     var countSelForLock = document.getElementById(prefix + "-imprint-count");
     if (countSelForLock) {
       countSelForLock.addEventListener("change", function(){
@@ -261,19 +244,19 @@ const triggerText = `${idPrefix}-imprint-trigger-text`;
             else cb.checked = false;
           });
         } else {
-          // 多色:超过新上限的取消
-          var checked = root.querySelectorAll(".popover-option input:checked");
-          for (var i = limit; i < checked.length; i++) {
-            checked[i].checked = false;
+          // 多色:超过新上限的取消(保留最早N个)
+          var allInputs = root.querySelectorAll(".popover-option input");
+          var keptCount = 0;
+          for (var i = 0; i < allInputs.length; i++) {
+            if (allInputs[i].checked) {
+              keptCount++;
+              if (keptCount > limit) allInputs[i].checked = false;
+            }
           }
         }
-        applyColorLimit();
         refreshTrigger();
       });
     }
-
-    // 初始化时也应用一次限制(防止默认值已超限)
-    applyColorLimit();
 
     // === 3. 自定义输入 - onBlur 校验 ===
     function setError(msg) {
@@ -517,18 +500,11 @@ const triggerText = `${idPrefix}-imprint-trigger-text`;
     font-size: .85rem;
   }
   .popover-option:hover { background: #f5f8fc; }
-  .popover-option.is-disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-    background: transparent;
-  }
-  .popover-option.is-disabled:hover { background: transparent; }
   .popover-option input {
     margin: 0;
     cursor: pointer;
     flex-shrink: 0;
   }
-  .popover-option.is-disabled input { cursor: not-allowed; }
   .popover-swatch {
     width: 18px;
     height: 18px;
