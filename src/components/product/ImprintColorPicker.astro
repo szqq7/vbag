@@ -129,10 +129,12 @@ const triggerText = `${idPrefix}-imprint-trigger-text`;
       if (e.key === "Escape") close();
     });
 
-    // === 2. 已选项更新触发器: 平铺标签模式 ===
+    // === 2. 已选项更新触发器: 平铺标签模式(系统色 + 自定义色) ===
+    var customColors = [];  // 已添加的自定义颜色名数组
     function refreshTrigger() {
       var checked = root.querySelectorAll(".popover-option input:checked");
-      if (checked.length === 0) {
+      var hasSelection = checked.length > 0 || customColors.length > 0;
+      if (!hasSelection) {
         triggerTxt.innerHTML = '<span class="imprint-trigger-placeholder">Select Imprint Color</span>';
         trigger.classList.add("is-placeholder");
       } else {
@@ -140,8 +142,15 @@ const triggerText = `${idPrefix}-imprint-trigger-text`;
         checked.forEach(function(cb){
           var n = cb.getAttribute("data-name") || "";
           var rgb = cb.getAttribute("data-rgb") || "#cccccc";
-          html += '<span class="imprint-tag" data-name="' + escapeHtml(n) + '">' +
+          html += '<span class="imprint-tag" data-name="' + escapeHtml(n) + '" data-source="system">' +
                   '<span class="imprint-tag-swatch" style="background-color:' + escapeHtml(rgb) + ';"></span>' +
+                  '<span class="imprint-tag-name">' + escapeHtml(n) + '</span>' +
+                  '<span class="imprint-tag-x" data-name="' + escapeHtml(n) + '" title="移除">×</span>' +
+                  '</span>';
+        });
+        customColors.forEach(function(n){
+          html += '<span class="imprint-tag imprint-tag-custom" data-name="' + escapeHtml(n) + '" data-source="custom">' +
+                  '<span class="imprint-tag-swatch imprint-tag-swatch-default" title="自定义颜色"></span>' +
                   '<span class="imprint-tag-name">' + escapeHtml(n) + '</span>' +
                   '<span class="imprint-tag-x" data-name="' + escapeHtml(n) + '" title="移除">×</span>' +
                   '</span>';
@@ -154,9 +163,15 @@ const triggerText = `${idPrefix}-imprint-trigger-text`;
           x.addEventListener("click", function(e){
             e.stopPropagation();
             var target = this.getAttribute("data-name");
-            root.querySelectorAll(".popover-option input").forEach(function(cb){
-              if (cb.getAttribute("data-name") === target) cb.checked = false;
-            });
+            var sourceEl = this.closest(".imprint-tag");
+            var source = sourceEl ? sourceEl.getAttribute("data-source") : "system";
+            if (source === "custom") {
+              customColors = customColors.filter(function(c){ return c !== target; });
+            } else {
+              root.querySelectorAll(".popover-option input").forEach(function(cb){
+                if (cb.getAttribute("data-name") === target) cb.checked = false;
+              });
+            }
             refreshTrigger();
           });
         });
@@ -168,42 +183,97 @@ const triggerText = `${idPrefix}-imprint-trigger-text`;
       });
     }
 
-    // === 3. 单色互斥逻辑 ===
-    // "1 color" / "Full Color" 视为单色:选中新的会自动取消旧的
+    // === 3. 数量限制联动(单色互斥 + 多色上限) ===
+    // 解析"1 color"/"2 color"等 → 数字上限
+    function getColorLimit(val) {
+      if (!val) return 1;
+      if (val === "1 color") return 1;
+      if (val === "2 color") return 2;
+      if (val === "3 color") return 3;
+      if (val === "4 color") return 4;
+      if (val === "Full Color") return 1;  // Full Color 视为 1 色
+      return 99;  // 未知值不限制
+    }
     function isSingleMode(val) {
-      if (!val) return true;
-      if (val === "1 color" || val === "Full Color") return true;
-      return false;
+      return getColorLimit(val) === 1;
+    }
+    // 根据已选数量 + 上限,刷新每个未选项的 disabled 状态
+    function applyColorLimit() {
+      var countSel = document.getElementById(prefix + "-imprint-count");
+      var limit = getColorLimit(countSel ? countSel.value : "1 color");
+      var allBoxes = root.querySelectorAll(".popover-option");
+      var checkedCount = root.querySelectorAll(".popover-option input:checked").length;
+      allBoxes.forEach(function(box){
+        var cb = box.querySelector("input");
+        if (!cb) return;
+        if (cb.checked) {
+          // 已选的永远不禁用
+          cb.disabled = false;
+          box.classList.remove("is-disabled");
+        } else {
+          // 未选:达到上限就禁用
+          var disable = checkedCount >= limit;
+          cb.disabled = disable;
+          if (disable) box.classList.add("is-disabled");
+          else box.classList.remove("is-disabled");
+        }
+      });
     }
 
     root.querySelectorAll(".popover-option input").forEach(function(cb){
       cb.addEventListener("change", function(){
         var countSel = document.getElementById(prefix + "-imprint-count");
-        var single = isSingleMode(countSel ? countSel.value : "1 color");
-        if (single && cb.checked) {
+        var val = countSel ? countSel.value : "1 color";
+        var limit = getColorLimit(val);
+
+        if (limit === 1) {
           // 单色模式:取消其他所有勾选
-          root.querySelectorAll(".popover-option input").forEach(function(other){
-            if (other !== cb) other.checked = false;
-          });
+          if (cb.checked) {
+            root.querySelectorAll(".popover-option input").forEach(function(other){
+              if (other !== cb) other.checked = false;
+            });
+          }
+        } else {
+          // 多色模式:校验不超过上限
+          var checkedCount = root.querySelectorAll(".popover-option input:checked").length;
+          if (checkedCount > limit) {
+            cb.checked = false;
+            setError("You have selected the maximum of " + limit + " colors for this option. Please uncheck one to add another.");
+          }
         }
+
+        applyColorLimit();
         refreshTrigger();
       });
     });
 
-    // 切换颜色数下拉:进入单色时强制只保留第一个
+    // 切换颜色数下拉:
+    // - 单色:只保留第一个
+    // - 多色切到更小的数字:超出部分自动取消
     var countSelForLock = document.getElementById(prefix + "-imprint-count");
     if (countSelForLock) {
       countSelForLock.addEventListener("change", function(){
-        if (isSingleMode(countSelForLock.value)) {
+        var limit = getColorLimit(countSelForLock.value);
+        if (limit === 1) {
           var first = null;
           root.querySelectorAll(".popover-option input").forEach(function(cb){
             if (cb.checked && !first) first = cb;
             else cb.checked = false;
           });
-          refreshTrigger();
+        } else {
+          // 多色:超过新上限的取消
+          var checked = root.querySelectorAll(".popover-option input:checked");
+          for (var i = limit; i < checked.length; i++) {
+            checked[i].checked = false;
+          }
         }
+        applyColorLimit();
+        refreshTrigger();
       });
     }
+
+    // 初始化时也应用一次限制(防止默认值已超限)
+    applyColorLimit();
 
     // === 3. 自定义输入 - onBlur 校验 ===
     function setError(msg) {
@@ -264,9 +334,19 @@ const triggerText = `${idPrefix}-imprint-trigger-text`;
         var err = validate(v);
         if (err) { setError(err); return; }
         if (!v) { setError("请输入颜色名称或色值"); return; }
-        // 简单加到一个内嵌列表(不影响主流程)
+        // 防重复:与系统色或已添加的自定义色都不能重复
+        var existsInSystem = false;
+        root.querySelectorAll(".popover-option input").forEach(function(cb){
+          if (cb.getAttribute("data-name") === v) existsInSystem = true;
+        });
+        if (existsInSystem) { setError("该颜色已在标准列表中，请直接选择"); return; }
+        if (customColors.indexOf(v) !== -1) { setError("该颜色已添加"); return; }
+
+        // 推入自定义颜色数组,触发 refreshTrigger
+        customColors.push(v);
         setError("");
         customIn.value = "";
+        refreshTrigger();
       });
     }
   }
@@ -363,6 +443,20 @@ const triggerText = `${idPrefix}-imprint-trigger-text`;
     border: 1px solid rgba(0,0,0,.2);
     flex-shrink: 0;
   }
+  .imprint-tag-swatch-default {
+    background: linear-gradient(135deg, #ff6b35 0%, #f7c948 50%, #4ecdc4 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .imprint-tag-swatch-default::after {
+    content: "?";
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    text-shadow: 0 0 2px rgba(0,0,0,.5);
+  }
+  .imprint-tag-custom .imprint-tag-swatch-default { border-color: rgba(0,0,0,.3); }
   .imprint-tag-name {
     color: #333;
     line-height: 1;
@@ -423,11 +517,18 @@ const triggerText = `${idPrefix}-imprint-trigger-text`;
     font-size: .85rem;
   }
   .popover-option:hover { background: #f5f8fc; }
+  .popover-option.is-disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background: transparent;
+  }
+  .popover-option.is-disabled:hover { background: transparent; }
   .popover-option input {
     margin: 0;
     cursor: pointer;
     flex-shrink: 0;
   }
+  .popover-option.is-disabled input { cursor: not-allowed; }
   .popover-swatch {
     width: 18px;
     height: 18px;
