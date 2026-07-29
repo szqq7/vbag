@@ -11,7 +11,7 @@ import ImprintColorPicker from "../../components/product/ImprintColorPicker.astr
 import {
   loadProduct, getColorOptions, getPricingSteps, getPrintMethodTabs,
   getPrintingSurfaces, getAllImages, getDownloadFiles, getTemplateFiles,
-  getSpecifications, getPublishFeeData, type ProductData
+  getSpecifications, getPublishFeeData, getDeliveryDayData, type ProductData
 } from "../../utils/product-data";
 
 const url = new URL(Astro.request.url);
@@ -52,8 +52,9 @@ const inputSizeList: InputSizeRow[] = STANDARD_INPUT_SIZES.map(label => ({
   min: pricingSteps[0]?.quantity || 1,
 }));
 
-// 印刷版费表 + 单价表 + 各 way 的基础值
+// 印刷版费表 + 单价表 + 各 way 的基础值 + 交期表
 const { setUpFeeMap, unitPriceMap, baseSetUpFees, baseUnitPrices } = getPublishFeeData(product);
+const { deliveryDayMap } = getDeliveryDayData(product);
 const setupCharge = 50;
 ---
 
@@ -249,36 +250,84 @@ const setupCharge = 50;
           </div>
         </div>
 
-        <div class="pricing-summary">
-          <a href="#" class="view-delivery-time">View Delivery Time</a>
-          <table class="summary-table">
-            <tbody>
-              <tr>
-                <td><span id="summaryQty">—</span></td>
-                <td class="summary-right" id="summarySubtotal">$0.00</td>
-              </tr>
-              <tr>
-                <td>Set-Up Charge (G)</td>
-                <td class="summary-right" id="summarySetupCharge">${setupCharge.toFixed(2)}</td>
-              </tr>
-              <tr id="summaryImprintRow" class="summary-sub-row" style="display:none">
-                <td style="padding-left: 1.5rem; color:#666;">Imprint</td>
-                <td class="summary-right" id="summaryImprint">$0.00</td>
-              </tr>
-              <tr id="summaryAdditionalRow" style="display:none">
-                <td>Additional Charges <span id="summaryAdditionalDetail"></span></td>
-                <td class="summary-right" id="summaryAdditional">$0.00</td>
-              </tr>
-              <tr>
-                <td>Shipping Charge</td>
-                <td class="summary-right" id="summaryShipping">Please enter ZIP Code</td>
-              </tr>
-              <tr class="total-row">
-                <td><strong>Total</strong></td>
-                <td class="summary-right"><strong id="summaryTotal">${setupCharge.toFixed(2)}</strong></td>
-              </tr>
-            </tbody>
-          </table>
+        {/* 左 delivery 卡 + 右 pricing 摘要(横版布局) */}
+        <div class="delivery-and-pricing-row">
+          <div class="delivery-side">
+            <div class="delivery-summary-card">
+              <div class="card-left-col">
+                <svg class="truck-icon-img" viewBox="0 0 64 40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <circle cx="17" cy="32" r="5" fill="#0066c0" stroke="#fff" stroke-width="1.5"/>
+                  <circle cx="49" cy="32" r="5" fill="#0066c0" stroke="#fff" stroke-width="1.5"/>
+                  <path d="M2 12 H38 V30 H2 Z" fill="#cfe5fb" stroke="#0066c0" stroke-width="2"/>
+                  <path d="M38 18 H50 L60 26 V30 H38 Z" fill="#a8d0f5" stroke="#0066c0" stroke-width="2"/>
+                  <rect x="6" y="16" width="14" height="10" fill="#fff" stroke="#0066c0" stroke-width="1.5"/>
+                </svg>
+              </div>
+              <div class="card-right-col">
+                <div class="info-row">
+                  <span class="item-desc">Delivery Days:</span>
+                  <span class="item-value" id="apDeliveryDays">9 Days</span>
+                </div>
+                <div class="info-row">
+                  <span class="item-desc">Shipping:</span>
+                  <span class="item-value">Calculated by ZIP</span>
+                </div>
+                <a href="javascript:void(0)" class="view-delivery-link" id="apViewDeliveryLink">View Delivery Time</a>
+              </div>
+            </div>
+            <div class="delivery-detail-panel" id="apDeliveryDetail" hidden>
+              <div class="detail-row">
+                <span>Production Time:</span>
+                <span class="detail-value">1-2 business days</span>
+              </div>
+              <div class="detail-row">
+                <span>Standard Shipping:</span>
+                <span class="detail-value">5-7 business days</span>
+              </div>
+              <div class="detail-row detail-row-total">
+                <span>Total Delivery:</span>
+                <span class="detail-value" id="apTotalDeliveryDays">9 Days</span>
+              </div>
+              <div class="detail-row">
+                <span>Carrier:</span>
+                <span class="detail-value">UPS Ground</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="pricing-side">
+            <div class="pricing-summary">
+              <a href="javascript:void(0)" class="view-delivery-time">View Delivery Time</a>
+              <table class="summary-table">
+                <tbody>
+                  <tr>
+                    <td><span id="summaryQty">—</span></td>
+                    <td class="summary-right" id="summarySubtotal">$0.00</td>
+                  </tr>
+                  <tr>
+                    <td>Set-Up Charge (G)</td>
+                    <td class="summary-right" id="summarySetupCharge">${setupCharge.toFixed(2)}</td>
+                  </tr>
+                  <tr id="summaryImprintRow" class="summary-sub-row" style="display:none">
+                    <td style="padding-left: 1.5rem; color:#666;">Imprint</td>
+                    <td class="summary-right" id="summaryImprint">$0.00</td>
+                  </tr>
+                  <tr id="summaryAdditionalRow" style="display:none">
+                    <td>Additional Charges <span id="summaryAdditionalDetail"></span></td>
+                    <td class="summary-right" id="summaryAdditional">$0.00</td>
+                  </tr>
+                  <tr>
+                    <td>Shipping Charge</td>
+                    <td class="summary-right" id="summaryShipping">Please enter ZIP Code</td>
+                  </tr>
+                  <tr class="total-row">
+                    <td><strong>Total</strong></td>
+                    <td class="summary-right"><strong id="summaryTotal">${setupCharge.toFixed(2)}</strong></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -290,7 +339,7 @@ const setupCharge = 50;
   window.__AP_METHOD_TABS_JSON__ = JSON.stringify({ tabs: methodTabs });
 </script>
 
-<script is:inline define:vars={{ pricingSteps, methodTabs, setupCharge, setUpFeeMap, unitPriceMap, baseSetUpFees, baseUnitPrices }}>
+<script is:inline define:vars={{ pricingSteps, methodTabs, setupCharge, setUpFeeMap, unitPriceMap, baseSetUpFees, baseUnitPrices, deliveryDayMap }}>
   window.__AP_PS__ = pricingSteps;
   window.__AP_MT__ = methodTabs;
   window.__AP_SETUP__ = setupCharge;
@@ -300,6 +349,7 @@ const setupCharge = 50;
     baseSetUpFees: baseSetUpFees,
     baseUnitPrices: baseUnitPrices
   });
+  window.__AP_DELIVERY_DAY_MAP__ = deliveryDayMap;
 </script>
 
 <script>
@@ -412,7 +462,7 @@ function highlightPricingTier(qty){
 
 // 服装尺码多选:每个 size-qty-input 独立 input
 document.querySelectorAll(".size-qty-input").forEach(function(inp){
-  inp.addEventListener("input", recalc);
+  inp.addEventListener("input", function(){ recalc(); updateDeliveryDay(); });
 });
 
 document.querySelectorAll(".tab-btn").forEach(function(b){
@@ -421,6 +471,7 @@ document.querySelectorAll(".tab-btn").forEach(function(b){
     this.classList.add("active");
     updatePricingTable();
     recalc();
+    updateDeliveryDay();
   });
 });
 
@@ -479,6 +530,7 @@ function recalc(){
     if (impRow2) impRow2.style.display = "none";
   }
   if (summaryTotal) summaryTotal.textContent = "$" + (subtotal + setup + imprintAmount).toFixed(2);
+  updateDeliveryDay();
 }
 
 // ============================================================
@@ -507,10 +559,34 @@ function getCurrentSetupCharge() {
   var pos = 1;
   var boxes = document.querySelectorAll(".imprint-location-row input[type=checkbox]:checked");
   pos = Math.max(1, boxes.length);
-  var key = way + "|" + method + "|" + pos;
-  var fee = __FEE_DATA__.setUpFeeMap[key] || 0;
-  var unitPrice = __FEE_DATA__.unitPriceMap[key] || 0;
+
+  // 多键 fallback:解决 way/method/pos 与数据不匹配时的 $0 问题(1812092 案例)
+  var fee = 0, unitPrice = 0;
+  var tries = [
+    way + "|" + method + "|" + pos,
+    way + "|full-color|" + pos,
+    way + "|1-color|" + pos,
+  ];
+  for (var i = 0; i < tries.length; i++) {
+    var k = tries[i];
+    if (__FEE_DATA__.setUpFeeMap[k]) {
+      fee = __FEE_DATA__.setUpFeeMap[k];
+      unitPrice = __FEE_DATA__.unitPriceMap[k] || 0;
+      break;
+    }
+  }
+  if (fee === 0) {
+    var firstKey = Object.keys(__FEE_DATA__.setUpFeeMap)[0];
+    if (firstKey) {
+      fee = __FEE_DATA__.setUpFeeMap[firstKey];
+      unitPrice = __FEE_DATA__.unitPriceMap[firstKey] || 0;
+    }
+  }
   var baseUnitPrice = __FEE_DATA__.baseUnitPrices[way] || 0;
+  if (baseUnitPrice === 0) {
+    var firstBase = Object.values(__FEE_DATA__.baseUnitPrices)[0];
+    if (firstBase !== undefined) baseUnitPrice = firstBase;
+  }
   return {
     fee: fee,
     unitPrice: unitPrice,
@@ -524,6 +600,43 @@ function updateSetupCharge() {
   var sc = document.getElementById("summarySetupCharge");
   if (sc) sc.textContent = "$" + s.fee.toFixed(2);
   return s;
+}
+
+// 交期联动: 根据 (way, method, pos, qty) 查 deliverDay
+function updateDeliveryDay() {
+  var qty = getTotalQty();
+  var activeTab = document.querySelector(".tab-btn.active");
+  var way = activeTab ? (activeTab.getAttribute("data-method") || "") : "";
+  var countSel = document.getElementById("ap-imprint-count");
+  var method = countSel ? mapCountToMethod(countSel.value) : "1-color";
+  var boxes = document.querySelectorAll(".imprint-location-row input[type=checkbox]:checked");
+  var pos = Math.max(1, boxes.length);
+
+  var day = 0;
+  var found = false;
+  var keys = Object.keys(window.__AP_DELIVERY_DAY_MAP__ || {});
+  for (var i = 0; i < keys.length; i++) {
+    var k = keys[i];
+    var parts = k.split("|");
+    if (parts[0] === way && parts[1] === method && parts[2] === String(pos)) {
+      var tierQty = parseInt(parts[3]);
+      if (qty >= tierQty) { day = window.__AP_DELIVERY_DAY_MAP__[k]; found = true; }
+    }
+  }
+  if (!found) {
+    for (var j = 0; j < keys.length; j++) {
+      var k2 = keys[j];
+      var p2 = k2.split("|");
+      if (p2[0] === way && p2[1] === method && p2[2] === String(pos)) {
+        day = window.__AP_DELIVERY_DAY_MAP__[k2];
+        break;
+      }
+    }
+  }
+  var el = document.getElementById("apDeliveryDays");
+  if (el) el.textContent = (day || 9) + " Days";
+  var totalEl = document.getElementById("apTotalDeliveryDays");
+  if (totalEl) totalEl.textContent = (day || 9) + " Days";
 }
 
 function getTotalQty(){
@@ -572,17 +685,36 @@ if (zipEl) zipEl.addEventListener("input", function(){
 
 // Imprint Location 复选框联动
 document.querySelectorAll(".imprint-location-row input[type=checkbox]").forEach(function(cb){
-  cb.addEventListener("change", function(){ recalc(); });
+  cb.addEventListener("change", function(){ recalc(); updateDeliveryDay(); });
 });
 
 // 颜色数量下拉联动
 var colorCountSel = document.getElementById("ap-imprint-count");
 if (colorCountSel) {
-  colorCountSel.addEventListener("change", function(){ recalc(); });
+  colorCountSel.addEventListener("change", function(){ recalc(); updateDeliveryDay(); });
+}
+
+// View Delivery Time 点击展开
+var apDeliveryLink = document.getElementById("apViewDeliveryLink");
+var apDeliveryDetail = document.getElementById("apDeliveryDetail");
+if (apDeliveryLink && apDeliveryDetail) {
+  apDeliveryLink.addEventListener("click", function(e){
+    e.preventDefault();
+    apDeliveryDetail.hidden = !apDeliveryDetail.hidden;
+  });
+}
+var apPricingDeliveryLink = document.querySelector(".pricing-summary .view-delivery-time");
+if (apPricingDeliveryLink && apDeliveryDetail && apDeliveryLink) {
+  apPricingDeliveryLink.addEventListener("click", function(e){
+    e.preventDefault();
+    apDeliveryDetail.hidden = false;
+    apDeliveryDetail.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  });
 }
 
 recalc();
 highlightPricingTier(0);
+updateDeliveryDay();
 </script>
 
 <style>
@@ -656,7 +788,88 @@ highlightPricingTier(0);
 .qty-col { text-align: left; font-weight: 500; color: #333; }
 .pricing-row.values .step-col { color: #b12704; }
 .pricing-row .step-col.highlighted { background: #e8f4fc; color: #0066c0; font-weight: 600; }
-.flat-price-link { display: inline-block; font-size: .9rem; color: #0066c0; text-decoration: none; margin-bottom: 1.25rem; }
+/* Delivery Summary Card:左图右文 + 横版布局 */
+  .delivery-and-pricing-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.7fr);
+    gap: 1.25rem;
+    margin-top: 1rem;
+  }
+  @media (max-width: 900px) {
+    .delivery-and-pricing-row { grid-template-columns: 1fr; }
+  }
+  .delivery-summary-card {
+    display: flex;
+    align-items: center;
+    padding: 14px 16px;
+    background-color: #f9f9f9;
+    border: 1px solid #eaeaea;
+    border-radius: 6px;
+    margin-bottom: 12px;
+  }
+  .delivery-detail-panel {
+    background: #fff;
+    border: 1px solid #eaeaea;
+    border-radius: 6px;
+    padding: 10px 14px;
+    margin-top: 4px;
+  }
+  .delivery-detail-panel .detail-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: .85rem;
+    color: #555;
+    padding: 3px 0;
+  }
+  .delivery-detail-panel .detail-value {
+    color: #222;
+    font-weight: 500;
+  }
+  .delivery-detail-panel .detail-row-total {
+    border-top: 1px solid #eee;
+    margin-top: 4px;
+    padding-top: 6px;
+    color: #0066c0;
+    font-weight: 600;
+  }
+  .delivery-detail-panel .detail-row-total .detail-value { color: #0066c0; }
+  .card-left-col {
+    flex: 0 0 64px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .truck-icon-img {
+    width: 56px;
+    height: 36px;
+  }
+  .card-right-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding-left: 14px;
+  }
+  .info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+    color: #333;
+  }
+  .info-row .item-desc { color: #555; }
+  .info-row .item-value { font-weight: 600; color: #222; }
+  .view-delivery-link {
+    font-size: 14px;
+    font-weight: 600;
+    color: #007bff;
+    text-decoration: none;
+    align-self: flex-start;
+    margin-top: 2px;
+  }
+  .view-delivery-link:hover { text-decoration: underline; }
+
+  .flat-price-link { display: inline-block; font-size: .9rem; color: #0066c0; text-decoration: none; margin-bottom: 1.25rem; }
 
 .form-row {
   display: grid; grid-template-columns: 200px 1fr; gap: 1rem;
