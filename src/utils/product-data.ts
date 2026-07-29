@@ -262,6 +262,10 @@ export function getDownloadFiles(p: ProductData): { path?: string }[] {
   for (let i = 0; i < files.length; i++) {
     if (files[i].type === 0 && files[i].file && files[i].file.path) out.push(files[i].file!);
   }
+  // 兜底:部分产品(例如 1812092)files 为空,使用 imgMainUrl 作为 Hi-Res 图片
+  if (out.length === 0 && (p as any).imgMainUrl) {
+    out.push({ path: (p as any).imgMainUrl });
+  }
   return out;
 }
 
