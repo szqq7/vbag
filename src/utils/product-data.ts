@@ -124,6 +124,29 @@ export function getPublishFeeData(p: ProductData): {
   return { setUpFeeMap, unitPriceMap, baseSetUpFees, baseUnitPrices };
 }
 
+/**
+ * 提取产品各 (way, method, position, qtyTier) 的 deliverDay
+ * - deliveryDayMap["Screen Print|1-color|1|100"] = 9
+ */
+export function getDeliveryDayData(p: ProductData): {
+  deliveryDayMap: Record<string, number>;
+} {
+  const deliveryDayMap: Record<string, number> = {};
+  const ways = safeArr((p as any).printingWays);
+  for (const way of ways) {
+    const wn: string = (way as any).printingWayNameEn || "";
+    const prices = safeArr((way as any).productPrintingWayPrices);
+    for (const pp of prices) {
+      const steps = safeArr(pp.productPrintingWayPriceSteps);
+      for (const step of steps) {
+        const key = wn + "|" + pp.pricingMethod + "|" + pp.printingPositionNum + "|" + step.num;
+        deliveryDayMap[key] = step.deliverDay || 0;
+      }
+    }
+  }
+  return { deliveryDayMap };
+}
+
 export function getColorOptions(p: ProductData): ColorOption[] {
   const seen: Record<string, ColorOption> = {};
   const result: ColorOption[] = [];
