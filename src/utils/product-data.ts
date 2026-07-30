@@ -199,20 +199,23 @@ export function getPrintMethodTabs(p: ProductData): { name: string; pricingSteps
     base.push({ num: steps[i].num, price: steps[i].price });
   }
   const ways = safeArr(p.printingWays);
-  function findWay(name: string): PricingStep[] {
-    const target = name.toLowerCase();
-    for (let i = 0; i < ways.length; i++) {
-      if (safeStr(ways[i].printingWayNameEn, "").toLowerCase().indexOf(target) !== -1) {
-        if (ways[i].productPrintingWayPrices && ways[i].productPrintingWayPrices[0] && ways[i].productPrintingWayPrices[0].productPrintingWayPriceSteps) {
-          return ways[i].productPrintingWayPrices![0].productPrintingWayPriceSteps!;
-        }
+  // 动态从 printingWays 数组读取(取代旧硬编码 Screen Print / Heat Transfer)
+  if (ways.length > 0) {
+    const tabs: { name: string; pricingSteps: PricingStep[] }[] = [];
+    for (const w of ways) {
+      const name = safeStr((w as any).printingWayNameEn, "").trim();
+      if (!name) continue;
+      let ps: PricingStep[] = base;
+      const pp = (w as any).productPrintingWayPrices;
+      if (Array.isArray(pp) && pp[0] && Array.isArray(pp[0].productPrintingWayPriceSteps)) {
+        ps = pp[0].productPrintingWayPriceSteps;
       }
+      tabs.push({ name, pricingSteps: ps });
     }
-    return base;
+    if (tabs.length > 0) return tabs;
   }
+  // 兜底:printingWays 为空时返回 Blank + 基础价
   return [
-    { name: "Screen Print", pricingSteps: findWay("screen") },
-    { name: "Heat Transfer", pricingSteps: findWay("heat") },
     { name: "Blank", pricingSteps: base }
   ];
 }
