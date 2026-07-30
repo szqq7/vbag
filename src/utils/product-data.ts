@@ -176,6 +176,17 @@ function getEffectivePricingSteps(p: ProductData): PricingStep[] {
   if (specs.length > 0 && Array.isArray((specs[0] as any).specsPricingSteps)) {
     return (specs[0] as any).specsPricingSteps.map((t: any) => ({ num: t.num, price: String(t.price) }));
   }
+  // 兜底:从 printingWays[0].productPrintingWayPrices[0].productPrintingWayPriceSteps 读取(306227)
+  const ways = safeArr(p.printingWays);
+  for (const w of ways) {
+    const prices = (w as any).productPrintingWayPrices;
+    if (Array.isArray(prices) && prices[0] && Array.isArray(prices[0].productPrintingWayPriceSteps)) {
+      const steps = prices[0].productPrintingWayPriceSteps as any[];
+      if (steps.length > 0) {
+        return steps.map((t: any) => ({ num: t.num, price: String(t.price) }));
+      }
+    }
+  }
   return [];
 }
 
