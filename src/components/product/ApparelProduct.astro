@@ -1,894 +1,567 @@
 ---
 // =====================================================================
-// 服装页面（物理隔离的独立组件）
-// - 适用:specsType 含 Garment-Size / Apparel / Clothing-Size 的产品
-// - 例:306227 (5.3oz 100% Cotton Full Color T-Shirt W/ DTG Print)
-// - 与 single-spec / multi-spec 页面互不耦合
-// - 颜色/尺码联动逻辑完全自包含,不允许外部修改影响本组件
+// Imprint Color Picker (共享组件 - 纯展示型)
+// - 弹层下拉选择器：标准颜色 + Pantone Matching
+// - 自定义输入：onBlur 校验(空/长度/字符/重复/Hex/PMS)
+// - 由三个产品页独立引用,运行实例彼此隔离
 // =====================================================================
-import Base from "../../layouts/Base.astro";
-import ImprintColorPicker from "../../components/product/ImprintColorPicker.astro";
-import {
-  loadProduct, getColorOptions, getPricingSteps, getPrintMethodTabs,
-  getPrintingSurfaces, getAllImages, getDownloadFiles, getTemplateFiles,
-  getSpecifications, getPublishFeeData, getDeliveryDayData, type ProductData
-} from "../../utils/product-data";
+import type { ColorOption } from "../../utils/product-data";
 
-const url = new URL(Astro.request.url);
-const requestedCode = url.searchParams.get("code");
-const defaultCode = "306227";
-const product: ProductData | null = loadProduct(requestedCode || defaultCode);
-
-if (!product) {
-  return Astro.redirect("/404");
+interface Props {
+  colors: ColorOption[];
+  idPrefix?: string;  // 同页多次出现时避免 ID 冲突
 }
+const { colors, idPrefix = "ic" } = Astro.props;
 
-const title: string = product.nameEn || "Product";
-const images: string[] = getAllImages(product);
-const mainImage: string = images[0] || product.imgMainUrl || "";
-const colors = getColorOptions(product);
-const pricingSteps = getPricingSteps(product);
-const methodTabs = getPrintMethodTabs(product);
-const surfaces = getPrintingSurfaces(product);
-const downloadFiles = getDownloadFiles(product);
-const templateFiles = getTemplateFiles(product);
-const specs = getSpecifications(product);
-const description: string = product.descriptionEn || "";
-const defaultColor: string = colors.length > 0 ? colors[0].name : "Default";
-
-// 分尺码数量输入组 - 9 个标准尺码,加价全部置 0(待后续加价数据接入)
-// 顺序固定: S → M → L → XL → 2XL → 3XL → 4XL → 5XL → 6XL
-type InputSizeRow = {
-  label: string;
-  surcharge: number;
-  basePrice: number;
-  min: number;
-};
-const STANDARD_INPUT_SIZES = ["S", "M", "L", "XL", "2XL", "3XL", "4XL", "5XL", "6XL"];
-const inputSizeList: InputSizeRow[] = STANDARD_INPUT_SIZES.map(label => ({
-  label,
-  surcharge: 0,
-  basePrice: parseFloat(pricingSteps[0]?.price?.toString() || "0"),
-  min: pricingSteps[0]?.quantity || 1,
-}));
-
-// 印刷版费表 + 单价表 + 各 way 的基础值 + 交期表 + 静态运费
-const { setUpFeeMap, unitPriceMap, baseSetUpFees, baseUnitPrices } = getPublishFeeData(product);
-const { deliveryDayMap } = getDeliveryDayData(product);
-const shippingCharge: number = (product as any).shippingCharge?.amount ?? 0;
-const setupCharge = 50;
+const triggerId  = `${idPrefix}-imprint-trigger`;
+const popoverId  = `${idPrefix}-imprint-popover`;
+const customId   = `${idPrefix}-imprint-custom`;
+const errorId    = `${idPrefix}-imprint-error`;
+const countId    = `${idPrefix}-imprint-count`;
+const triggerText = `${idPrefix}-imprint-trigger-text`;
 ---
 
-<Base title={title}>
-  <div class="product-page">
-    <div class="left-column">
-      <div class="product-media">
-        {images.length > 0 && (
-          <div class="thumbnails">
-            {images.slice(0, 4).map((img, i) => (
-              <button class={`thumb-btn ${i === 0 ? "active" : ""}`} data-src={img}>
-                <img src={img} alt="" />
-              </button>
-            ))}
-          </div>
-        )}
-        <div class="main-image-wrap">
-          <img id="mainImg" class="main-image" src={mainImage} alt={title} />
-          {!mainImage && <div class="no-image">No Image</div>}
-        </div>
-      </div>
+<div class="imprint-picker" data-prefix={idPrefix}>
+  <!-- Row 1: Imprint Location (only the count + dropdown) -->
+  <div class="form-row">
+    <label class="form-label">Imprint Color</label>
+    <div class="form-control">
+      <select class="form-select" id={countId}>
+        <option>1 color</option>
+        <option>2 color</option>
+        <option>3 color</option>
+        <option>4 color</option>
+        <option>Full Color</option>
+      </select>
 
-      <div class="download-row">
-        {downloadFiles.length > 0 && (
-          <a class="download-btn" href={downloadFiles[0].path} target="_blank" download>
-            <svg class="dl-icon" viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 7V3.5L18.5 9H13z"/></svg>
-            <span>Download Hi-Res Image</span>
-          </a>
-        )}
-        {templateFiles.length > 0 && (
-          <a class="download-btn" href={templateFiles[0].path} target="_blank" download>
-            <svg class="dl-icon" viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 7V3.5L18.5 9H13z"/></svg>
-            <span>Download Template</span>
-          </a>
-        )}
-      </div>
-
-      <section class="description-section">
-        <h2>PRODUCT DESCRIPTION</h2>
-        <p>{description || "No description available."}</p>
-      </section>
-
-      <section class="specs-section">
-        <h2>PRODUCT SPECIFICATIONS</h2>
-        <table class="specs-table">
-          <tbody>
-            {specs.map((s) => (<tr><td class="spec-key">{s.label}</td><td class="spec-value">{s.value}</td></tr>))}
-          </tbody>
-        </table>
-      </section>
-
-      <section class="imprint-diagram-section">
-        <h2>IMPRINT LOCATION</h2>
-        <p class="imprint-note">The imprint area shown is for dimension and placement reference only. Please contact us if you have any other questions.</p>
-        {surfaces.length > 0 ? (
-          <div class="imprint-diagram-grid">
-            {surfaces.map((s) => {
-              const r = s.regions[0];
-              const w = r ? r.width : 0;
-              const h = r ? r.height : 0;
-              return (
-                <div class="imprint-card">
-                  <svg class="imprint-svg" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="40" y="40" width="120" height="170" fill="none" stroke="#999" stroke-width="2" />
-                    <path d="M70 40 Q70 15 100 15 Q130 15 130 40" fill="none" stroke="#999" stroke-width="2" />
-                    <line x1="40" y1="55" x2="160" y2="55" stroke="#999" stroke-width="1" />
-                    <text x="100" y="135" text-anchor="middle" fill="#666" font-size="11" font-family="Arial">{s.name}</text>
-                    <text x="100" y="155" text-anchor="middle" fill="#999" font-size="9" font-family="Arial">W:{w} IN × H:{h} IN</text>
-                  </svg>
-                  <p class="imprint-summary">{s.name}: W:{w} IN × H:{h} IN</p>
-                </div>
-              );
-            })}
-          </div>
-        ) : (<p style="color:#999">No imprint location data</p>)}
-      </section>
-
-      <section class="ordering-section">
-        <h2>ORDERING PROCESS</h2>
-        <p class="ordering-text">Product Ordering Process <a href="#" class="view-link">View</a></p>
-      </section>
-    </div>
-
-    <div class="right-column">
-      <div class="product-info">
-        <h1 class="product-title">{title}</h1>
-
-        {product.code && (
-          <div class="product-code-line">{product.code}</div>
-        )}
-
-        <div class="color-header">
-          <span class="color-label">PRODUCT COLOR: <strong id="currentColor">{defaultColor}</strong></span>
-          <label class="bulk-toggle">
-            <span>Bulk order: Min colors</span>
-            <input type="checkbox" />
-            <span class="toggle-track"><span class="toggle-thumb"></span></span>
-          </label>
-        </div>
-
-        {colors.length > 0 && (
-          <div class="color-grid">
-            {colors.map((c, i) => (
-              <button class={`color-swatch ${i === 0 ? "selected" : ""}`} style={`background-color:${c.rgb};`} data-name={c.name} data-img={c.imageUrl || ""} title={c.name}></button>
-            ))}
-          </div>
-        )}
-
-        <div class="method-section">
-          <h3 class="section-title">IMPRINT METHOD & QUANTITY</h3>
-          <div class="tabs">
-            {methodTabs.map((tab, i) => (
-              <button class={`tab-btn ${i === 0 ? "active" : ""}`} data-method={tab.name}>{tab.name}</button>
-            ))}
-          </div>
-          {pricingSteps.length > 0 && (
-            <div class="pricing-table">
-              <div class="pricing-row header">
-                <span class="qty-col">Quantity</span>
-                {pricingSteps.map((s) => (<span class="step-col">{s.label}</span>))}
-              </div>
-              <div class="pricing-row values" id="pricingRow">
-                <span class="qty-col">Price Each (C)</span>
-                {pricingSteps.map((s) => (<span class="step-col" data-step-price={s.price}>{s.formatted}</span>))}
-              </div>
-            </div>
-          )}
-          <a class="flat-price-link" href="#">Sign in to view flat price</a>
-
-        {/* 分尺码数量输入组 - 9 个标准尺码,每个独立填数量 */}
-        {inputSizeList.length > 0 && (
-          <div class="qty-input-card">
-            <label class="qty-input-label">Enter the quantity you'd like</label>
-            <div class="size-inputs">
-              {inputSizeList.map((s) => (
-                <div class="size-input-item">
-                  <input
-                    type="number"
-                    class="size-qty-input"
-                    min="0"
-                    value="0"
-                    data-surcharge={s.surcharge}
-                    data-base-price={s.basePrice}
-                    data-min={s.min}
-                    data-label={s.label}
-                  />
-                  <span class="size-label">{s.label}</span>
-                </div>
+      <div class="imprint-dropdown">
+        <button type="button" class="imprint-trigger is-placeholder" id={triggerId} aria-haspopup="listbox" aria-expanded="false">
+          <span class="imprint-trigger-content" id={triggerText}>
+            <span class="imprint-trigger-placeholder">Select Imprint Color</span>
+          </span>
+          <svg class="imprint-caret" viewBox="0 0 12 8" width="10" height="6"><path d="M1 1l5 5 5-5" fill="none" stroke="#666" stroke-width="2"/></svg>
+        </button>
+        <div class="imprint-popover" id={popoverId} role="listbox" hidden>
+          <div class="popover-section">
+            <div class="popover-header">Standard colors</div>
+            <div class="popover-options">
+              {colors.map((c) => (
+                <label class="popover-option">
+                  <input type="checkbox" data-name={c.name} data-rgb={c.rgb} />
+                  <span class="popover-swatch" style={`background-color:${c.rgb};`}></span>
+                  <span class="popover-name">{c.name}</span>
+                </label>
               ))}
             </div>
           </div>
-        )}
-        </div>
-
-        <h3 class="section-title">IMPRINT LOCATION(S) & OPTION</h3>
-
-        <div class="form-row imprint-location-row">
-          <label class="form-label">Imprint Location</label>
-          <div class="form-control">
-            {surfaces.length > 0 ? (
-              surfaces.map((s, i) => (
-                <label class="checkbox-inline">
-                  <input type="checkbox" checked={i === 0} />
-                  <span>{s.name}</span>
-                </label>
-              ))
-            ) : (
-              <span style="color:#999">No imprint location info</span>
-            )}
-          </div>
-        </div>
-
-        <ImprintColorPicker colors={colors} idPrefix="ap" />
-
-        <div class="form-row">
-          <label class="form-label">Physical Sample</label>
-          <div class="form-control">
-            <label class="checkbox-inline">
-              <input type="checkbox" />
-              <span>Send me a physical sample</span>
-            </label>
-          </div>
-        </div>
-
-        {/* 左 delivery 卡 + 右 pricing 摘要(横版布局) */}
-        <div class="delivery-and-pricing-row">
-          <div class="delivery-side">
-            <div class="delivery-summary-card">
-              <div class="card-left-col">
-                <svg class="truck-icon-img" viewBox="0 0 64 40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                  <circle cx="17" cy="32" r="5" fill="#0066c0" stroke="#fff" stroke-width="1.5"/>
-                  <circle cx="49" cy="32" r="5" fill="#0066c0" stroke="#fff" stroke-width="1.5"/>
-                  <path d="M2 12 H38 V30 H2 Z" fill="#cfe5fb" stroke="#0066c0" stroke-width="2"/>
-                  <path d="M38 18 H50 L60 26 V30 H38 Z" fill="#a8d0f5" stroke="#0066c0" stroke-width="2"/>
-                  <rect x="6" y="16" width="14" height="10" fill="#fff" stroke="#0066c0" stroke-width="1.5"/>
-                </svg>
-              </div>
-              <div class="card-right-col">
-                <div class="info-row">
-                  <span class="item-desc">Delivery Days:</span>
-                  <span class="item-value" id="apDeliveryDays">9 Days</span>
-                </div>
-                <div class="info-row">
-                  <span class="item-desc">Shipping:</span>
-                  <span class="item-value">Calculated by ZIP</span>
-                </div>
-                <a href="javascript:void(0)" class="view-delivery-link" id="apViewDeliveryLink">View Delivery Time</a>
-              </div>
-            </div>
-            <div class="delivery-detail-panel" id="apDeliveryDetail" hidden>
-              <div class="detail-row">
-                <span>Production Time:</span>
-                <span class="detail-value">1-2 business days</span>
-              </div>
-              <div class="detail-row">
-                <span>Standard Shipping:</span>
-                <span class="detail-value">5-7 business days</span>
-              </div>
-              <div class="detail-row detail-row-total">
-                <span>Total Delivery:</span>
-                <span class="detail-value" id="apTotalDeliveryDays">9 Days</span>
-              </div>
-              <div class="detail-row">
-                <span>Carrier:</span>
-                <span class="detail-value">UPS Ground</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="pricing-side">
-            <div class="pricing-summary">
-              <a href="javascript:void(0)" class="view-delivery-time">View Delivery Time</a>
-              <table class="summary-table">
-                <tbody>
-                  <tr>
-                    <td><span id="summaryQty">—</span></td>
-                    <td class="summary-right" id="summarySubtotal">$0.00</td>
-                  </tr>
-                  <tr>
-                    <td>Set-Up Charge (G)</td>
-                    <td class="summary-right" id="summarySetupCharge">${setupCharge.toFixed(2)}</td>
-                  </tr>
-                  <tr id="summaryImprintRow" class="summary-sub-row" style="display:none">
-                    <td style="padding-left: 1.5rem; color:#666;">Imprint</td>
-                    <td class="summary-right" id="summaryImprint">$0.00</td>
-                  </tr>
-                  <tr id="summaryAdditionalRow" style="display:none">
-                    <td>Additional Charges <span id="summaryAdditionalDetail"></span></td>
-                    <td class="summary-right" id="summaryAdditional">$0.00</td>
-                  </tr>
-                  <tr>
-                    <td>Shipping Charge</td>
-                    <td class="summary-right" id="summaryShipping">${shippingCharge.toFixed(2)}</td>
-                  </tr>
-                  <tr class="total-row">
-                    <td><strong>Total</strong></td>
-                    <td class="summary-right"><strong id="summaryTotal">${setupCharge.toFixed(2)}</strong></td>
-                  </tr>
-                </tbody>
-              </table>
+          <div class="popover-divider"></div>
+          <div class="popover-section">
+            <div class="popover-header">Pantone Matching</div>
+            <div class="popover-options">
+              <label class="popover-option">
+                <input type="checkbox" data-name="Pantone Matching" data-special="1" />
+                <span class="popover-swatch popover-swatch-pantone">P</span>
+                <span class="popover-name">Pantone Matching</span>
+              </label>
             </div>
           </div>
         </div>
       </div>
     </div>
   </div>
-</Base>
 
-<!-- 静态嵌入 Tab 阶梯价数据 -->
-<script is:inline define:vars={{ methodTabs }}>
-  window.__AP_METHOD_TABS_JSON__ = JSON.stringify({ tabs: methodTabs });
-</script>
-
-<script is:inline define:vars={{ pricingSteps, methodTabs, setupCharge, setUpFeeMap, unitPriceMap, baseSetUpFees, baseUnitPrices, deliveryDayMap, shippingCharge }}>
-  window.__AP_PS__ = pricingSteps;
-  window.__AP_MT__ = methodTabs;
-  window.__AP_SETUP__ = setupCharge;
-  window.__AP_PUBLISH_FEE_DATA__ = JSON.stringify({
-    setUpFeeMap: setUpFeeMap,
-    unitPriceMap: unitPriceMap,
-    baseSetUpFees: baseSetUpFees,
-    baseUnitPrices: baseUnitPrices
-  });
-  window.__AP_DELIVERY_DAY_MAP__ = deliveryDayMap;
-  window.__AP_SHIPPING_CHARGE__ = shippingCharge;
-</script>
+  <!-- Row 2: Custom color input -->
+  <div class="form-row">
+    <label class="form-label">Enter your preferred color besides the colors listed above.</label>
+    <div class="form-control imprint-custom-row">
+      <input
+        type="text"
+        class="form-input imprint-custom-input"
+        id={customId}
+        placeholder="e.g. Neon Green"
+        maxlength="50"
+        autocomplete="off"
+      />
+      <button type="button" class="add-btn">+ Add</button>
+    </div>
+    <div class="form-control imprint-error-row">
+      <span class="imprint-error" id={errorId}></span>
+    </div>
+  </div>
+</div>
 
 <script>
-/* ============ 服装页面 - 独立脚本(与 single-spec / multi-spec 物理隔离) ============ */
+  // ============================================================================
+  // Imprint Color Picker - 独立脚本(每个 popover 实例都跑一遍,DOM 隔离)
+  // ============================================================================
+  var EMOJI_RE   = /[\u{1F300}-\u{1FAFF}\u{1F1E6}-\u{1F1FF}\u{2600}-\u{27BF}\u{1F900}-\u{1F9FF}]/u;
+  var TAG_RE     = /<[^>]+>/;
+  var CHAR_RE    = /^[A-Za-z0-9 \-#]+$/;
+  var HEX_RE     = /^#?([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
+  var PMS_RE     = /^(PMS|PANTONE)\s+(\d+|[A-Z]?\d+[A-Z]?)\s*([A-Z])?\s*$/i;
 
-// 缩略图 / 颜色
-document.querySelectorAll(".thumb-btn").forEach(function(b){
-  b.addEventListener("click", function(){
-    var s = this.getAttribute("data-src");
-    var m = document.getElementById("mainImg");
-    if (m && s) m.src = s;
-    document.querySelectorAll(".thumb-btn").forEach(function(x){ x.classList.remove("active"); });
-    this.classList.add("active");
-  });
-});
-document.querySelectorAll(".color-swatch").forEach(function(s){
-  s.addEventListener("click", function(){
-    document.querySelectorAll(".color-swatch").forEach(function(x){ x.classList.remove("selected"); });
-    this.classList.add("selected");
-    var n = this.getAttribute("data-name");
-    var i = this.getAttribute("data-img");
-    var l = document.getElementById("currentColor");
-    if (l && n) l.textContent = n;
-    if (i) {
-      var m = document.getElementById("mainImg");
-      if (m) m.src = i;
+  function setupPicker(prefix) {
+    var trigger    = document.getElementById(prefix + "-imprint-trigger");
+    var popover    = document.getElementById(prefix + "-imprint-popover");
+    var triggerTxt = document.getElementById(prefix + "-imprint-trigger-text");
+    var customIn   = document.getElementById(prefix + "-imprint-custom");
+    var errEl      = document.getElementById(prefix + "-imprint-error");
+    var root       = document.querySelector('[data-prefix="' + prefix + '"]');
+    if (!trigger || !popover || !root) return;
+
+    // === 1. 打开/关闭 popover ===
+    function close() {
+      popover.hidden = true;
+      trigger.setAttribute("aria-expanded", "false");
     }
-  });
-});
+    function open() {
+      popover.hidden = false;
+      trigger.setAttribute("aria-expanded", "true");
+    }
+    trigger.addEventListener("click", function(e) {
+      e.stopPropagation();
+      if (popover.hidden) open(); else close();
+    });
+    document.addEventListener("click", function(e) {
+      if (!root.contains(e.target)) close();
+    });
+    document.addEventListener("keydown", function(e) {
+      if (e.key === "Escape") close();
+    });
 
-// 从静态注入加载 Tab 阶梯价数据
-var __METHOD_TABS__ = [];
-try {
-  if (window.__AP_METHOD_TABS_JSON__) {
-    __METHOD_TABS__ = JSON.parse(window.__AP_METHOD_TABS_JSON__).tabs;
-  }
-} catch(e) { __METHOD_TABS__ = []; }
+    // === 2. 已选项更新触发器: 平铺标签模式(系统色 + 自定义色) ===
+    var customColors = [];  // 已添加的自定义颜色名数组
+    function refreshTrigger() {
+      var checked = root.querySelectorAll(".popover-option input:checked");
+      var hasSelection = checked.length > 0 || customColors.length > 0;
+      if (!hasSelection) {
+        triggerTxt.innerHTML = '<span class="imprint-trigger-placeholder">Select Imprint Color</span>';
+        trigger.classList.add("is-placeholder");
+      } else {
+        var html = "";
+        checked.forEach(function(cb){
+          var n = cb.getAttribute("data-name") || "";
+          var rgb = cb.getAttribute("data-rgb") || "#cccccc";
+          html += '<span class="imprint-tag" data-name="' + escapeHtml(n) + '" data-source="system">' +
+                  '<span class="imprint-tag-swatch" style="background-color:' + escapeHtml(rgb) + ';"></span>' +
+                  '<span class="imprint-tag-name">' + escapeHtml(n) + '</span>' +
+                  '<span class="imprint-tag-x" data-name="' + escapeHtml(n) + '" title="移除">×</span>' +
+                  '</span>';
+        });
+        customColors.forEach(function(n){
+          html += '<span class="imprint-tag imprint-tag-custom" data-name="' + escapeHtml(n) + '" data-source="custom">' +
+                  '<span class="imprint-tag-swatch imprint-tag-swatch-default" title="自定义颜色"></span>' +
+                  '<span class="imprint-tag-name">' + escapeHtml(n) + '</span>' +
+                  '<span class="imprint-tag-x" data-name="' + escapeHtml(n) + '" title="移除">×</span>' +
+                  '</span>';
+        });
+        triggerTxt.innerHTML = html;
+        trigger.classList.remove("is-placeholder");
 
-// 从 DOM 阶梯表读取当前显示的阶梯价
-function getCSFromDOM(){
-  var result = [];
-  var headers = document.querySelectorAll(".pricing-row.header .step-col");
-  var values  = document.querySelectorAll("#pricingRow .step-col");
-  for (var i = 0; i < headers.length && i < values.length; i++) {
-    var label = (headers[i].textContent || "").trim();
-    var numMatch = label.match(/^(\d+)/);
-    var num = numMatch ? parseInt(numMatch[1]) : NaN;
-    var priceRaw = values[i] ? values[i].getAttribute("data-step-price") : null;
-    var price = priceRaw ? parseFloat(priceRaw) : NaN;
-    if (!isNaN(num) && !isNaN(price)) result.push({ num: num, price: price });
-  }
-  return result;
-}
-
-function getCS(){
-  if (__METHOD_TABS__.length > 0) {
-    var a = document.querySelector(".tab-btn.active");
-    var n = a ? a.getAttribute("data-method") : "Screen Print";
-    for (var i = 0; i < __METHOD_TABS__.length; i++) {
-      if (__METHOD_TABS__[i].name === n && __METHOD_TABS__[i].pricingSteps && __METHOD_TABS__[i].pricingSteps.length > 0) {
-        return __METHOD_TABS__[i].pricingSteps;
+        // 绑定 × 删除按钮
+        triggerTxt.querySelectorAll(".imprint-tag-x").forEach(function(x){
+          x.addEventListener("click", function(e){
+            e.stopPropagation();
+            var target = this.getAttribute("data-name");
+            var sourceEl = this.closest(".imprint-tag");
+            var source = sourceEl ? sourceEl.getAttribute("data-source") : "system";
+            if (source === "custom") {
+              customColors = customColors.filter(function(c){ return c !== target; });
+            } else {
+              root.querySelectorAll(".popover-option input").forEach(function(cb){
+                if (cb.getAttribute("data-name") === target) cb.checked = false;
+              });
+            }
+            refreshTrigger();
+          });
+        });
       }
     }
-  }
-  return getCSFromDOM();
-}
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, function(c){
+        return ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"})[c];
+      });
+    }
 
-function updatePricingTable(){
-  var steps = getCS();
-  var cols = document.querySelectorAll("#pricingRow .step-col");
-  for (var i = 0; i < cols.length; i++) {
-    if (steps[i]) {
-      var price = parseFloat(steps[i].price);
-      if (!isNaN(price)) {
-        cols[i].textContent = "$" + price.toFixed(2);
-        cols[i].setAttribute("data-step-price", String(price));
-        cols[i].setAttribute("data-base-price", String(price));
+    // === 3. 数量限制联动(单色互斥 + 多色 Auto-Replace) ===
+    // 解析"1 color"/"2 color"等 → 数字上限
+    function getColorLimit(val) {
+      if (!val) return 1;
+      if (val === "1 color") return 1;
+      if (val === "2 color") return 2;
+      if (val === "3 color") return 3;
+      if (val === "4 color") return 4;
+      if (val === "Full Color") return 1;  // Full Color 视为 1 色
+      return 99;  // 未知值不限制
+    }
+    function isSingleMode(val) {
+      return getColorLimit(val) === 1;
+    }
+
+    root.querySelectorAll(".popover-option input").forEach(function(cb){
+      cb.addEventListener("change", function(){
+        var countSel = document.getElementById(prefix + "-imprint-count");
+        var val = countSel ? countSel.value : "1 color";
+        var limit = getColorLimit(val);
+
+        if (limit === 1) {
+          // 单色模式:Auto-Replace — 取消其他所有
+          if (cb.checked) {
+            root.querySelectorAll(".popover-option input").forEach(function(other){
+              if (other !== cb) other.checked = false;
+            });
+          }
+        } else {
+          // 多色模式:Auto-Replace — 满数量时取消最早勾选的那个
+          var checkedCount = root.querySelectorAll(".popover-option input:checked").length;
+          if (checkedCount > limit) {
+            // 找到第一个 checked 但不是当前 cb 的,取消它
+            var allInputs = root.querySelectorAll(".popover-option input");
+            for (var i = 0; i < allInputs.length; i++) {
+              if (allInputs[i].checked && allInputs[i] !== cb) {
+                allInputs[i].checked = false;
+                break;  // 只取消最早的一个
+              }
+            }
+          }
+        }
+
+        refreshTrigger();
+      });
+    });
+
+    // 切换颜色数下拉:
+    // - 单色:只保留第一个
+    // - 多色切到更小的数字:取消超出部分(保留最早N个)
+    var countSelForLock = document.getElementById(prefix + "-imprint-count");
+    if (countSelForLock) {
+      countSelForLock.addEventListener("change", function(){
+        var limit = getColorLimit(countSelForLock.value);
+        if (limit === 1) {
+          var first = null;
+          root.querySelectorAll(".popover-option input").forEach(function(cb){
+            if (cb.checked && !first) first = cb;
+            else cb.checked = false;
+          });
+        } else {
+          // 多色:超过新上限的取消(保留最早N个)
+          var allInputs = root.querySelectorAll(".popover-option input");
+          var keptCount = 0;
+          for (var i = 0; i < allInputs.length; i++) {
+            if (allInputs[i].checked) {
+              keptCount++;
+              if (keptCount > limit) allInputs[i].checked = false;
+            }
+          }
+        }
+        refreshTrigger();
+      });
+    }
+
+    // === 3. 自定义输入 - onBlur 校验 ===
+    function setError(msg) {
+      if (!errEl) return;
+      errEl.textContent = msg || "";
+      errEl.style.display = msg ? "block" : "none";
+      customIn.classList.toggle("has-error", !!msg);
+    }
+
+    function validate(val) {
+      var v = val.trim();
+      if (!v) return "";  // 空不报错(允许不清空就离开)
+
+      // 长度
+      if (v.length > 50) return "输入内容过长，请控制在 50 字符以内";
+      // Emoji
+      if (EMOJI_RE.test(v)) return "输入包含非法字符，请修改后重试";
+      // HTML/脚本
+      if (TAG_RE.test(v)) return "输入格式无效，请使用英文名称或 Hex 色值";
+      // 字符限定
+      if (!CHAR_RE.test(v)) return "输入包含非法字符，请修改后重试";
+
+      // Hex-only 检测
+      if (/^[#A-Fa-f0-9]+$/.test(v)) {
+        if (!HEX_RE.test(v)) return "输入格式无效，请使用英文名称或 Hex 色值";
+        return "";
       }
-    }
-  }
-  highlightPricingTier(0);
-}
-
-function getUnitPrice(qty){
-  var s = getCSFromDOM();
-  if (!s || s.length === 0) return 0;
-  if (!qty || qty <= 0 || qty < s[0].num) return parseFloat(s[0].price) || 0;
-  for (var i = s.length - 1; i >= 0; i--) {
-    if (qty >= s[i].num) return parseFloat(s[i].price) || 0;
-  }
-  return parseFloat(s[0].price) || 0;
-}
-
-function highlightPricingTier(qty){
-  var steps = getCSFromDOM();
-  if (!steps || steps.length === 0) return;
-  var matchedIdx = 0;
-  for (var i = 0; i < steps.length; i++) {
-    if (qty >= steps[i].num) matchedIdx = i; else break;
-  }
-  if (!qty || qty <= 0) matchedIdx = 0;
-  document.querySelectorAll(".pricing-row .step-col.highlighted").forEach(function(el){
-    el.classList.remove("highlighted");
-  });
-  var headerCells = document.querySelectorAll(".pricing-row.header .step-col");
-  var valueCells  = document.querySelectorAll("#pricingRow .step-col");
-  if (headerCells[matchedIdx]) headerCells[matchedIdx].classList.add("highlighted");
-  if (valueCells[matchedIdx])  valueCells[matchedIdx].classList.add("highlighted");
-}
-
-// 服装尺码多选:每个 size-qty-input 独立 input
-document.querySelectorAll(".size-qty-input").forEach(function(inp){
-  inp.addEventListener("input", function(){ recalc(); updateDeliveryDay(); });
-});
-
-document.querySelectorAll(".tab-btn").forEach(function(b){
-  b.addEventListener("click", function(){
-    document.querySelectorAll(".tab-btn").forEach(function(x){ x.classList.remove("active"); });
-    this.classList.add("active");
-    updatePricingTable();
-    recalc();
-    updateDeliveryDay();
-  });
-});
-
-function recalc(){
-  var summaryQty = document.getElementById("summaryQty");
-  var summarySubtotal = document.getElementById("summarySubtotal");
-  var summaryTotal = document.getElementById("summaryTotal");
-  var setup = 50;
-  var subtotal = 0;
-  var lines = [];
-  var totalQty = 0;
-  var totalSurcharge = 0;
-  var surchargeDetails = [];
-  document.querySelectorAll(".size-qty-input").forEach(function(inp){
-    var v = parseInt(inp.value) || 0;
-    if (v > 0) {
-      totalQty += v;
-      var label = inp.getAttribute("data-label") || "";
-      var surcharge = parseFloat(inp.getAttribute("data-surcharge")) || 0;
-      var unit = getUnitPrice(v);
-      var totalUnit = unit + surcharge;
-      var sub = v * totalUnit;
-      subtotal += sub;
-      var labelText = label + (surcharge > 0 ? " (incl +$" + surcharge.toFixed(2) + ")" : "");
-      lines.push("$" + totalUnit.toFixed(2) + " ea × " + v + " " + labelText);
-      if (surcharge > 0) {
-        totalSurcharge += v * surcharge;
-        surchargeDetails.push("Garment-Size: " + label + " $" + surcharge.toFixed(2));
+      // PMS/PANTONE 检测(以 PMS 或 PANTONE 开头)
+      if (/^(PMS|PANTONE)\b/i.test(v)) {
+        if (!PMS_RE.test(v)) return "Pantone 编码格式应为 PMS 186 C";
+        return "";
       }
-    }
-  });
-  if (summaryQty) summaryQty.innerHTML = lines.length > 0 ? lines.join("<br>") : "—";
-  var addRow = document.getElementById("summaryAdditionalRow");
-  var addCell = document.getElementById("summaryAdditional");
-  var addDetail = document.getElementById("summaryAdditionalDetail");
-  if (totalSurcharge > 0) {
-    if (addRow) addRow.style.display = "";
-    if (addCell) addCell.textContent = "$" + totalSurcharge.toFixed(2);
-    if (addDetail) addDetail.innerHTML = surchargeDetails.map(function(d){ return "<div style='font-size:.7rem;color:#888'>" + d + "</div>"; }).join("");
-  } else {
-    if (addRow) addRow.style.display = "none";
-  }
-  if (summarySubtotal) summarySubtotal.textContent = "$" + subtotal.toFixed(2);
-  // Set-Up + Imprint(单价差价×数量) 计入 Total
-  var s = updateSetupCharge();
-  setup = s.fee;
-  var qty = getTotalQty();
-  var imprintAmount = Math.max(0, s.unitDiff) * qty;
-  if (s.unitDiff > 0 && qty > 0) {
-    var impRow2 = document.getElementById("summaryImprintRow");
-    var impCell2 = document.getElementById("summaryImprint");
-    if (impRow2) impRow2.style.display = "";
-    if (impCell2) impCell2.textContent = "$" + imprintAmount.toFixed(2);
-  } else {
-    var impRow2 = document.getElementById("summaryImprintRow");
-    if (impRow2) impRow2.style.display = "none";
-  }
-  if (summaryTotal) summaryTotal.textContent = "$" + (subtotal + setup + imprintAmount + (window.__AP_SHIPPING_CHARGE__ || 0)).toFixed(2);
-  updateDeliveryDay();
-}
-
-// ============================================================
-// 印刷版费联动(V3.0): Set-Up Charge + Imprint (单价差价×数量)
-// ============================================================
-var __FEE_DATA__ = { setUpFeeMap: {}, unitPriceMap: {}, baseSetUpFees: {}, baseUnitPrices: {} };
-try {
-  if (window.__AP_PUBLISH_FEE_DATA__) {
-    __FEE_DATA__ = JSON.parse(window.__AP_PUBLISH_FEE_DATA__);
-  }
-} catch(e) { __FEE_DATA__ = { setUpFeeMap: {}, unitPriceMap: {}, baseSetUpFees: {}, baseUnitPrices: {} }; }
-
-function mapCountToMethod(val) {
-  if (!val) return "1-color";
-  if (val === "Full Color") return "full-color";
-  var m = val.replace(/\s*color\s*$/i, "");
-  if (/^\d+$/.test(m)) return m + "-color";
-  return val;
-}
-
-function getCurrentSetupCharge() {
-  var activeTab = document.querySelector(".tab-btn.active");
-  var way = activeTab ? (activeTab.getAttribute("data-method") || "") : "";
-  var countSel = document.getElementById("ap-imprint-count");
-  var method = mapCountToMethod(countSel ? countSel.value : "1 color");
-  var pos = 1;
-  var boxes = document.querySelectorAll(".imprint-location-row input[type=checkbox]:checked");
-  pos = Math.max(1, boxes.length);
-
-  // 多键 fallback:解决 way/method/pos 与数据不匹配时的 $0 问题(1812092 案例)
-  var fee = 0, unitPrice = 0;
-  var tries = [
-    way + "|" + method + "|" + pos,
-    way + "|full-color|" + pos,
-    way + "|1-color|" + pos,
-  ];
-  for (var i = 0; i < tries.length; i++) {
-    var k = tries[i];
-    if (__FEE_DATA__.setUpFeeMap[k]) {
-      fee = __FEE_DATA__.setUpFeeMap[k];
-      unitPrice = __FEE_DATA__.unitPriceMap[k] || 0;
-      break;
-    }
-  }
-  if (fee === 0) {
-    var firstKey = Object.keys(__FEE_DATA__.setUpFeeMap)[0];
-    if (firstKey) {
-      fee = __FEE_DATA__.setUpFeeMap[firstKey];
-      unitPrice = __FEE_DATA__.unitPriceMap[firstKey] || 0;
-    }
-  }
-  var baseUnitPrice = __FEE_DATA__.baseUnitPrices[way] || 0;
-  if (baseUnitPrice === 0) {
-    var firstBase = Object.values(__FEE_DATA__.baseUnitPrices)[0];
-    if (firstBase !== undefined) baseUnitPrice = firstBase;
-  }
-  return {
-    fee: fee,
-    unitPrice: unitPrice,
-    baseUnitPrice: baseUnitPrice,
-    unitDiff: unitPrice - baseUnitPrice,
-  };
-}
-
-function updateSetupCharge() {
-  var s = getCurrentSetupCharge();
-  var sc = document.getElementById("summarySetupCharge");
-  if (sc) sc.textContent = "$" + s.fee.toFixed(2);
-  return s;
-}
-
-// 交期联动: 根据 (way, method, pos, qty) 查 deliverDay
-function updateDeliveryDay() {
-  var qty = getTotalQty();
-  var activeTab = document.querySelector(".tab-btn.active");
-  var way = activeTab ? (activeTab.getAttribute("data-method") || "") : "";
-  var countSel = document.getElementById("ap-imprint-count");
-  var method = countSel ? mapCountToMethod(countSel.value) : "1-color";
-  var boxes = document.querySelectorAll(".imprint-location-row input[type=checkbox]:checked");
-  var pos = Math.max(1, boxes.length);
-
-  var day = 0;
-  var found = false;
-  var keys = Object.keys(window.__AP_DELIVERY_DAY_MAP__ || {});
-  for (var i = 0; i < keys.length; i++) {
-    var k = keys[i];
-    var parts = k.split("|");
-    if (parts[0] === way && parts[1] === method && parts[2] === String(pos)) {
-      var tierQty = parseInt(parts[3]);
-      if (qty >= tierQty) { day = window.__AP_DELIVERY_DAY_MAP__[k]; found = true; }
-    }
-  }
-  if (!found) {
-    for (var j = 0; j < keys.length; j++) {
-      var k2 = keys[j];
-      var p2 = k2.split("|");
-      if (p2[0] === way && p2[1] === method && p2[2] === String(pos)) {
-        day = window.__AP_DELIVERY_DAY_MAP__[k2];
-        break;
+      // 重复性检查 vs Standard colors
+      var opts = root.querySelectorAll(".popover-option input");
+      for (var i = 0; i < opts.length; i++) {
+        var n = opts[i].getAttribute("data-name") || "";
+        if (n && n.toLowerCase() === v.toLowerCase()) {
+          return "该颜色已在标准列表中，请直接选择";
+        }
       }
+      return "";
+    }
+
+    customIn.addEventListener("blur", function() {
+      setError(validate(customIn.value));
+    });
+    customIn.addEventListener("input", function() {
+      if (errEl && errEl.style.display === "block") {
+        setError(validate(customIn.value));  // 已经有错误时,边输入边重新校验
+      }
+    });
+
+    // === 4. Add 按钮 ===
+    var addBtn = root.querySelector(".add-btn");
+    if (addBtn) {
+      addBtn.addEventListener("click", function() {
+        var v = customIn.value.trim();
+        var err = validate(v);
+        if (err) { setError(err); return; }
+        if (!v) { setError("请输入颜色名称或色值"); return; }
+        // 防重复:与系统色或已添加的自定义色都不能重复
+        var existsInSystem = false;
+        root.querySelectorAll(".popover-option input").forEach(function(cb){
+          if (cb.getAttribute("data-name") === v) existsInSystem = true;
+        });
+        if (existsInSystem) { setError("该颜色已在标准列表中，请直接选择"); return; }
+        if (customColors.indexOf(v) !== -1) { setError("该颜色已添加"); return; }
+
+        // 推入自定义颜色数组,触发 refreshTrigger
+        customColors.push(v);
+        setError("");
+        customIn.value = "";
+        refreshTrigger();
+      });
     }
   }
-  var el = document.getElementById("apDeliveryDays");
-  if (el) el.textContent = (day || 9) + " Days";
-  var totalEl = document.getElementById("apTotalDeliveryDays");
-  if (totalEl) totalEl.textContent = (day || 9) + " Days";
-}
 
-function getTotalQty(){
-  var q = 0;
-  document.querySelectorAll(".size-qty-input").forEach(function(inp){ q += parseInt(inp.value) || 0; });
-  return q;
-}
-
-function getApparelSubtotal(){
-  var sub = 0;
-  document.querySelectorAll(".size-qty-input").forEach(function(inp){
-    var v = parseInt(inp.value) || 0;
-    var surcharge = parseFloat(inp.getAttribute("data-surcharge")) || 0;
-    var unit = getUnitPrice(v);
-    sub += v * (unit + surcharge);
+  // 找出所有实例,逐一初始化
+  document.querySelectorAll(".imprint-picker").forEach(function(el){
+    var p = el.getAttribute("data-prefix") || "ic";
+    setupPicker(p);
   });
-  return sub;
-}
-
-// Imprint Location 复选框联动
-document.querySelectorAll(".imprint-location-row input[type=checkbox]").forEach(function(cb){
-  cb.addEventListener("change", function(){ recalc(); updateDeliveryDay(); });
-});
-
-// 颜色数量下拉联动
-var colorCountSel = document.getElementById("ap-imprint-count");
-if (colorCountSel) {
-  colorCountSel.addEventListener("change", function(){ recalc(); updateDeliveryDay(); });
-}
-
-// View Delivery Time 点击展开
-var apDeliveryLink = document.getElementById("apViewDeliveryLink");
-var apDeliveryDetail = document.getElementById("apDeliveryDetail");
-if (apDeliveryLink && apDeliveryDetail) {
-  apDeliveryLink.addEventListener("click", function(e){
-    e.preventDefault();
-    apDeliveryDetail.hidden = !apDeliveryDetail.hidden;
-  });
-}
-var apPricingDeliveryLink = document.querySelector(".pricing-summary .view-delivery-time");
-if (apPricingDeliveryLink && apDeliveryDetail && apDeliveryLink) {
-  apPricingDeliveryLink.addEventListener("click", function(e){
-    e.preventDefault();
-    apDeliveryDetail.hidden = false;
-    apDeliveryDetail.scrollIntoView({ behavior: "smooth", block: "nearest" });
-  });
-}
-
-recalc();
-highlightPricingTier(0);
-updateDeliveryDay();
 </script>
 
 <style>
-.product-page { display: grid; grid-template-columns: 540px 1fr; gap: 3.5rem; max-width: 1400px; margin: 0 auto; padding: 2.5rem; }
-.left-column { display: flex; flex-direction: column; gap: 1.5rem; }
-.right-column { }
-
-.product-media { display: flex; flex-direction: row; gap: 14px; align-items: flex-start; }
-.thumbnails { display: flex; flex-direction: column; gap: 10px; width: 90px; flex-shrink: 0; max-height: 600px; overflow-y: auto; }
-.thumb-btn { width: 90px; height: 90px; padding: 2px; border: 1px solid #e0e0e0; border-radius: 4px; background: #fff; cursor: pointer; overflow: hidden; }
-.thumb-btn.active { border-color: #333; }
-.thumb-btn img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.main-image-wrap { flex: 1; aspect-ratio: 1; background: #f8f9fa; border: 1px solid #eee; border-radius: 4px; display: flex; align-items: center; justify-content: center; overflow: hidden; min-height: 450px; }
-.main-image { width: 100%; height: 100%; object-fit: contain; padding: 1.5rem; }
-.no-image { color: #999; }
-
-.download-row { display: flex; flex-direction: row; gap: 12px; width: 100%; }
-.download-btn {
-  flex: 1; display: flex; align-items: center; justify-content: center;
-  gap: 8px; padding: .75rem 1rem;
-  border: 1px solid #0066c0; color: #0066c0;
-  border-radius: 4px; text-decoration: none;
-  font-size: .9rem; font-weight: 500;
-  transition: background .15s, color .15s;
-  white-space: nowrap;
-}
-.download-btn:hover { background: #0066c0; color: #fff; }
-.dl-icon { flex-shrink: 0; }
-
-.description-section, .specs-section, .imprint-diagram-section, .ordering-section { margin-bottom: 0; }
-.description-section h2, .specs-section h2, .imprint-diagram-section h2, .ordering-section h2 { font-size: 1.1rem; font-weight: 700; margin: 0 0 1rem; padding-bottom: .5rem; border-bottom: 2px solid #111; color: #222; }
-.description-section p { font-size: .95rem; line-height: 1.7; color: #444; margin: 0; }
-.specs-table { width: 100%; border-collapse: collapse; }
-.specs-table tr { border-bottom: 1px solid #e8e8e8; }
-.specs-table td { padding: .85rem .5rem; font-size: .95rem; vertical-align: top; }
-.spec-key { width: 35%; color: #555; font-weight: 500; }
-.spec-value { color: #222; }
-.imprint-note { font-size: .85rem; color: #666; margin: 0 0 1.5rem; }
-.imprint-diagram-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
-.imprint-card { text-align: center; }
-.imprint-svg { width: 100%; max-width: 200px; height: auto; display: block; margin: 0 auto; }
-.imprint-summary { font-size: .85rem; color: #333; margin: .5rem 0 0; }
-
-.ordering-text { font-size: .95rem; color: #444; margin: 0; }
-.view-link { color: #0066c0; text-decoration: none; margin-left: .5rem; }
-.view-link:hover { text-decoration: underline; }
-
-.product-info { padding-top: 0; }
-.product-title { font-size: 1.6rem; font-weight: 600; margin: 0 0 1rem; line-height: 1.3; color: #111; }
-.product-code-line { font-size: 1rem; color: #555; margin: 0 0 .75rem; }
-.color-header { display: flex; justify-content: space-between; align-items: center; font-size: .9rem; color: #555; margin-bottom: .5rem; }
-.color-label strong { color: #222; font-weight: 600; }
-.bulk-toggle { display: inline-flex; align-items: center; gap: 6px; font-size: .85rem; color: #555; cursor: pointer; }
-.bulk-toggle input { display: none; }
-.toggle-track { width: 28px; height: 16px; background: #ccc; border-radius: 8px; position: relative; }
-.toggle-thumb { width: 12px; height: 12px; background: #fff; border-radius: 50%; position: absolute; top: 2px; left: 2px; }
-.bulk-toggle input:checked + .toggle-track { background: #0066c0; }
-.bulk-toggle input:checked + .toggle-track .toggle-thumb { transform: translateX(12px); }
-.color-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 5px; margin-bottom: 1.5rem; }
-.color-swatch { width: 100%; aspect-ratio: 1; border: 1px solid #d0d0d0; border-radius: 2px; cursor: pointer; min-height: 26px; padding: 0; }
-.color-swatch.selected { border: 2px solid #333; box-shadow: 0 0 0 1px #fff inset; }
-.section-title { font-size: .95rem; font-weight: 700; margin: 0 0 .75rem; color: #222; }
-.method-section { margin-bottom: 1rem; }
-.tabs { display: flex; border-bottom: 1px solid #ddd; margin-bottom: 1rem; }
-.tab-btn { padding: .5rem 1.25rem; border: none; background: none; font-size: .9rem; color: #555; cursor: pointer; border-bottom: 2px solid transparent; }
-.tab-btn.active { color: #111; border-bottom-color: #333; font-weight: 600; }
-.pricing-table { border: 1px solid #e0e0e0; border-radius: 4px; margin-bottom: .75rem; overflow-x: auto; }
-.pricing-row { display: grid; grid-template-columns: 130px repeat(auto-fit, minmax(75px, 1fr)); border-bottom: 1px solid #f0f0f0; }
-.pricing-row.header { background: #f8f8f8; font-weight: 600; }
-.qty-col, .step-col { padding: .6rem .7rem; text-align: center; border-right: 1px solid #f0f0f0; font-size: .9rem; }
-.qty-col { text-align: left; font-weight: 500; color: #333; }
-.pricing-row.values .step-col { color: #b12704; }
-.pricing-row .step-col.highlighted { background: #e8f4fc; color: #0066c0; font-weight: 600; }
-/* Delivery Summary Card:左图右文 + 横版布局 */
-  .delivery-and-pricing-row {
+  .imprint-picker { width: 100%; }
+  .imprint-picker .form-row {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.7fr);
+    grid-template-columns: 200px 1fr;
+    gap: 1rem;
+    align-items: center;
+    padding: .6rem 0;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .imprint-picker .form-label { font-size: .9rem; color: #555; font-weight: 500; }
+  .imprint-picker .form-control {
+    display: flex;
     gap: 1.25rem;
-    margin-top: 1rem;
-  }
-  @media (max-width: 900px) {
-    .delivery-and-pricing-row { grid-template-columns: 1fr; }
-  }
-  .delivery-summary-card {
-    display: flex;
     align-items: center;
-    padding: 14px 16px;
-    background-color: #f9f9f9;
-    border: 1px solid #eaeaea;
-    border-radius: 6px;
-    margin-bottom: 12px;
+    flex-wrap: wrap;
   }
-  .delivery-detail-panel {
+  .imprint-picker .form-select {
+    padding: .5rem .75rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: .9rem;
     background: #fff;
-    border: 1px solid #eaeaea;
-    border-radius: 6px;
-    padding: 10px 14px;
-    margin-top: 4px;
+    min-width: 140px;
   }
-  .delivery-detail-panel .detail-row {
+
+  /* Popover trigger */
+  .imprint-dropdown { position: relative; flex: 1; max-width: 320px; }
+  .imprint-trigger {
+    width: 100%;
+    padding: .5rem .75rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: #fff;
+    font-size: .9rem;
+    color: #333;
+    cursor: pointer;
     display: flex;
     justify-content: space-between;
-    font-size: .85rem;
-    color: #555;
-    padding: 3px 0;
-  }
-  .delivery-detail-panel .detail-value {
-    color: #222;
-    font-weight: 500;
-  }
-  .delivery-detail-panel .detail-row-total {
-    border-top: 1px solid #eee;
-    margin-top: 4px;
-    padding-top: 6px;
-    color: #0066c0;
-    font-weight: 600;
-  }
-  .delivery-detail-panel .detail-row-total .detail-value { color: #0066c0; }
-  .card-left-col {
-    flex: 0 0 64px;
-    display: flex;
-    justify-content: center;
     align-items: center;
+    text-align: left;
+    min-height: 38px;
   }
-  .truck-icon-img {
-    width: 56px;
-    height: 36px;
-  }
-  .card-right-col {
+  /* 占位提示状态:浅灰色,与下方 .e.g. Neon Green 输入框 placeholder 一致 */
+  .imprint-trigger.is-placeholder { color: #999; font-weight: 400; }
+  /* 选中状态下的内容容器:横向滚动 + 不换行 */
+  .imprint-trigger-content {
     flex: 1;
+    min-width: 0;
     display: flex;
-    flex-direction: column;
+    flex-wrap: nowrap;
     gap: 4px;
-    padding-left: 14px;
-  }
-  .info-row {
-    display: flex;
-    justify-content: space-between;
+    overflow-x: auto;
+    overflow-y: hidden;
     align-items: center;
-    font-size: 14px;
+    scrollbar-width: thin;
+  }
+  .imprint-trigger-content::-webkit-scrollbar { height: 4px; }
+  .imprint-trigger-content::-webkit-scrollbar-thumb { background: #ccc; border-radius: 2px; }
+  .imprint-trigger-content::-webkit-scrollbar-track { background: transparent; }
+  .imprint-trigger-placeholder {
+    color: #999;
+    font-weight: 400;
+  }
+  /* 已选颜色标签(色块 + 名字 + ×) */
+  .imprint-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 4px 2px 2px;
+    background: #f5f5f5;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    font-size: .8rem;
+    color: #333;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .imprint-tag-swatch {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 1px solid rgba(0,0,0,.2);
+    flex-shrink: 0;
+  }
+  .imprint-tag-swatch-default {
+    background: linear-gradient(135deg, #ff6b35 0%, #f7c948 50%, #4ecdc4 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .imprint-tag-swatch-default::after {
+    content: "?";
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    text-shadow: 0 0 2px rgba(0,0,0,.5);
+  }
+  .imprint-tag-custom .imprint-tag-swatch-default { border-color: rgba(0,0,0,.3); }
+  .imprint-tag-name {
+    color: #333;
+    line-height: 1;
+  }
+  .imprint-tag-x {
+    cursor: pointer;
+    margin-left: 1px;
+    color: #999;
+    font-size: 1rem;
+    line-height: 1;
+    padding: 0 3px;
+    border-radius: 50%;
+    user-select: none;
+  }
+  .imprint-tag-x:hover { color: #c00; background: rgba(204,0,0,.08); }
+  .imprint-trigger:hover, .imprint-trigger:focus {
+    border-color: #0066c0;
+    outline: none;
+  }
+  .imprint-caret { flex-shrink: 0; }
+
+  /* Popover panel */
+  .imprint-popover {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    z-index: 50;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    box-shadow: 0 4px 16px rgba(0,0,0,.12);
+    width: 280px;
+    max-height: 320px;
+    overflow-y: auto;
+    padding: .4rem 0;
+  }
+  .popover-section { padding: .25rem 0; }
+  .popover-header {
+    font-size: .75rem;
+    font-weight: 700;
+    color: #0066c0;
+    text-transform: uppercase;
+    padding: .35rem .85rem;
+    letter-spacing: .04em;
+  }
+  .popover-divider {
+    height: 1px;
+    background: #eee;
+    margin: .25rem 0;
+  }
+  .popover-options { display: flex; flex-direction: column; }
+  .popover-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: .35rem .85rem;
+    cursor: pointer;
+    font-size: .85rem;
+  }
+  .popover-option:hover { background: #f5f8fc; }
+  .popover-option input {
+    margin: 0;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .popover-swatch {
+    width: 18px;
+    height: 18px;
+    border-radius: 3px;
+    border: 1px solid rgba(0,0,0,.15);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 0 2px rgba(0,0,0,.5);
+    flex-shrink: 0;
+  }
+  .popover-swatch-pantone {
+    background: linear-gradient(135deg, #ff6b35 0%, #f7c948 50%, #4ecdc4 100%);
+  }
+  .popover-name {
+    flex: 1;
     color: #333;
   }
-  .info-row .item-desc { color: #555; }
-  .info-row .item-value { font-weight: 600; color: #222; }
-  .view-delivery-link {
-    font-size: 14px;
-    font-weight: 600;
-    color: #007bff;
-    text-decoration: none;
-    align-self: flex-start;
-    margin-top: 2px;
+
+  /* Custom input + error */
+  .imprint-custom-row { align-items: center; }
+  .imprint-custom-input {
+    flex: 1;
+    max-width: 320px;
+    padding: .5rem .75rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: .9rem;
+    outline: none;
+    transition: border-color .15s;
   }
-  .view-delivery-link:hover { text-decoration: underline; }
+  .imprint-custom-input:focus { border-color: #0066c0; }
+  .imprint-custom-input.has-error { border-color: #c00; }
+  .add-btn {
+    padding: .5rem 1.25rem;
+    background: #fff;
+    color: #0066c0;
+    border: 1px solid #0066c0;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: .9rem;
+  }
+  .add-btn:hover { background: #0066c0; color: #fff; }
+  .imprint-error-row { padding-top: .25rem; }
+  .imprint-error {
+    display: none;
+    font-size: .78rem;
+    color: #c00;
+    flex: 1;
+    line-height: 1.4;
+  }
 
-  .flat-price-link { display: inline-block; font-size: .9rem; color: #0066c0; text-decoration: none; margin-bottom: 1.25rem; }
-
-.form-row {
-  display: grid; grid-template-columns: 200px 1fr; gap: 1rem;
-  align-items: center; padding: .6rem 0; border-bottom: 1px solid #f0f0f0;
-}
-.form-label { font-size: .9rem; color: #555; font-weight: 500; }
-.form-control { display: flex; gap: 1.25rem; align-items: center; flex-wrap: wrap; }
-.checkbox-inline { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; font-size: .9rem; color: #333; }
-.checkbox-inline input { margin: 0; cursor: pointer; }
-.form-select { padding: .5rem .75rem; border: 1px solid #ccc; border-radius: 4px; font-size: .9rem; background: #fff; min-width: 140px; }
-.form-input { flex: 1; max-width: 320px; padding: .5rem .75rem; border: 1px solid #ccc; border-radius: 4px; font-size: .9rem; outline: none; }
-.form-input:focus { border-color: #0066c0; }
-.add-btn { padding: .5rem 1.25rem; background: #fff; color: #0066c0; border: 1px solid #0066c0; border-radius: 4px; cursor: pointer; font-size: .9rem; }
-.add-btn:hover { background: #0066c0; color: #fff; }
-
-.pricing-summary { margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #e0e0e0; }
-.view-delivery-time { display: inline-block; font-size: .9rem; color: #0066c0; text-decoration: none; margin-bottom: .75rem; }
-.view-delivery-time:hover { text-decoration: underline; }
-.summary-table { width: 100%; border-collapse: collapse; }
-.summary-table td { padding: .45rem 0; font-size: .9rem; color: #444; }
-.summary-table td.summary-right { text-align: right; color: #222; }
-.summary-table .total-row td { padding-top: .75rem; border-top: 1px solid #e8e8e8; font-size: 1rem; }
-.summary-table .total-row td.summary-right { color: #111; }
-
-.size-selector { margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #e0e0e0; }
-.size-inputs { display: grid; grid-template-columns: repeat(auto-fit, minmax(56px, 1fr)); gap: 8px; }
-.size-input-item { display: flex; flex-direction: column; align-items: center; gap: 4px; }
-.size-qty-input {
-  width: 100%; padding: .45rem .25rem;
-  border: 2px solid #0066c0; border-radius: 4px;
-  text-align: center; font-size: .95rem; font-weight: 600;
-  -moz-appearance: textfield;
-}
-.size-qty-input::-webkit-outer-spin-button,
-.size-qty-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-.size-qty-input:focus { outline: none; border-color: #003d80; }
-.size-label { font-size: .85rem; color: #333; font-weight: 500; }
-.size-surcharge-tag { display: inline-block; margin-left: 4px; padding: 1px 5px; background: #fff3e0; color: #c75000; border-radius: 3px; font-size: .7rem; font-weight: 600; }
-
-.qty-input-card { margin-top: .5rem; padding: .85rem .95rem; background: #f8f9fa; border: 1px solid #e0e0e0; border-radius: 4px; }
-.qty-input-card .qty-input-label { display: block; font-size: .9rem; color: #333; margin-bottom: .6rem; font-weight: 500; }
-
-@media (max-width: 1024px) {
-  .product-page { grid-template-columns: 1fr; max-width: 800px; padding: 1.5rem; }
-  .product-media { flex-direction: column; }
-  .thumbnails { flex-direction: row; width: 100%; max-height: none; overflow-x: auto; }
-  .download-row { flex-wrap: wrap; }
-  .form-row { grid-template-columns: 1fr; gap: .5rem; }
-  .size-inputs { grid-template-columns: repeat(2, 1fr); }
-}
-@media (max-width: 640px) {
-  .product-page { padding: 1rem; }
-  .product-title { font-size: 1.3rem; }
-  .color-grid { grid-template-columns: repeat(6, 1fr); }
-  .imprint-diagram-grid { grid-template-columns: 1fr; }
-  .size-inputs { grid-template-columns: 1fr; }
-}
+  @media (max-width: 1024px) {
+    .imprint-picker .form-row { grid-template-columns: 1fr; gap: .5rem; }
+    .imprint-dropdown { max-width: none; }
+  }
 </style>
