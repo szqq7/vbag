@@ -167,11 +167,15 @@ const setupCharge = 50;
 
         <div class="method-section">
           <h3 class="section-title">IMPRINT METHOD & QUANTITY</h3>
-          <div class="tabs">
-            {methodTabs.map((tab, i) => (
-              <button class={`tab-btn ${i === 0 ? "active" : ""}`} data-method={tab.name}>{tab.name}</button>
-            ))}
-          </div>
+          {methodTabs.length > 1 ? (
+            <div class="tabs">
+              {methodTabs.map((tab, i) => (
+                <button class={`tab-btn ${i === 0 ? "active" : ""}`} data-method={tab.name}>{tab.name}</button>
+              ))}
+            </div>
+          ) : (
+            <div class="single-method-label" data-method={methodTabs[0]?.name || ''}>{methodTabs[0]?.name || 'Default'}</div>
+          )}
           {pricingSteps.length > 0 && (
             <div class="pricing-table">
               <div class="pricing-row header">
@@ -735,6 +739,16 @@ updateDeliveryDay();
 .section-title { font-size: .95rem; font-weight: 700; margin: 0 0 .75rem; color: #222; }
 .method-section { margin-bottom: 1rem; }
 .tabs { display: flex; border-bottom: 1px solid #ddd; margin-bottom: 1rem; }
+.single-method-label {
+  display: inline-block;
+  font-weight: 600;
+  font-size: .9rem;
+  color: #111;
+  padding: .5rem 0;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid #333;
+  cursor: default;
+}
 .tab-btn { padding: .5rem 1.25rem; border: none; background: none; font-size: .9rem; color: #555; cursor: pointer; border-bottom: 2px solid transparent; }
 .tab-btn.active { color: #111; border-bottom-color: #333; font-weight: 600; }
 .pricing-table { border: 1px solid #e0e0e0; border-radius: 4px; margin-bottom: .75rem; overflow-x: auto; }
