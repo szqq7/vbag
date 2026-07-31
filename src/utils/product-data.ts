@@ -9,6 +9,10 @@ export interface ProductSpec {
   specsPricingSteps?: { num: number; price: number }[];
   // 每规格独立的 printing 数据(way → baseSteps)
   printingByWay?: Record<string, { num: number; price: string }[]>;
+  // ★ 拆分后的尺码数组(从 specsValue1 拆分)
+  sizes?: string[];
+  // ★ 尺码加价映射({"2XL": 2, "3XL": 2.5})
+  sizeSurcharges?: Record<string, number>;
 }
 export interface PricingStep { num: number; price: string; }
 export interface PrintingSurface {
@@ -103,11 +107,30 @@ function normalizeProduct(raw: any): ProductData {
       }));
     }
 
+    // ★ 尺码拆分:JSON 把多个尺码用 "|" 拼成字符串,需要拆分成数组
+    // 如 "XS|S|M|L|XL|2XL|3XL|4XL" → ["XS","S","M","L","XL","2XL","3XL","4XL"]
+    const sizes: string[] = (s.specsValue1 || "")
+      .split("|")
+      .map((x: string) => x.trim())
+      .filter((x: string) => x);
+
+    // ★ 尺码加价:把顶层 sizeSurcharges 映射为 Record<size, addPrice>
+    const surchargeMap: Record<string, number> = {};
+    const ssArr = raw.sizeSurcharges || [];
+    if (Array.isArray(ssArr)) {
+      for (const item of ssArr) {
+        if (item && item.specsValue) surchargeMap[item.specsValue] = Number(item.specsPrice || 0);
+      }
+    }
+
     const spec: ProductSpec = {
       specsValue1: sizeLabel,
       // 新格式的尺寸写在 specsValue1,但 MultiSpecProduct.astro 从 specsValue2 读 label
       // → 同时写入 specsValue2,保证多规格页能正确显示尺寸名(如 "4'' x 4.7''")
       specsValue2: s.specsValue2 || sizeLabel || String(idx),
+      // ★ 拆分后的尺码数组 + 加价映射(供 ApparelProduct 使用)
+      sizes,
+      sizeSurcharges: surchargeMap,
       // blank[] 作为参考定价
       specsPricingSteps: (raw.qty || []).map((q: number, ki: number) => ({
         num: q,
