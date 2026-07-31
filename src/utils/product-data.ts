@@ -75,7 +75,122 @@ function safeStr(v: any, fallback: string): string {
 export function getAllProducts(): ProductData[] {
   const data = productsData as any;
   if (!data || !data.products) return [];
-  return data.products;
+  return data.products.map((p: any) => normalizeProduct(p));
+}
+
+/**
+ * 将新版扁平 JSON 格式适配为代码内部期望的 ProductData 结构。
+ * 检测依据:顶层是否有 SPU 字段。
+ */
+function normalizeProduct(raw: any): ProductData {
+  // 旧格式直接返回
+  if (!raw || !raw.SPU) return raw as ProductData;
+
+  // ---- 构建 productSpecs ----
+  const productSpecs: ProductSpec[] = (raw.specs || []).map((s: any, idx: number) => {
+    const spec: ProductSpec = {
+      specsValue1: s.specsValue1 || "",
+      specsValue2: s.specsValue2 || String(idx),
+      // blank[] 作为参考定价
+      specsPricingSteps: (raw.qty || []).map((q: number, ki: number) => ({
+        num: q,
+        price: Number(s.blank?.[ki] ?? s.prc1 ?? 0),
+      })),
+    };
+    if (s.productWeight) spec.productWeightKgs = Number(s.productWeight);
+    if (s.productLength && s.productWidth) {
+      spec.productLengthIn = Number(s.productLength);
+      spec.productWidthIn = Number(s.productWidth);
+      spec.productHeightIn = Number(s.productHeight || 0);
+    }
+    return spec;
+  });
+
+  // ---- 构建 printingWays ----
+  const printingWays: any[] = [];
+  for (const spec of raw.specs || []) {
+    for (const p of spec.printing || []) {
+      const wayPrices: any[] = [];
+
+      // 每个 variant → 一个 productPrintingWayPrice
+      const positions = p.positions || [];
+      for (const v of p.variants || []) {
+        const posCount = v.positionCount || 1;
+        const colorMethod = v.colorCount === 1 ? "1-color" : `${v.colorCount || 1}-color`;
+        const addOn = Number(v.addOn || 0);
+
+        const steps = (p.baseSteps || []).map((step: any) => ({
+          num: step.qty,
+          price: String((Number(step.price) + addOn).toFixed(6)),
+          printingDay: step.printingDay,
+          deliverDay: step.deliverDay,
+        }));
+
+        wayPrices.push({
+          set_up_charge: String(v.setUpCharge || p.baseSetUpCharge || 0),
+          unit_price: steps[0]?.price || "0",
+          printingPositionNum: posCount,
+          pricingMethod: colorMethod,
+          productPrintingWayPriceSteps: steps,
+          isBaseOption: posCount === 1 && v.colorCount === 1,
+        });
+      }
+
+      // 兜底:添加 1-color 1-pos(如果 variants 没包括)
+      const has1c1p = wayPrices.some((w: any) => w.pricingMethod === "1-color" && w.printingPositionNum === 1);
+      if (!has1c1p) {
+        const baseSteps = (p.baseSteps || []).map((step: any) => ({
+          num: step.qty,
+          price: String(step.price),
+          printingDay: step.printingDay,
+          deliverDay: step.deliverDay,
+        }));
+        wayPrices.unshift({
+          set_up_charge: String(p.baseSetUpCharge || 0),
+          unit_price: baseSteps[0]?.price || "0",
+          printingPositionNum: 1,
+          pricingMethod: "1-color",
+          productPrintingWayPriceSteps: baseSteps,
+          isBaseOption: true,
+        });
+      }
+
+      printingWays.push({
+        printingWayNameEn: p.wayEn || "Unknown",
+        productPrintingWayPrices: wayPrices,
+      });
+    }
+  }
+
+  // ---- 构建 printingSurfaces ----
+  const printingSurfaces = (raw.surfaces || []).map((s: any, i: number) => {
+    if (typeof s === "string") return { printingPositionNameEn: s };
+    return { printingPositionNameEn: s.surfaceName || `Surface ${i + 1}` };
+  });
+
+  // ---- 产品阶梯价(顶层 productPricingSteps) ----
+  const productPricingSteps = (raw.qty || []).map((q: number) => ({
+    num: q,
+    price: productSpecs[0]?.specsPricingSteps?.find((sp: any) => sp.num === q)?.price ?? 0,
+  }));
+
+  const result: any = {
+    code: raw.SPU,
+    nameEn: raw.title || "",
+    specsType: raw.spec || "",
+    specsValue: [productSpecs.map((s: any) => s.specsValue1)],
+    imgMainUrl: raw.imgMain || "",
+    files: raw.files || [],
+    knifeFiles: raw.knifeFiles || [],
+    printingWays,
+    productSpecs,
+    productPricingSteps,
+    printingSurfaces,
+    shippingCharge: { amount: 0, currency: "USD", isFixed: true },
+    images: raw.surfaceImages ? Object.values(raw.surfaceImages) : [],
+  };
+
+  return result as ProductData;
 }
 
 export function loadProduct(code: string): ProductData | null {
