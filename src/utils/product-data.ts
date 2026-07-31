@@ -112,6 +112,29 @@ function normalizeProduct(raw: any): ProductData {
   // ---- 构建 printingWays (按工艺去重:多个 spec 可能共用同一工艺) ----
   const printingWays: any[] = [];
   const seenWays = new Set<string>();
+
+  // ---- 先注入虚拟工艺 "Blank" (无印刷),放最前作为默认 ----
+  const firstSpec = raw.specs?.[0];
+  if (firstSpec && Array.isArray(firstSpec.blank) && firstSpec.blank.length > 0) {
+    const blankSteps = (raw.qty || []).map((q: number, ki: number) => ({
+      num: q,
+      price: String(firstSpec.blank?.[ki] ?? firstSpec.prc1 ?? 0),
+      printingDay: null,
+      deliverDay: null,
+    }));
+    printingWays.push({
+      printingWayNameEn: "Blank",
+      productPrintingWayPrices: [{
+        set_up_charge: "0",
+        unit_price: blankSteps[0]?.price || "0",
+        printingPositionNum: 0,
+        pricingMethod: "blank",
+        productPrintingWayPriceSteps: blankSteps,
+        isBaseOption: true,
+      }],
+    });
+    seenWays.add("Blank");
+  }
   for (const spec of raw.specs || []) {
     for (const p of spec.printing || []) {
       const wayName = p.wayEn || "Unknown";
