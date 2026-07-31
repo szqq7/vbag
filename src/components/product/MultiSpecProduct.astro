@@ -50,19 +50,6 @@ const productSizes: SizeRow[] = (() => {
   const seen = new Set<string>();
   const out: SizeRow[] = [];
 
-  // 构造 way 名 → 第一个 productPrintingWayPrice 的 steps 映射(用 1-color 1-pos 兜底)
-  function getWayBaseSteps(wayName: string): any[] {
-    const way = printingWaysArr.find((w: any) => (w.printingWayNameEn || "").trim() === wayName);
-    if (!way || !way.productPrintingWayPrices || !way.productPrintingWayPrices[0]) return [];
-    return way.productPrintingWayPrices[0].productPrintingWayPriceSteps || [];
-  }
-  const wayBaseSteps: Record<string, any[]> = {};
-  for (const w of printingWaysArr) {
-    const wn = (w.printingWayNameEn || "").trim();
-    if (!wn) continue;
-    wayBaseSteps[wn] = getWayBaseSteps(wn);
-  }
-
   for (let i = 0; i < specsArr.length; i++) {
     const s = specsArr[i];
     const v2 = (s.specsValue2 || "").trim();
@@ -74,11 +61,11 @@ const productSizes: SizeRow[] = (() => {
       .sort((a, b) => a.num - b.num)
       .map(t => ({ num: t.num, price: parseFloat(t.price), formatted: "$" + parseFloat(t.price).toFixed(2) }));
 
-    // 每个 size 携带所有 way 的价格(Blank 来自 specsPricingSteps, 其他 way 来自 printingWays)
+    // ★ 关键:每个 spec 自己的 printingByWay(丝印/热转印)各自的 baseSteps
+    const specPrinting: Record<string, any[]> = (s.printingByWay) || {};
     const allWayTiers: Record<string, { num: number; price: number; formatted: string }[]> = { Blank: blankTiers };
-    for (const wn of Object.keys(wayBaseSteps)) {
-      if (wn === "Blank") continue;  // Blank 已处理
-      allWayTiers[wn] = wayBaseSteps[wn]
+    for (const wn of Object.keys(specPrinting)) {
+      allWayTiers[wn] = specPrinting[wn]
         .filter((t: any) => typeof t.num === "number" && t.price !== undefined)
         .sort((a: any, b: any) => a.num - b.num)
         .map((t: any) => ({ num: t.num, price: parseFloat(t.price), formatted: "$" + parseFloat(t.price).toFixed(2) }));
