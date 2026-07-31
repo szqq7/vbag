@@ -7,6 +7,8 @@ export interface ProductSpec {
   productHeightIn?: number; printLength?: number; printWidth?: number;
   packingMethodEn?: string; colorRgb?: string;
   specsPricingSteps?: { num: number; price: number }[];
+  // 每规格独立的 printing 数据(way → baseSteps)
+  printingByWay?: Record<string, { num: number; price: string }[]>;
 }
 export interface PricingStep { num: number; price: string; }
 export interface PrintingSurface {
@@ -89,6 +91,18 @@ function normalizeProduct(raw: any): ProductData {
   // ---- 构建 productSpecs ----
   const productSpecs: ProductSpec[] = (raw.specs || []).map((s: any, idx: number) => {
     const sizeLabel = s.specsValue1 || "";
+    // ★ 每个 spec 自己的 printing 数据(丝印/热转印等)按 way 名存下来
+    // 因为不同规格的 printing baseSteps 不同,不能共用 printingWays 的价格
+    const printingByWay: Record<string, any[]> = {};
+    for (const p of s.printing || []) {
+      const wn = (p.wayEn || "").trim();
+      if (!wn) continue;
+      printingByWay[wn] = (p.baseSteps || []).map((bs: any) => ({
+        num: bs.qty,
+        price: String(bs.price),
+      }));
+    }
+
     const spec: ProductSpec = {
       specsValue1: sizeLabel,
       // 新格式的尺寸写在 specsValue1,但 MultiSpecProduct.astro 从 specsValue2 读 label
@@ -99,6 +113,8 @@ function normalizeProduct(raw: any): ProductData {
         num: q,
         price: Number(s.blank?.[ki] ?? s.prc1 ?? 0),
       })),
+      // ★ 把每规格独立的 printing 价存到 spec 上(前端按规格取)
+      printingByWay,
     };
     if (s.productWeight) spec.productWeightKgs = Number(s.productWeight);
     if (s.productLength && s.productWidth) {
