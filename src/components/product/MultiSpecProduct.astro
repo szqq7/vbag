@@ -214,7 +214,7 @@ const setupCharge = 50;
               <div class="pricing-row values" id="pricingRow">
                 <span class="qty-col">Price Each (C)</span>
                 {productSizes[0].priceTiers.map((s) => (
-                  <span class="step-col" data-step-price={s.price}>{s.formatted}</span>
+                  <span class="step-col" data-step-price={s.price} data-step-num={s.num}>{s.formatted}</span>
                 ))}
               </div>
             </div>
