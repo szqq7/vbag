@@ -237,7 +237,20 @@ const setupCharge = 50;
           </div>
         </div>
 
-        <!-- ImprintColorPicker 已移除:服装产品不显示颜色选择 -->
+        {/* Imprint Color:从 product.colors 读取(只在有数据时渲染) */}
+        {colors.length > 0 && (
+          <div class="form-row">
+            <label class="form-label">Imprint Color</label>
+            <div class="form-control">
+              {colors.map((c, i) => (
+                <label class="checkbox-inline">
+                  <input type="checkbox" checked={i === 0} />
+                  <span>{c.name}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div class="form-row">
           <label class="form-label">Physical Sample</label>
@@ -480,10 +493,10 @@ function recalc(){
   var summaryTotal = document.getElementById("summaryTotal");
   var setup = 50;
   var subtotal = 0;
-  var lines = [];
   var totalQty = 0;
   var totalSurcharge = 0;
   var surchargeDetails = [];
+  var firstUnitPrice = 0;  // 用于汇总行的单价(用第一个尺码的基础单价)
   document.querySelectorAll(".size-qty-input").forEach(function(inp){
     var v = parseInt(inp.value) || 0;
     if (v > 0) {
@@ -491,18 +504,19 @@ function recalc(){
       var label = inp.getAttribute("data-label") || "";
       var surcharge = parseFloat(inp.getAttribute("data-surcharge")) || 0;
       var unit = getUnitPrice(v);
-      var totalUnit = unit + surcharge;
-      var sub = v * totalUnit;
-      subtotal += sub;
-      var labelText = label + (surcharge > 0 ? " (incl +$" + surcharge.toFixed(2) + ")" : "");
-      lines.push("$" + totalUnit.toFixed(2) + " ea × " + v + " " + labelText);
+      // 单价 = 基础价(不含尺码加价),加价另算
+      if (firstUnitPrice === 0) firstUnitPrice = unit;
+      subtotal += v * unit;
       if (surcharge > 0) {
         totalSurcharge += v * surcharge;
         surchargeDetails.push("Garment-Size: " + label + " $" + surcharge.toFixed(2));
       }
     }
   });
-  if (summaryQty) summaryQty.innerHTML = lines.length > 0 ? lines.join("<br>") : "—";
+  // ★ 不再一行行罗列每个尺码,改成单行汇总:$X (C) ea × Y qty
+  if (summaryQty) summaryQty.innerHTML = (totalQty > 0)
+    ? "$" + firstUnitPrice.toFixed(2) + " (C) ea × " + totalQty + " qty"
+    : "—";
   var addRow = document.getElementById("summaryAdditionalRow");
   var addCell = document.getElementById("summaryAdditional");
   var addDetail = document.getElementById("summaryAdditionalDetail");
