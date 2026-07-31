@@ -263,22 +263,17 @@ export function getDeliveryDayData(p: ProductData): {
 }
 
 export function getColorOptions(p: ProductData): ColorOption[] {
-  const seen: Record<string, ColorOption> = {};
-  const result: ColorOption[] = [];
-  const specs = safeArr(p.productSpecs);
-  for (let i = 0; i < specs.length; i++) {
-    const s = specs[i];
-    const name = safeStr(s.specsValue1, "").trim();
-    if (!name || seen[name]) continue;
-    const opt: ColorOption = {
-      name: name,
-      rgb: s.colorRgb || guessRgb(name),
-      imageUrl: s.imageUrl || p.imgMainUrl || ""
-    };
-    seen[name] = opt;
-    result.push(opt);
+  // 第1步:检查 JSON 中是否存在 colors 字段
+  if (Array.isArray((p as any).colors) && (p as any).colors.length > 0) {
+    // 第2步:存在则直接用 colors 数组
+    return (p as any).colors.map((c: any) => ({
+      name: safeStr(c.name || c, "").trim(),
+      rgb: c.rgb || guessRgb(safeStr(c.name || c, "")),
+      imageUrl: c.imageUrl || p.imgMainUrl || "",
+    }));
   }
-  return result;
+  // 第3步:不存在 → 返回空(不再从 productSpecs 读取,避免把尺寸当颜色)
+  return [];
 }
 
 /**
