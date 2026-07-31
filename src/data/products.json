@@ -1,1876 +1,369 @@
 {
   "products": [
     {
-      "code": "120356",
-      "nameEn": "Non-Woven Value Tote Bag",
-      "material": "80GSM Non-woven",
-      "imgMainUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/178357374406755000.jpg",
-      "descriptionEn": "This spacious tote is made from durable 80 GSM non-woven polypropylene and features 24-inch reinforced handles that offer versatile carry—long enough for comfortable over-the-shoulder wear and equally convenient for hand carry. It includes a roomy main compartment that folds flat for easy storage and an extra-large imprint area to showcase your logo or message. Perfect for promotions, corporate events, trade shows, grocery runs, beach days, travel, and more, it’s reusable and recyclable for an eco-conscious choice.",
-      "productSpecs": [
+      "title": "Non-Woven Value Tote Bag",
+      "SPU": "120356",
+      "is_blank": "true",
+      "is_sample": "true",
+      "spec": "单尺寸多色",
+      "qty": [
+        100,
+        250,
+        500,
+        1000,
+        2500,
+        5000
+      ],
+      "blankScale": 1,
+      "specs": [
         {
-          "specsValue1": "Black",
-          "colorRgb": "#000000",
-          "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164439532712033952.jpg",
-          "productLengthIn": 33.02,
-          "productWidthIn": 35.56,
-          "productHeightIn": 0,
-          "productWeightKgs": 0.025,
-          "printLength": 9,
-          "printWidth": 10,
-          "packingMethodEn": "bulk",
-          "specsPricingSteps": [
+          "sku": "120356-01",
+          "specsValue1": "13'' x 14''",
+          "prc1": 0.26,
+          "blank": [
+            0.26,
+            0.25,
+            0.24,
+            0.23,
+            0.22,
+            0.21
+          ],
+          "printing": [
             {
-              "num": 100,
-              "price": 1.3
+              "wayEn": "Screen Print",
+              "wayCn": "丝印1",
+              "positions": [
+                "Front",
+                "Back"
+              ],
+              "size": {
+                "width": 9,
+                "height": 10,
+                "unit": "IN"
+              },
+              "baseSetUpCharge": 50,
+              "baseSteps": [
+                {
+                  "qty": 100,
+                  "price": 0.76,
+                  "printingDay": null,
+                  "deliverDay": null
+                },
+                {
+                  "qty": 250,
+                  "price": 0.73,
+                  "printingDay": null,
+                  "deliverDay": null
+                },
+                {
+                  "qty": 500,
+                  "price": 0.7,
+                  "printingDay": null,
+                  "deliverDay": null
+                },
+                {
+                  "qty": 1000,
+                  "price": 0.67,
+                  "printingDay": null,
+                  "deliverDay": null
+                },
+                {
+                  "qty": 2500,
+                  "price": 0.64,
+                  "printingDay": null,
+                  "deliverDay": null
+                },
+                {
+                  "qty": 5000,
+                  "price": 0.62,
+                  "printingDay": null,
+                  "deliverDay": null
+                }
+              ],
+              "variants": [
+                {
+                  "colorCount": 1,
+                  "positionCount": 2,
+                  "setUpCharge": 100,
+                  "addOn": 0.47
+                },
+                {
+                  "colorCount": 2,
+                  "positionCount": 1,
+                  "setUpCharge": 100,
+                  "addOn": 0.47
+                },
+                {
+                  "colorCount": 2,
+                  "positionCount": 2,
+                  "setUpCharge": 200,
+                  "addOn": 1.325346
+                },
+                {
+                  "colorCount": 3,
+                  "positionCount": 1,
+                  "setUpCharge": 150,
+                  "addOn": 0.91135
+                },
+                {
+                  "colorCount": 3,
+                  "positionCount": 2,
+                  "setUpCharge": 300,
+                  "addOn": 2.076202077
+                }
+              ]
             },
             {
-              "num": 250,
-              "price": 1.17
-            },
-            {
-              "num": 500,
-              "price": 0.92
-            },
-            {
-              "num": 1000,
-              "price": 0.87
-            },
-            {
-              "num": 2500,
-              "price": 0.82
-            },
-            {
-              "num": 5000,
-              "price": 0.78
+              "wayEn": "Heat Transfer",
+              "wayCn": "烫画",
+              "positions": [
+                "Front",
+                "Back"
+              ],
+              "size": {
+                "width": 9,
+                "height": 10,
+                "unit": "IN"
+              },
+              "baseSetUpCharge": 100,
+              "baseSteps": [
+                {
+                  "qty": 100,
+                  "price": 0.96,
+                  "printingDay": null,
+                  "deliverDay": null
+                },
+                {
+                  "qty": 250,
+                  "price": 0.92,
+                  "printingDay": null,
+                  "deliverDay": null
+                },
+                {
+                  "qty": 500,
+                  "price": 0.89,
+                  "printingDay": null,
+                  "deliverDay": null
+                },
+                {
+                  "qty": 1000,
+                  "price": 0.86,
+                  "printingDay": null,
+                  "deliverDay": null
+                },
+                {
+                  "qty": 2500,
+                  "price": 0.82,
+                  "printingDay": null,
+                  "deliverDay": null
+                },
+                {
+                  "qty": 5000,
+                  "price": 0.79,
+                  "printingDay": null,
+                  "deliverDay": null
+                }
+              ],
+              "variants": [
+                {
+                  "colorCount": 1,
+                  "positionCount": 2,
+                  "setUpCharge": 200,
+                  "addOn": 0.658
+                }
+              ]
             }
-          ]
-        },
-        {
-          "specsValue1": "White",
-          "colorRgb": "#FFFFFF",
-          "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059030562382320.jpg",
-          "productLengthIn": 33.02,
-          "productWidthIn": 35.56,
-          "productHeightIn": 0,
-          "productWeightKgs": 0.025,
-          "printLength": 9,
-          "printWidth": 10,
-          "packingMethodEn": "bulk",
-          "specsPricingSteps": [
-            {
-              "num": 100,
-              "price": 1.3
-            },
-            {
-              "num": 250,
-              "price": 1.17
-            },
-            {
-              "num": 500,
-              "price": 0.92
-            },
-            {
-              "num": 1000,
-              "price": 0.87
-            },
-            {
-              "num": 2500,
-              "price": 0.82
-            },
-            {
-              "num": 5000,
-              "price": 0.78
-            }
-          ]
-        },
-        {
-          "specsValue1": "Red",
-          "colorRgb": "#c00000",
-          "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059032435260100.jpg",
-          "productLengthIn": 33.02,
-          "productWidthIn": 35.56,
-          "productHeightIn": 0,
-          "productWeightKgs": 0.025,
-          "printLength": 9,
-          "printWidth": 10,
-          "packingMethodEn": "bulk",
-          "specsPricingSteps": [
-            {
-              "num": 100,
-              "price": 1.3
-            },
-            {
-              "num": 250,
-              "price": 1.17
-            },
-            {
-              "num": 500,
-              "price": 0.92
-            },
-            {
-              "num": 1000,
-              "price": 0.87
-            },
-            {
-              "num": 2500,
-              "price": 0.82
-            },
-            {
-              "num": 5000,
-              "price": 0.78
-            }
-          ]
-        },
-        {
-          "specsValue1": "Royal Blue",
-          "colorRgb": "#25337f",
-          "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059034065413272.jpg",
-          "productLengthIn": 33.02,
-          "productWidthIn": 35.56,
-          "productHeightIn": 0,
-          "productWeightKgs": 0.025,
-          "printLength": 9,
-          "printWidth": 10,
-          "packingMethodEn": "bulk",
-          "specsPricingSteps": [
-            {
-              "num": 100,
-              "price": 1.3
-            },
-            {
-              "num": 250,
-              "price": 1.17
-            },
-            {
-              "num": 500,
-              "price": 0.92
-            },
-            {
-              "num": 1000,
-              "price": 0.87
-            },
-            {
-              "num": 2500,
-              "price": 0.82
-            },
-            {
-              "num": 5000,
-              "price": 0.78
-            }
-          ]
-        },
-        {
-          "specsValue1": "Light Blue",
-          "colorRgb": "#0084c8",
-          "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059035206083988.jpg",
-          "productLengthIn": 33.02,
-          "productWidthIn": 35.56,
-          "productHeightIn": 0,
-          "productWeightKgs": 0.025,
-          "printLength": 9,
-          "printWidth": 10,
-          "packingMethodEn": "bulk",
-          "specsPricingSteps": [
-            {
-              "num": 100,
-              "price": 1.3
-            },
-            {
-              "num": 250,
-              "price": 1.17
-            },
-            {
-              "num": 500,
-              "price": 0.92
-            },
-            {
-              "num": 1000,
-              "price": 0.87
-            },
-            {
-              "num": 2500,
-              "price": 0.82
-            },
-            {
-              "num": 5000,
-              "price": 0.78
-            }
-          ]
-        },
-        {
-          "specsValue1": "Baby Blue",
-          "colorRgb": "#76bbde",
-          "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059036186774031.jpg",
-          "productLengthIn": 33.02,
-          "productWidthIn": 35.56,
-          "productHeightIn": 0,
-          "productWeightKgs": 0.025,
-          "printLength": 9,
-          "printWidth": 10,
-          "packingMethodEn": "bulk",
-          "specsPricingSteps": [
-            {
-              "num": 100,
-              "price": 1.3
-            },
-            {
-              "num": 250,
-              "price": 1.17
-            },
-            {
-              "num": 500,
-              "price": 0.92
-            },
-            {
-              "num": 1000,
-              "price": 0.87
-            },
-            {
-              "num": 2500,
-              "price": 0.82
-            },
-            {
-              "num": 5000,
-              "price": 0.78
-            }
-          ]
-        },
-        {
-          "specsValue1": "Fuchsia Pink",
-          "colorRgb": "#c80271",
-          "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059038808186571.jpg",
-          "productLengthIn": 33.02,
-          "productWidthIn": 35.56,
-          "productHeightIn": 0,
-          "productWeightKgs": 0.025,
-          "printLength": 9,
-          "printWidth": 10,
-          "packingMethodEn": "bulk",
-          "specsPricingSteps": [
-            {
-              "num": 100,
-              "price": 1.3
-            },
-            {
-              "num": 250,
-              "price": 1.17
-            },
-            {
-              "num": 500,
-              "price": 0.92
-            },
-            {
-              "num": 1000,
-              "price": 0.87
-            },
-            {
-              "num": 2500,
-              "price": 0.82
-            },
-            {
-              "num": 5000,
-              "price": 0.78
-            }
-          ]
-        },
-        {
-          "specsValue1": "Pink",
-          "colorRgb": "#dc7ba9",
-          "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059040048474933.jpg",
-          "productLengthIn": 33.02,
-          "productWidthIn": 35.56,
-          "productHeightIn": 0,
-          "productWeightKgs": 0.025,
-          "printLength": 9,
-          "printWidth": 10,
-          "packingMethodEn": "bulk",
-          "specsPricingSteps": [
-            {
-              "num": 100,
-              "price": 1.3
-            },
-            {
-              "num": 250,
-              "price": 1.17
-            },
-            {
-              "num": 500,
-              "price": 0.92
-            },
-            {
-              "num": 1000,
-              "price": 0.87
-            },
-            {
-              "num": 2500,
-              "price": 0.82
-            },
-            {
-              "num": 5000,
-              "price": 0.78
-            }
-          ]
-        },
-        {
-          "specsValue1": "Burgundy Red",
-          "colorRgb": "#6f1b28",
-          "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059041101961263.jpg",
-          "productLengthIn": 33.02,
-          "productWidthIn": 35.56,
-          "productHeightIn": 0,
-          "productWeightKgs": 0.025,
-          "printLength": 9,
-          "printWidth": 10,
-          "packingMethodEn": "bulk",
-          "specsPricingSteps": [
-            {
-              "num": 100,
-              "price": 1.3
-            },
-            {
-              "num": 250,
-              "price": 1.17
-            },
-            {
-              "num": 500,
-              "price": 0.92
-            },
-            {
-              "num": 1000,
-              "price": 0.87
-            },
-            {
-              "num": 2500,
-              "price": 0.82
-            },
-            {
-              "num": 5000,
-              "price": 0.78
-            }
-          ]
-        },
-        {
-          "specsValue1": "Orange",
-          "colorRgb": "#fb8f29",
-          "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059042809116175.jpg",
-          "productLengthIn": 33.02,
-          "productWidthIn": 35.56,
-          "productHeightIn": 0,
-          "productWeightKgs": 0.025,
-          "printLength": 9,
-          "printWidth": 10,
-          "packingMethodEn": "bulk",
-          "specsPricingSteps": [
-            {
-              "num": 100,
-              "price": 1.3
-            },
-            {
-              "num": 250,
-              "price": 1.17
-            },
-            {
-              "num": 500,
-              "price": 0.92
-            },
-            {
-              "num": 1000,
-              "price": 0.87
-            },
-            {
-              "num": 2500,
-              "price": 0.82
-            },
-            {
-              "num": 5000,
-              "price": 0.78
-            }
-          ]
-        },
-        {
-          "specsValue1": "Yellow",
-          "colorRgb": "#edda37",
-          "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059044231113952.jpg",
-          "productLengthIn": 33.02,
-          "productWidthIn": 35.56,
-          "productHeightIn": 0,
-          "productWeightKgs": 0.025,
-          "printLength": 9,
-          "printWidth": 10,
-          "packingMethodEn": "bulk",
-          "specsPricingSteps": [
-            {
-              "num": 100,
-              "price": 1.3
-            },
-            {
-              "num": 250,
-              "price": 1.17
-            },
-            {
-              "num": 500,
-              "price": 0.92
-            },
-            {
-              "num": 1000,
-              "price": 0.87
-            },
-            {
-              "num": 2500,
-              "price": 0.82
-            },
-            {
-              "num": 5000,
-              "price": 0.78
-            }
-          ]
-        },
-        {
-          "specsValue1": "Lime Green",
-          "colorRgb": "#a0d91c",
-          "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164439519370835908.jpg",
-          "productLengthIn": 33.02,
-          "productWidthIn": 35.56,
-          "productHeightIn": 0,
-          "productWeightKgs": 0.025,
-          "printLength": 9,
-          "printWidth": 10,
-          "packingMethodEn": "bulk",
-          "specsPricingSteps": [
-            {
-              "num": 100,
-              "price": 1.3
-            },
-            {
-              "num": 250,
-              "price": 1.17
-            },
-            {
-              "num": 500,
-              "price": 0.92
-            },
-            {
-              "num": 1000,
-              "price": 0.87
-            },
-            {
-              "num": 2500,
-              "price": 0.82
-            },
-            {
-              "num": 5000,
-              "price": 0.78
-            }
-          ]
-        },
-        {
-          "specsValue1": "Kelly Green",
-          "colorRgb": "#008042",
-          "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164439522764094127.jpg",
-          "productLengthIn": 33.02,
-          "productWidthIn": 35.56,
-          "productHeightIn": 0,
-          "productWeightKgs": 0.025,
-          "printLength": 9,
-          "printWidth": 10,
-          "packingMethodEn": "bulk",
-          "specsPricingSteps": [
-            {
-              "num": 100,
-              "price": 1.3
-            },
-            {
-              "num": 250,
-              "price": 1.17
-            },
-            {
-              "num": 500,
-              "price": 0.92
-            },
-            {
-              "num": 1000,
-              "price": 0.87
-            },
-            {
-              "num": 2500,
-              "price": 0.82
-            },
-            {
-              "num": 5000,
-              "price": 0.78
-            }
-          ]
-        },
-        {
-          "specsValue1": "Forest Green",
-          "colorRgb": "#004528",
-          "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164439524193851196.jpg",
-          "productLengthIn": 33.02,
-          "productWidthIn": 35.56,
-          "productHeightIn": 0,
-          "productWeightKgs": 0.025,
-          "printLength": 9,
-          "printWidth": 10,
-          "packingMethodEn": "bulk",
-          "specsPricingSteps": [
-            {
-              "num": 100,
-              "price": 1.3
-            },
-            {
-              "num": 250,
-              "price": 1.17
-            },
-            {
-              "num": 500,
-              "price": 0.92
-            },
-            {
-              "num": 1000,
-              "price": 0.87
-            },
-            {
-              "num": 2500,
-              "price": 0.82
-            },
-            {
-              "num": 5000,
-              "price": 0.78
-            }
-          ]
-        },
-        {
-          "specsValue1": "Purple",
-          "colorRgb": "#4f1b83",
-          "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/175680033937737958.jpg",
-          "productLengthIn": 33.02,
-          "productWidthIn": 35.56,
-          "productHeightIn": 0,
-          "productWeightKgs": 0.025,
-          "printLength": 9,
-          "printWidth": 10,
-          "packingMethodEn": "bulk",
-          "specsPricingSteps": [
-            {
-              "num": 100,
-              "price": 1.3
-            },
-            {
-              "num": 250,
-              "price": 1.17
-            },
-            {
-              "num": 500,
-              "price": 0.92
-            },
-            {
-              "num": 1000,
-              "price": 0.87
-            },
-            {
-              "num": 2500,
-              "price": 0.82
-            },
-            {
-              "num": 5000,
-              "price": 0.78
-            }
-          ]
-        },
-        {
-          "specsValue1": "Grey",
-          "colorRgb": "#a0a0a0",
-          "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059050061214012.jpg",
-          "productLengthIn": 33.02,
-          "productWidthIn": 35.56,
-          "productHeightIn": 0,
-          "productWeightKgs": 0.025,
-          "printLength": 9,
-          "printWidth": 10,
-          "packingMethodEn": "bulk",
-          "specsPricingSteps": [
-            {
-              "num": 100,
-              "price": 1.3
-            },
-            {
-              "num": 250,
-              "price": 1.17
-            },
-            {
-              "num": 500,
-              "price": 0.92
-            },
-            {
-              "num": 1000,
-              "price": 0.87
-            },
-            {
-              "num": 2500,
-              "price": 0.82
-            },
-            {
-              "num": 5000,
-              "price": 0.78
-            }
-          ]
-        },
-        {
-          "specsValue1": "Navy Blue",
-          "colorRgb": "#1e2130",
-          "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164439533901372603.jpg",
-          "productLengthIn": 33.02,
-          "productWidthIn": 35.56,
-          "productHeightIn": 0,
-          "productWeightKgs": 0.025,
-          "printLength": 9,
-          "printWidth": 10,
-          "packingMethodEn": "bulk",
-          "specsPricingSteps": [
-            {
-              "num": 100,
-              "price": 1.3
-            },
-            {
-              "num": 250,
-              "price": 1.17
-            },
-            {
-              "num": 500,
-              "price": 0.92
-            },
-            {
-              "num": 1000,
-              "price": 0.87
-            },
-            {
-              "num": 2500,
-              "price": 0.82
-            },
-            {
-              "num": 5000,
-              "price": 0.78
-            }
-          ]
-        },
-        {
-          "specsValue1": "Tan",
-          "colorRgb": "#b09c83",
-          "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164439535830147045.jpg",
-          "productLengthIn": 33.02,
-          "productWidthIn": 35.56,
-          "productHeightIn": 0,
-          "productWeightKgs": 0.025,
-          "printLength": 9,
-          "printWidth": 10,
-          "packingMethodEn": "bulk",
-          "specsPricingSteps": [
-            {
-              "num": 100,
-              "price": 1.3
-            },
-            {
-              "num": 250,
-              "price": 1.17
-            },
-            {
-              "num": 500,
-              "price": 0.92
-            },
-            {
-              "num": 1000,
-              "price": 0.87
-            },
-            {
-              "num": 2500,
-              "price": 0.82
-            },
-            {
-              "num": 5000,
-              "price": 0.78
-            }
-          ]
-        },
-        {
-          "specsValue1": "Teal Blue",
-          "colorRgb": "#008992",
-          "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/176051747173769489.jpg",
-          "productLengthIn": 33.02,
-          "productWidthIn": 35.56,
-          "productHeightIn": 0,
-          "productWeightKgs": 0.025,
-          "printLength": 9,
-          "printWidth": 10,
-          "packingMethodEn": "bulk",
-          "specsPricingSteps": [
-            {
-              "num": 100,
-              "price": 1.3
-            },
-            {
-              "num": 250,
-              "price": 1.17
-            },
-            {
-              "num": 500,
-              "price": 0.92
-            },
-            {
-              "num": 1000,
-              "price": 0.87
-            },
-            {
-              "num": 2500,
-              "price": 0.82
-            },
-            {
-              "num": 5000,
-              "price": 0.78
-            }
-          ]
+          ],
+          "productWeightKgs": null,
+          "numberPerBox": null,
+          "printWidth": null,
+          "printLength": null,
+          "printUnit": null,
+          "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164439532712033952.jpg"
         }
       ],
-      "printingSurfaces": [
+      "surfaces": [
         {
-          "id": "1262734874289209358",
-          "printingPositionNameEn": "Front",
-          "printingPositionNameCn": "前面",
-          "scaleSize": 13,
-          "printingRegions": [
-            {
-              "id": "1262734874297598037",
-              "regionName": "Front",
-              "regionWidth": 9,
-              "regionHigh": 10,
-              "regionX": 10.68,
-              "regionY": 15.58,
-              "regionExtend": "[{\"width\":\"0.2912\",\"height\":\"0.3236\",\"top\":\"0.5042\",\"left\":\"0.3456\",\"regionWidth\":9,\"regionHigh\":10}]"
-            }
-          ],
-          "relations": [
-            {
-              "id": "1262734874301792321",
-              "name": "Black",
-              "type": 0,
-              "fileId": "2077960877353594904",
-              "fileInfo": {
-                "fileId": "2077960877353594904",
-                "uploadType": 1,
-                "path": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164439532712033952.jpg",
-                "name": null,
-                "fileName": null,
-                "suffix": null,
-                "size": null,
-                "expand": null
-              }
-            },
-            {
-              "id": "1262734874301792322",
-              "name": "White",
-              "type": 0,
-              "fileId": "2077960877353594906",
-              "fileInfo": {
-                "fileId": "2077960877353594906",
-                "uploadType": 1,
-                "path": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059030562382320.jpg",
-                "name": null,
-                "fileName": null,
-                "suffix": null,
-                "size": null,
-                "expand": null
-              }
-            },
-            {
-              "id": "1262734874301792323",
-              "name": "Red",
-              "type": 0,
-              "fileId": "2077960877353594892",
-              "fileInfo": {
-                "fileId": "2077960877353594892",
-                "uploadType": 1,
-                "path": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059032435260100.jpg",
-                "name": null,
-                "fileName": null,
-                "suffix": null,
-                "size": null,
-                "expand": null
-              }
-            },
-            {
-              "id": "1262734874301792324",
-              "name": "Royal Blue",
-              "type": 0,
-              "fileId": "2077960877353594891",
-              "fileInfo": {
-                "fileId": "2077960877353594891",
-                "uploadType": 1,
-                "path": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059034065413272.jpg",
-                "name": null,
-                "fileName": null,
-                "suffix": null,
-                "size": null,
-                "expand": null
-              }
-            },
-            {
-              "id": "1262734874301792325",
-              "name": "Light Blue",
-              "type": 0,
-              "fileId": "2077960877353594889",
-              "fileInfo": {
-                "fileId": "2077960877353594889",
-                "uploadType": 1,
-                "path": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059035206083988.jpg",
-                "name": null,
-                "fileName": null,
-                "suffix": null,
-                "size": null,
-                "expand": null
-              }
-            },
-            {
-              "id": "1262734874301792326",
-              "name": "Baby Blue",
-              "type": 0,
-              "fileId": "2077960877353594901",
-              "fileInfo": {
-                "fileId": "2077960877353594901",
-                "uploadType": 1,
-                "path": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059036186774031.jpg",
-                "name": null,
-                "fileName": null,
-                "suffix": null,
-                "size": null,
-                "expand": null
-              }
-            },
-            {
-              "id": "1262734874305986599",
-              "name": "Fuchsia Pink",
-              "type": 0,
-              "fileId": "2077960877353594883",
-              "fileInfo": {
-                "fileId": "2077960877353594883",
-                "uploadType": 1,
-                "path": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059038808186571.jpg",
-                "name": null,
-                "fileName": null,
-                "suffix": null,
-                "size": null,
-                "expand": null
-              }
-            },
-            {
-              "id": "1262734874305986600",
-              "name": "Pink",
-              "type": 0,
-              "fileId": "2077960877353594899",
-              "fileInfo": {
-                "fileId": "2077960877353594899",
-                "uploadType": 1,
-                "path": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059040048474933.jpg",
-                "name": null,
-                "fileName": null,
-                "suffix": null,
-                "size": null,
-                "expand": null
-              }
-            },
-            {
-              "id": "1262734874305986601",
-              "name": "Burgundy Red",
-              "type": 0,
-              "fileId": "2077960877353594897",
-              "fileInfo": {
-                "fileId": "2077960877353594897",
-                "uploadType": 1,
-                "path": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059041101961263.jpg",
-                "name": null,
-                "fileName": null,
-                "suffix": null,
-                "size": null,
-                "expand": null
-              }
-            },
-            {
-              "id": "1262734874305986602",
-              "name": "Orange",
-              "type": 0,
-              "fileId": "2077960877353594895",
-              "fileInfo": {
-                "fileId": "2077960877353594895",
-                "uploadType": 1,
-                "path": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059042809116175.jpg",
-                "name": null,
-                "fileName": null,
-                "suffix": null,
-                "size": null,
-                "expand": null
-              }
-            },
-            {
-              "id": "1262734874305986603",
-              "name": "Yellow",
-              "type": 0,
-              "fileId": "2077960877353594903",
-              "fileInfo": {
-                "fileId": "2077960877353594903",
-                "uploadType": 1,
-                "path": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059044231113952.jpg",
-                "name": null,
-                "fileName": null,
-                "suffix": null,
-                "size": null,
-                "expand": null
-              }
-            },
-            {
-              "id": "1262734874305986604",
-              "name": "Lime Green",
-              "type": 0,
-              "fileId": "2077960877353594896",
-              "fileInfo": {
-                "fileId": "2077960877353594896",
-                "uploadType": 1,
-                "path": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164439519370835908.jpg",
-                "name": null,
-                "fileName": null,
-                "suffix": null,
-                "size": null,
-                "expand": null
-              }
-            },
-            {
-              "id": "1262734874305986605",
-              "name": "Kelly Green",
-              "type": 0,
-              "fileId": "2077960877353594887",
-              "fileInfo": {
-                "fileId": "2077960877353594887",
-                "uploadType": 1,
-                "path": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164439522764094127.jpg",
-                "name": null,
-                "fileName": null,
-                "suffix": null,
-                "size": null,
-                "expand": null
-              }
-            },
-            {
-              "id": "1262734874305986606",
-              "name": "Forest Green",
-              "type": 0,
-              "fileId": "2077960877353594898",
-              "fileInfo": {
-                "fileId": "2077960877353594898",
-                "uploadType": 1,
-                "path": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164439524193851196.jpg",
-                "name": null,
-                "fileName": null,
-                "suffix": null,
-                "size": null,
-                "expand": null
-              }
-            },
-            {
-              "id": "1262734874305986607",
-              "name": "Purple",
-              "type": 0,
-              "fileId": "2077960877353594890",
-              "fileInfo": {
-                "fileId": "2077960877353594890",
-                "uploadType": 1,
-                "path": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/175680035078953137.jpg",
-                "name": null,
-                "fileName": null,
-                "suffix": null,
-                "size": null,
-                "expand": null
-              }
-            },
-            {
-              "id": "1262734874305986608",
-              "name": "Grey",
-              "type": 0,
-              "fileId": "2077960877353594888",
-              "fileInfo": {
-                "fileId": "2077960877353594888",
-                "uploadType": 1,
-                "path": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059050061214012.jpg",
-                "name": null,
-                "fileName": null,
-                "suffix": null,
-                "size": null,
-                "expand": null
-              }
-            },
-            {
-              "id": "1262734874305986609",
-              "name": "Navy Blue",
-              "type": 0,
-              "fileId": "2077960877353594894",
-              "fileInfo": {
-                "fileId": "2077960877353594894",
-                "uploadType": 1,
-                "path": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164439533901372603.jpg",
-                "name": null,
-                "fileName": null,
-                "suffix": null,
-                "size": null,
-                "expand": null
-              }
-            },
-            {
-              "id": "1262734874305986610",
-              "name": "Tan",
-              "type": 0,
-              "fileId": "2077960877353594893",
-              "fileInfo": {
-                "fileId": "2077960877353594893",
-                "uploadType": 1,
-                "path": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164439535830147045.jpg",
-                "name": null,
-                "fileName": null,
-                "suffix": null,
-                "size": null,
-                "expand": null
-              }
-            },
-            {
-              "id": "1262734874305986611",
-              "name": "Teal Blue",
-              "type": 0,
-              "fileId": "2077960877353594905",
-              "fileInfo": {
-                "fileId": "2077960877353594905",
-                "uploadType": 1,
-                "path": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/176051749465323099.jpg",
-                "name": null,
-                "fileName": null,
-                "suffix": null,
-                "size": null,
-                "expand": null
-              }
-            }
-          ]
+          "position": "Front",
+          "width": 9,
+          "height": 10,
+          "unit": "IN"
         },
         {
-          "id": "1262734874289209359",
-          "printingPositionNameEn": "Back",
-          "printingPositionNameCn": "后背",
-          "scaleSize": 13,
-          "printingRegions": [
-            {
-              "id": "1262734874297598038",
-              "regionName": "Back",
-              "regionWidth": 9,
-              "regionHigh": 10,
-              "regionX": 11.02,
-              "regionY": 16.06,
-              "regionExtend": "[{\"width\":\"0.2841\",\"height\":\"0.3156\",\"top\":\"0.5069\",\"left\":\"0.3478\",\"regionWidth\":9,\"regionHigh\":10}]"
-            }
-          ],
-          "relations": [
-            {
-              "id": "1262734874305986612",
-              "name": "Black",
-              "type": 0,
-              "fileId": "2077960877353594904",
-              "fileInfo": {
-                "fileId": "2077960877353594904",
-                "uploadType": 1,
-                "path": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164439532712033952.jpg",
-                "name": null,
-                "fileName": null,
-                "suffix": null,
-                "size": null,
-                "expand": null
-              }
-            },
-            {
-              "id": "1262734874305986613",
-              "name": "White",
-              "type": 0,
-              "fileId": "2077960877353594906",
-              "fileInfo": {
-                "fileId": "2077960877353594906",
-                "uploadType": 1,
-                "path": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059030562382320.jpg",
-                "name": null,
-                "fileName": null,
-                "suffix": null,
-                "size": null,
-                "expand": null
-              }
-            },
-            {
-              "id": "1262734874310180877",
-              "name": "Red",
-              "type": 0,
-              "fileId": "2077960877353594892",
-              "fileInfo": {
-                "fileId": "2077960877353594892",
-                "uploadType": 1,
-                "path": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059032435260100.jpg",
-                "name": null,
-                "fileName": null,
-                "suffix": null,
-                "size": null,
-                "expand": null
-              }
-            },
-            {
-              "id": "1262734874310180878",
-              "name": "Royal Blue",
-              "type": 0,
-              "fileId": "2077960877353594891",
-              "fileInfo": {
-                "fileId": "2077960877353594891",
-                "uploadType": 1,
-                "path": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059034065413272.jpg",
-                "name": null,
-                "fileName": null,
-                "suffix": null,
-                "size": null,
-                "expand": null
-              }
-            },
-            {
-              "id": "1262734874310180879",
-              "name": "Light Blue",
-              "type": 0,
-              "fileId": "2077960877353594889",
-              "fileInfo": {
-                "fileId": "2077960877353594889",
-                "uploadType": 1,
-                "path": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059035206083988.jpg",
-                "name": null,
-                "fileName": null,
-                "suffix": null,
-                "size": null,
-                "expand": null
-              }
-            },
-            {
-              "id": "1262734874310180880",
-              "name": "Baby Blue",
-              "type": 0,
-              "fileId": "2077960877353594901",
-              "fileInfo": {
-                "fileId": "2077960877353594901",
-                "uploadType": 1,
-                "path": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059036186774031.jpg",
-                "name": null,
-                "fileName": null,
-                "suffix": null,
-                "size": null,
-                "expand": null
-              }
-            },
-            {
-              "id": "1262734874310180881",
-              "name": "Fuchsia Pink",
-              "type": 0,
-              "fileId": "2077960877353594883",
-              "fileInfo": {
-                "fileId": "2077960877353594883",
-                "uploadType": 1,
-                "path": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059038808186571.jpg",
-                "name": null,
-                "fileName": null,
-                "suffix": null,
-                "size": null,
-                "expand": null
-              }
-            },
-            {
-              "id": "1262734874310180882",
-              "name": "Pink",
-              "type": 0,
-              "fileId": "2077960877353594899",
-              "fileInfo": {
-                "fileId": "2077960877353594899",
-                "uploadType": 1,
-                "path": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059040048474933.jpg",
-                "name": null,
-                "fileName": null,
-                "suffix": null,
-                "size": null,
-                "expand": null
-              }
-            },
-            {
-              "id": "1262734874310180883",
-              "name": "Burgundy Red",
-              "type": 0,
-              "fileId": "2077960877353594897",
-              "fileInfo": {
-                "fileId": "2077960877353594897",
-                "uploadType": 1,
-                "path": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059041101961263.jpg",
-                "name": null,
-                "fileName": null,
-                "suffix": null,
-                "size": null,
-                "expand": null
-              }
-            },
-            {
-              "id": "1262734874310180884",
-              "name": "Orange",
-              "type": 0,
-              "fileId": "2077960877353594895",
-              "fileInfo": {
-                "fileId": "2077960877353594895",
-                "uploadType": 1,
-                "path": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059042809116175.jpg",
-                "name": null,
-                "fileName": null,
-                "suffix": null,
-                "size": null,
-                "expand": null
-              }
-            },
-            {
-              "id": "1262734874310180885",
-              "name": "Yellow",
-              "type": 0,
-              "fileId": "2077960877353594903",
-              "fileInfo": {
-                "fileId": "2077960877353594903",
-                "uploadType": 1,
-                "path": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059044231113952.jpg",
-                "name": null,
-                "fileName": null,
-                "suffix": null,
-                "size": null,
-                "expand": null
-              }
-            },
-            {
-              "id": "1262734874310180886",
-              "name": "Lime Green",
-              "type": 0,
-              "fileId": "2077960877353594896",
-              "fileInfo": {
-                "fileId": "2077960877353594896",
-                "uploadType": 1,
-                "path": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164439519370835908.jpg",
-                "name": null,
-                "fileName": null,
-                "suffix": null,
-                "size": null,
-                "expand": null
-              }
-            },
-            {
-              "id": "1262734874310180887",
-              "name": "Kelly Green",
-              "type": 0,
-              "fileId": "2077960877353594887",
-              "fileInfo": {
-                "fileId": "2077960877353594887",
-                "uploadType": 1,
-                "path": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164439522764094127.jpg",
-                "name": null,
-                "fileName": null,
-                "suffix": null,
-                "size": null,
-                "expand": null
-              }
-            },
-            {
-              "id": "1262734874310180888",
-              "name": "Forest Green",
-              "type": 0,
-              "fileId": "2077960877353594898",
-              "fileInfo": {
-                "fileId": "2077960877353594898",
-                "uploadType": 1,
-                "path": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164439524193851196.jpg",
-                "name": null,
-                "fileName": null,
-                "suffix": null,
-                "size": null,
-                "expand": null
-              }
-            },
-            {
-              "id": "1262734874310180889",
-              "name": "Purple",
-              "type": 0,
-              "fileId": "2077960877353594885",
-              "fileInfo": {
-                "fileId": "2077960877353594885",
-                "uploadType": 1,
-                "path": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/175680035610717965.jpg",
-                "name": null,
-                "fileName": null,
-                "suffix": null,
-                "size": null,
-                "expand": null
-              }
-            },
-            {
-              "id": "1262734874314375220",
-              "name": "Grey",
-              "type": 0,
-              "fileId": "2077960877353594888",
-              "fileInfo": {
-                "fileId": "2077960877353594888",
-                "uploadType": 1,
-                "path": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059050061214012.jpg",
-                "name": null,
-                "fileName": null,
-                "suffix": null,
-                "size": null,
-                "expand": null
-              }
-            },
-            {
-              "id": "1262734874314375221",
-              "name": "Navy Blue",
-              "type": 0,
-              "fileId": "2077960877353594894",
-              "fileInfo": {
-                "fileId": "2077960877353594894",
-                "uploadType": 1,
-                "path": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164439533901372603.jpg",
-                "name": null,
-                "fileName": null,
-                "suffix": null,
-                "size": null,
-                "expand": null
-              }
-            },
-            {
-              "id": "1262734874314375222",
-              "name": "Tan",
-              "type": 0,
-              "fileId": "2077960877353594893",
-              "fileInfo": {
-                "fileId": "2077960877353594893",
-                "uploadType": 1,
-                "path": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164439535830147045.jpg",
-                "name": null,
-                "fileName": null,
-                "suffix": null,
-                "size": null,
-                "expand": null
-              }
-            },
-            {
-              "id": "1262734874314375223",
-              "name": "Teal Blue",
-              "type": 0,
-              "fileId": "2077960877353594882",
-              "fileInfo": {
-                "fileId": "2077960877353594882",
-                "uploadType": 1,
-                "path": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/176051747173769489.jpg",
-                "name": null,
-                "fileName": null,
-                "suffix": null,
-                "size": null,
-                "expand": null
-              }
-            }
-          ]
+          "position": "Back",
+          "width": 9,
+          "height": 10,
+          "unit": "IN"
         }
       ],
-      "printingWays": [
+      "files": [
         {
-          "id": "939177952086593584",
-          "printingWayId": "937073970618855481",
-          "printingWayNameCn": "丝印",
-          "printingWayNameEn": "Screen Print",
-          "printingConditions": "印刷颜色",
-          "printingPositions": "Front-Front,Back-Back",
-          "pricingMethod": "1-color,2-color,3-color",
-          "deliveryProductNum": null,
-          "deliveryDayProductNum": null,
-          "productPrintingWayPrices": [
-            {
-              "id": "939177952086593585",
-              "printingPositionNum": 1,
-              "pricingMethod": "1-color",
-              "productPrintingWayPriceSteps": [
-                {
-                  "id": "939177952099176525",
-                  "num": 100,
-                  "price": "1.42",
-                  "promotionPrice": null,
-                  "printingDay": 2,
-                  "deliverDay": 9
-                },
-                {
-                  "id": "939177952099176526",
-                  "num": 250,
-                  "price": "1.30",
-                  "promotionPrice": null,
-                  "printingDay": 2,
-                  "deliverDay": 9
-                },
-                {
-                  "id": "939177952103370781",
-                  "num": 500,
-                  "price": "1.20",
-                  "promotionPrice": null,
-                  "printingDay": 3,
-                  "deliverDay": 10
-                },
-                {
-                  "id": "939177952103370782",
-                  "num": 1000,
-                  "price": "1.13",
-                  "promotionPrice": null,
-                  "printingDay": 6,
-                  "deliverDay": 13
-                },
-                {
-                  "id": "939177952103370783",
-                  "num": 2500,
-                  "price": "1.10",
-                  "promotionPrice": null,
-                  "printingDay": 7,
-                  "deliverDay": 14
-                },
-                {
-                  "id": "939177952103370784",
-                  "num": 5000,
-                  "price": "1.08",
-                  "promotionPrice": null,
-                  "printingDay": 7,
-                  "deliverDay": 14
-                }
-              ],
-              "isBaseOption": true,
-              "set_up_charge": "50.00",
-              "unit_price": "1.42"
-            },
-            {
-              "id": "939177952086593586",
-              "printingPositionNum": 1,
-              "pricingMethod": "2-color",
-              "productPrintingWayPriceSteps": [
-                {
-                  "id": "939177952103370785",
-                  "num": 100,
-                  "price": "1.92",
-                  "promotionPrice": null,
-                  "printingDay": 2,
-                  "deliverDay": 9
-                },
-                {
-                  "id": "939177952103370786",
-                  "num": 250,
-                  "price": "1.63",
-                  "promotionPrice": null,
-                  "printingDay": 3,
-                  "deliverDay": 10
-                },
-                {
-                  "id": "939177952103370787",
-                  "num": 500,
-                  "price": "1.37",
-                  "promotionPrice": null,
-                  "printingDay": 4,
-                  "deliverDay": 11
-                },
-                {
-                  "id": "939177952103370788",
-                  "num": 1000,
-                  "price": "1.22",
-                  "promotionPrice": null,
-                  "printingDay": 8,
-                  "deliverDay": 15
-                },
-                {
-                  "id": "939177952103370789",
-                  "num": 2500,
-                  "price": "1.17",
-                  "promotionPrice": null,
-                  "printingDay": 8,
-                  "deliverDay": 15
-                },
-                {
-                  "id": "939177952103370790",
-                  "num": 5000,
-                  "price": "1.15",
-                  "promotionPrice": null,
-                  "printingDay": 8,
-                  "deliverDay": 15
-                }
-              ],
-              "set_up_charge": "75.00",
-              "unit_price": "1.92"
-            },
-            {
-              "id": "939177952086593587",
-              "printingPositionNum": 1,
-              "pricingMethod": "3-color",
-              "productPrintingWayPriceSteps": [
-                {
-                  "id": "939177952103370791",
-                  "num": 100,
-                  "price": "2.08",
-                  "promotionPrice": null,
-                  "printingDay": 3,
-                  "deliverDay": 10
-                },
-                {
-                  "id": "939177952103370792",
-                  "num": 250,
-                  "price": "1.80",
-                  "promotionPrice": null,
-                  "printingDay": 3,
-                  "deliverDay": 10
-                },
-                {
-                  "id": "939177952103370793",
-                  "num": 500,
-                  "price": "1.53",
-                  "promotionPrice": null,
-                  "printingDay": 5,
-                  "deliverDay": 12
-                },
-                {
-                  "id": "939177952103370794",
-                  "num": 1000,
-                  "price": "1.30",
-                  "promotionPrice": null,
-                  "printingDay": 9,
-                  "deliverDay": 16
-                },
-                {
-                  "id": "939177952103370795",
-                  "num": 2500,
-                  "price": "1.23",
-                  "promotionPrice": null,
-                  "printingDay": 9,
-                  "deliverDay": 16
-                },
-                {
-                  "id": "939177952103370796",
-                  "num": 5000,
-                  "price": "1.22",
-                  "promotionPrice": null,
-                  "printingDay": 9,
-                  "deliverDay": 16
-                }
-              ],
-              "set_up_charge": "87.50",
-              "unit_price": "2.08"
-            },
-            {
-              "id": "975806291324715050",
-              "printingPositionNum": 2,
-              "pricingMethod": "1-color",
-              "productPrintingWayPriceSteps": [
-                {
-                  "id": "975806291345686607",
-                  "num": 100,
-                  "price": "1.92",
-                  "promotionPrice": null,
-                  "printingDay": 2,
-                  "deliverDay": 9
-                },
-                {
-                  "id": "975806291345686608",
-                  "num": 250,
-                  "price": "1.63",
-                  "promotionPrice": null,
-                  "printingDay": 3,
-                  "deliverDay": 10
-                },
-                {
-                  "id": "975806291345686609",
-                  "num": 500,
-                  "price": "1.37",
-                  "promotionPrice": null,
-                  "printingDay": 4,
-                  "deliverDay": 11
-                },
-                {
-                  "id": "975806291349880931",
-                  "num": 1000,
-                  "price": "1.22",
-                  "promotionPrice": null,
-                  "printingDay": 8,
-                  "deliverDay": 15
-                },
-                {
-                  "id": "975806291349880932",
-                  "num": 2500,
-                  "price": "1.17",
-                  "promotionPrice": null,
-                  "printingDay": 8,
-                  "deliverDay": 15
-                },
-                {
-                  "id": "975806291349880933",
-                  "num": 5000,
-                  "price": "1.15",
-                  "promotionPrice": null,
-                  "printingDay": 8,
-                  "deliverDay": 15
-                }
-              ],
-              "set_up_charge": "75.00",
-              "unit_price": "1.92"
-            },
-            {
-              "id": "975806291324715051",
-              "printingPositionNum": 2,
-              "pricingMethod": "2-color",
-              "productPrintingWayPriceSteps": [
-                {
-                  "id": "975806291349880934",
-                  "num": 100,
-                  "price": "2.42",
-                  "promotionPrice": null,
-                  "printingDay": 3,
-                  "deliverDay": 10
-                },
-                {
-                  "id": "975806291349880935",
-                  "num": 250,
-                  "price": "1.97",
-                  "promotionPrice": null,
-                  "printingDay": 4,
-                  "deliverDay": 11
-                },
-                {
-                  "id": "975806291349880936",
-                  "num": 500,
-                  "price": "1.53",
-                  "promotionPrice": null,
-                  "printingDay": 5,
-                  "deliverDay": 12
-                },
-                {
-                  "id": "975806291349880937",
-                  "num": 1000,
-                  "price": "1.30",
-                  "promotionPrice": null,
-                  "printingDay": 9,
-                  "deliverDay": 16
-                },
-                {
-                  "id": "975806291349880938",
-                  "num": 2500,
-                  "price": "1.23",
-                  "promotionPrice": null,
-                  "printingDay": 9,
-                  "deliverDay": 16
-                },
-                {
-                  "id": "975806291349880939",
-                  "num": 5000,
-                  "price": "1.22",
-                  "promotionPrice": null,
-                  "printingDay": 9,
-                  "deliverDay": 16
-                }
-              ],
-              "set_up_charge": "125.00",
-              "unit_price": "2.42"
-            },
-            {
-              "id": "975806291324715052",
-              "printingPositionNum": 2,
-              "pricingMethod": "3-color",
-              "productPrintingWayPriceSteps": [
-                {
-                  "id": "975806291349880940",
-                  "num": 100,
-                  "price": "2.75",
-                  "promotionPrice": null,
-                  "printingDay": 3,
-                  "deliverDay": 10
-                },
-                {
-                  "id": "975806291349880941",
-                  "num": 250,
-                  "price": "2.30",
-                  "promotionPrice": null,
-                  "printingDay": 5,
-                  "deliverDay": 12
-                },
-                {
-                  "id": "975806291349880942",
-                  "num": 500,
-                  "price": "1.87",
-                  "promotionPrice": null,
-                  "printingDay": 6,
-                  "deliverDay": 13
-                },
-                {
-                  "id": "975806291349880943",
-                  "num": 1000,
-                  "price": "1.47",
-                  "promotionPrice": null,
-                  "printingDay": 10,
-                  "deliverDay": 17
-                },
-                {
-                  "id": "975806291349880944",
-                  "num": 2500,
-                  "price": "1.37",
-                  "promotionPrice": null,
-                  "printingDay": 10,
-                  "deliverDay": 17
-                },
-                {
-                  "id": "975806291349880945",
-                  "num": 5000,
-                  "price": "1.35",
-                  "promotionPrice": null,
-                  "printingDay": 10,
-                  "deliverDay": 17
-                }
-              ],
-              "set_up_charge": "150.00",
-              "unit_price": "2.75"
-            }
-          ],
-          "returnDiscount": "50"
+          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/165848101594645623.jpg",
+          "type": 0,
+          "name": ""
         },
         {
-          "id": "939177952086593588",
-          "printingWayId": "937073971352834062",
-          "printingWayNameCn": "热转印",
-          "printingWayNameEn": "Heat Transfer",
-          "printingConditions": "印刷颜色",
-          "printingPositions": "Front-Front,Back-Back",
-          "pricingMethod": "full-color",
-          "deliveryProductNum": null,
-          "deliveryDayProductNum": null,
-          "productPrintingWayPrices": [
-            {
-              "id": "939177952086593589",
-              "printingPositionNum": 1,
-              "pricingMethod": "full-color",
-              "productPrintingWayPriceSteps": [
-                {
-                  "id": "939177952103370797",
-                  "num": 100,
-                  "price": "2.08",
-                  "promotionPrice": null,
-                  "printingDay": 2,
-                  "deliverDay": 9
-                },
-                {
-                  "id": "939177952103370798",
-                  "num": 250,
-                  "price": "1.80",
-                  "promotionPrice": null,
-                  "printingDay": 2,
-                  "deliverDay": 9
-                },
-                {
-                  "id": "939177952107565074",
-                  "num": 500,
-                  "price": "1.53",
-                  "promotionPrice": null,
-                  "printingDay": 4,
-                  "deliverDay": 11
-                },
-                {
-                  "id": "939177952107565075",
-                  "num": 1000,
-                  "price": "1.30",
-                  "promotionPrice": null,
-                  "printingDay": 9,
-                  "deliverDay": 16
-                },
-                {
-                  "id": "939177952107565076",
-                  "num": 2500,
-                  "price": "1.23",
-                  "promotionPrice": null,
-                  "printingDay": 9,
-                  "deliverDay": 16
-                },
-                {
-                  "id": "939177952107565077",
-                  "num": 5000,
-                  "price": "1.22",
-                  "promotionPrice": null,
-                  "printingDay": 9,
-                  "deliverDay": 16
-                }
-              ],
-              "isBaseOption": true,
-              "set_up_charge": "100.00",
-              "unit_price": "2.08"
-            },
-            {
-              "id": "975806291324715053",
-              "printingPositionNum": 2,
-              "pricingMethod": "full-color",
-              "productPrintingWayPriceSteps": [
-                {
-                  "id": "975806291349880946",
-                  "num": 100,
-                  "price": "2.75",
-                  "promotionPrice": null,
-                  "printingDay": 3,
-                  "deliverDay": 10
-                },
-                {
-                  "id": "975806291349880947",
-                  "num": 250,
-                  "price": "2.30",
-                  "promotionPrice": null,
-                  "printingDay": 3,
-                  "deliverDay": 10
-                },
-                {
-                  "id": "975806291349880948",
-                  "num": 500,
-                  "price": "1.87",
-                  "promotionPrice": null,
-                  "printingDay": 4,
-                  "deliverDay": 11
-                },
-                {
-                  "id": "975806291349880949",
-                  "num": 1000,
-                  "price": "1.47",
-                  "promotionPrice": null,
-                  "printingDay": 10,
-                  "deliverDay": 17
-                },
-                {
-                  "id": "975806291349880950",
-                  "num": 2500,
-                  "price": "1.37",
-                  "promotionPrice": null,
-                  "printingDay": 10,
-                  "deliverDay": 17
-                },
-                {
-                  "id": "975806291349880951",
-                  "num": 5000,
-                  "price": "1.35",
-                  "promotionPrice": null,
-                  "printingDay": 10,
-                  "deliverDay": 17
-                }
-              ],
-              "set_up_charge": "175.00",
-              "unit_price": "2.75"
-            }
-          ],
-          "returnDiscount": "50"
+          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/173252349266955189.pdf?uploadId=615071D1EC454AE7B9984DC2F19CADBE",
+          "type": 1,
+          "name": "120356-Template.pdf"
         }
       ],
-      "shippingCharge": {
-        "amount": 0,
-        "currency": "USD",
-        "isFixed": true
-      }
+      "knifeFiles": [],
+      "imgMain": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/178357374406755000.jpg",
+      "surfaceImages": [
+        {
+          "position": "",
+          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164439532712033952.jpg"
+        },
+        {
+          "position": "",
+          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059030562382320.jpg"
+        },
+        {
+          "position": "",
+          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059032435260100.jpg"
+        },
+        {
+          "position": "",
+          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059034065413272.jpg"
+        },
+        {
+          "position": "",
+          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059035206083988.jpg"
+        },
+        {
+          "position": "",
+          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059036186774031.jpg"
+        },
+        {
+          "position": "",
+          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059038808186571.jpg"
+        },
+        {
+          "position": "",
+          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059040048474933.jpg"
+        },
+        {
+          "position": "",
+          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059041101961263.jpg"
+        },
+        {
+          "position": "",
+          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059042809116175.jpg"
+        },
+        {
+          "position": "",
+          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059044231113952.jpg"
+        },
+        {
+          "position": "",
+          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164439519370835908.jpg"
+        },
+        {
+          "position": "",
+          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164439522764094127.jpg"
+        },
+        {
+          "position": "",
+          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164439524193851196.jpg"
+        },
+        {
+          "position": "",
+          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/175680035078953137.jpg"
+        },
+        {
+          "position": "",
+          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059050061214012.jpg"
+        },
+        {
+          "position": "",
+          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164439533901372603.jpg"
+        },
+        {
+          "position": "",
+          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164439535830147045.jpg"
+        },
+        {
+          "position": "",
+          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/176051749465323099.jpg"
+        },
+        {
+          "position": "",
+          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164439532712033952.jpg"
+        },
+        {
+          "position": "",
+          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059030562382320.jpg"
+        },
+        {
+          "position": "",
+          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059032435260100.jpg"
+        },
+        {
+          "position": "",
+          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059034065413272.jpg"
+        },
+        {
+          "position": "",
+          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059035206083988.jpg"
+        },
+        {
+          "position": "",
+          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059036186774031.jpg"
+        },
+        {
+          "position": "",
+          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059038808186571.jpg"
+        },
+        {
+          "position": "",
+          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059040048474933.jpg"
+        },
+        {
+          "position": "",
+          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059041101961263.jpg"
+        },
+        {
+          "position": "",
+          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059042809116175.jpg"
+        },
+        {
+          "position": "",
+          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059044231113952.jpg"
+        },
+        {
+          "position": "",
+          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164439519370835908.jpg"
+        },
+        {
+          "position": "",
+          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164439522764094127.jpg"
+        },
+        {
+          "position": "",
+          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164439524193851196.jpg"
+        },
+        {
+          "position": "",
+          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/175680035610717965.jpg"
+        },
+        {
+          "position": "",
+          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059050061214012.jpg"
+        },
+        {
+          "position": "",
+          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164439533901372603.jpg"
+        },
+        {
+          "position": "",
+          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164439535830147045.jpg"
+        },
+        {
+          "position": "",
+          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/176051747173769489.jpg"
+        }
+      ]
     },
     {
       "code": "121642",
