@@ -41,28 +41,54 @@ const defaultColor: string = colors.length > 0 ? colors[0].name : "Default";
 type SizeRow = {
   label: string;
   priceTiers: { num: number; price: number; formatted: string }[];
+  allWayTiers?: Record<string, { num: number; price: number; formatted: string }[]>;
   min: number;
 };
 const productSizes: SizeRow[] = (() => {
   const specsArr: any[] = (product as any).productSpecs || [];
+  const printingWaysArr: any[] = (product as any).printingWays || [];
   const seen = new Set<string>();
   const out: SizeRow[] = [];
-  for (const s of specsArr) {
+
+  // 构造 way 名 → 第一个 productPrintingWayPrice 的 steps 映射(用 1-color 1-pos 兜底)
+  function getWayBaseSteps(wayName: string): any[] {
+    const way = printingWaysArr.find((w: any) => (w.printingWayNameEn || "").trim() === wayName);
+    if (!way || !way.productPrintingWayPrices || !way.productPrintingWayPrices[0]) return [];
+    return way.productPrintingWayPrices[0].productPrintingWayPriceSteps || [];
+  }
+  const wayBaseSteps: Record<string, any[]> = {};
+  for (const w of printingWaysArr) {
+    const wn = (w.printingWayNameEn || "").trim();
+    if (!wn) continue;
+    wayBaseSteps[wn] = getWayBaseSteps(wn);
+  }
+
+  for (let i = 0; i < specsArr.length; i++) {
+    const s = specsArr[i];
     const v2 = (s.specsValue2 || "").trim();
     if (!v2 || seen.has(v2)) continue;
     seen.add(v2);
     const tiers: any[] = Array.isArray(s.specsPricingSteps) ? s.specsPricingSteps : [];
-    const priceTiers = tiers
+    const blankTiers = tiers
       .filter(t => typeof t.num === "number" && t.price !== undefined)
       .sort((a, b) => a.num - b.num)
-      .map(t => {
-        const p = parseFloat(t.price);
-        return { num: t.num, price: p, formatted: "$" + p.toFixed(2) };
-      });
+      .map(t => ({ num: t.num, price: parseFloat(t.price), formatted: "$" + parseFloat(t.price).toFixed(2) }));
+
+    // 每个 size 携带所有 way 的价格(Blank 来自 specsPricingSteps, 其他 way 来自 printingWays)
+    const allWayTiers: Record<string, { num: number; price: number; formatted: string }[]> = { Blank: blankTiers };
+    for (const wn of Object.keys(wayBaseSteps)) {
+      if (wn === "Blank") continue;  // Blank 已处理
+      allWayTiers[wn] = wayBaseSteps[wn]
+        .filter((t: any) => typeof t.num === "number" && t.price !== undefined)
+        .sort((a: any, b: any) => a.num - b.num)
+        .map((t: any) => ({ num: t.num, price: parseFloat(t.price), formatted: "$" + parseFloat(t.price).toFixed(2) }));
+    }
+
     out.push({
       label: v2,
-      priceTiers,
-      min: priceTiers[0]?.num || 1,
+      priceTiers: blankTiers,
+      allWayTiers,
+      min: blankTiers[0]?.num || 1,
     });
   }
   return out;
@@ -173,6 +199,7 @@ const setupCharge = 50;
                   data-label={s.label}
                   data-min={s.min}
                   data-price-tiers={JSON.stringify(s.priceTiers)}
+                  data-all-way-tiers={JSON.stringify(s.allWayTiers || {})}
                 >
                   {s.label}
                 </button>
@@ -394,14 +421,21 @@ document.querySelectorAll(".color-swatch").forEach(function(s){
   });
 });
 
-// === 价格:完全静态,直接从 size-tag 的 data-price-tiers 读取 ===
-// 当前选中的 priceTiers 缓存在 window 上
-var __CURRENT_TIERS__ = [];
+// === 价格:动态根据 size + 当前 tab 读取 ===
+// 当前选中的 way 缓存在 window 上
+var __CURRENT_WAY__ = "Blank";
 function getCurrentTiers() {
   var tag = document.querySelector(".size-tags[data-mode='multi-spec'] .size-tag.selected");
   if (!tag) return [];
-  var raw = tag.getAttribute("data-price-tiers");
-  try { return JSON.parse(raw || "[]"); } catch(e) { return []; }
+  var raw = tag.getAttribute("data-all-way-tiers");
+  if (raw) {
+    try {
+      var map = JSON.parse(raw || "{}");
+      if (map[__CURRENT_WAY__] && map[__CURRENT_WAY__].length) return map[__CURRENT_WAY__];
+    } catch(e) {}
+  }
+  // 兜底:用 data-price-tiers(Blank)
+  try { return JSON.parse(tag.getAttribute("data-price-tiers") || "[]"); } catch(e) { return []; }
 }
 
 function getUnitPrice(qty) {
@@ -465,12 +499,13 @@ if (qInput) {
   qInput.addEventListener("change", function(){ updateUnitPrice(); recalc(); });
 }
 
-// Tab 切换:多规格页面 tab 切换只影响"颜色工艺"显示,价格以 size-tag 的 priceTiers 为准(不重计算)
-// 这里保留基础 Tab 切换逻辑(只切 active 状态),不动价格表
+// Tab 切换:多规格页面 tab 切换现在也联动价格表
 document.querySelectorAll(".tab-btn").forEach(function(b){
   b.addEventListener("click", function(){
     document.querySelectorAll(".tab-btn").forEach(function(x){ x.classList.remove("active"); });
     this.classList.add("active");
+    __CURRENT_WAY__ = this.getAttribute("data-method") || "Blank";
+    renderPricingTable();
     updateUnitPrice();
     recalc();
     updateDeliveryDay();
