@@ -106,10 +106,15 @@ function normalizeProduct(raw: any): ProductData {
     return spec;
   });
 
-  // ---- 构建 printingWays ----
+  // ---- 构建 printingWays (按工艺去重:多个 spec 可能共用同一工艺) ----
   const printingWays: any[] = [];
+  const seenWays = new Set<string>();
   for (const spec of raw.specs || []) {
     for (const p of spec.printing || []) {
+      const wayName = p.wayEn || "Unknown";
+      if (seenWays.has(wayName)) continue;  // 同一工艺只取第一个 spec 的配置
+      seenWays.add(wayName);
+
       const wayPrices: any[] = [];
 
       // 每个 variant → 一个 productPrintingWayPrice
