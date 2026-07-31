@@ -12989,364 +12989,972 @@
       ]
     },
     {
-      "code": "1812092",
-      "nameEn": "Small Cotton and Linen Drawstring Bag",
-      "material": "Cotton + Linen",
-      "imgMainUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/178272113584345861.jpg",
-      "descriptionEn": "The drawstring pouch is made out of 250g natural cotton and linen. There are four available sizes:4''x 4.7'', 4.7\" x 5.9\", 5\" x 7\", and 5.9\" x 7.87\". These pouches are suitable for carrying coins, accessories, jewelry, spices, and nuts, or any other small item you need handy. It is featured in a natural color that is reusable and washable. It is made out of low-carbon and it is economical.",
-      "files": [],
-      "knifeFiles": [
-        {
-          "type": 1,
-          "file": {
-            "path": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/173381254156995360.pdf?uploadId=2367F8CF02D149598BA3BCADCFA5496D",
-            "name": "1812092 5in W.pdf"
-          }
-        },
-        {
-          "type": 1,
-          "file": {
-            "path": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/173381254156362071.pdf?uploadId=7C4F256156EA431784E7C31B79BE2C9A",
-            "name": "1812092 4in W.pdf"
-          }
-        },
-        {
-          "type": 1,
-          "file": {
-            "path": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/173381254157255817.pdf?uploadId=598195A9ADE046EEA17F994616685D8C",
-            "name": "1812092 4.7in W.pdf"
-          }
-        },
-        {
-          "type": 1,
-          "file": {
-            "path": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/173381254156828138.pdf?uploadId=A2351CB35B1347EAB963D793DBF46262",
-            "name": "1812092 5.9in W.pdf"
-          }
-        }
+      "title": "Small Cotton and Linen Drawstring Bag",
+      "SPU": "1812092",
+      "is_blank": "true",
+      "is_sample": "true",
+      "spec": "多尺寸",
+      "qty": [
+        50,
+        100,
+        250,
+        500,
+        1000,
+        2500
       ],
-      "productSpecs": [
+      "blankScale": 1,
+      "specs": [
         {
-          "specsValue1": "Natural",
-          "specsValue2": "4 X 4.7",
-          "colorRgb": "#d8d8ce",
-          "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164698166158943190.jpg",
-          "productLengthIn": 10.16,
-          "productWidthIn": 11.94,
-          "productHeightIn": 0,
-          "productWeightKgs": 0.001,
-          "printLength": 3,
-          "printWidth": 3,
-          "packingMethodEn": "bulk",
-          "priceTiers": [
-            {
-              "num": 100,
-              "price": 0.76
-            },
-            {
-              "num": 250,
-              "price": 0.65
-            },
-            {
-              "num": 500,
-              "price": 0.59
-            },
-            {
-              "num": 1000,
-              "price": 0.54
-            },
-            {
-              "num": 2000,
-              "price": 0.42
-            }
+          "sku": "1812092-01",
+          "specsValue1": "4'' x 4.7''",
+          "prc1": 0.76,
+          "blank": [
+            0.76,
+            0.73,
+            0.7,
+            0.67,
+            0.65,
+            0.62
           ],
-          "specsPricingSteps": [
+          "printing": [
             {
-              "num": 100,
-              "price": 0.76
-            },
-            {
-              "num": 250,
-              "price": 0.65
-            },
-            {
-              "num": 500,
-              "price": 0.59
-            },
-            {
-              "num": 1000,
-              "price": 0.54
-            },
-            {
-              "num": 2000,
-              "price": 0.42
-            }
-          ]
-        },
-        {
-          "specsValue1": "Natural",
-          "specsValue2": "4.7 X 5.9",
-          "colorRgb": "#d8d8ce",
-          "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164698180467355350.jpg",
-          "productLengthIn": 11.94,
-          "productWidthIn": 14.99,
-          "productHeightIn": 0,
-          "productWeightKgs": 0.011,
-          "printLength": 3.1,
-          "printWidth": 3.1,
-          "packingMethodEn": "bulk",
-          "priceTiers": [
-            {
-              "num": 100,
-              "price": 0.84
-            },
-            {
-              "num": 250,
-              "price": 0.72
-            },
-            {
-              "num": 500,
-              "price": 0.65
-            },
-            {
-              "num": 1000,
-              "price": 0.6
-            },
-            {
-              "num": 2000,
-              "price": 0.46
-            }
-          ],
-          "specsPricingSteps": [
-            {
-              "num": 100,
-              "price": 0.84
-            },
-            {
-              "num": 250,
-              "price": 0.72
-            },
-            {
-              "num": 500,
-              "price": 0.65
-            },
-            {
-              "num": 1000,
-              "price": 0.6
-            },
-            {
-              "num": 2000,
-              "price": 0.46
-            }
-          ]
-        },
-        {
-          "specsValue1": "Natural",
-          "specsValue2": "5 X 7",
-          "colorRgb": "#d8d8ce",
-          "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164698181819234514.jpg",
-          "productLengthIn": 12.7,
-          "productWidthIn": 17.78,
-          "productHeightIn": 0,
-          "productWeightKgs": 0.013,
-          "printLength": 3.1,
-          "printWidth": 3.1,
-          "packingMethodEn": "bulk",
-          "priceTiers": [
-            {
-              "num": 100,
-              "price": 0.94
-            },
-            {
-              "num": 250,
-              "price": 0.8
-            },
-            {
-              "num": 500,
-              "price": 0.72
-            },
-            {
-              "num": 1000,
-              "price": 0.67
-            },
-            {
-              "num": 2000,
-              "price": 0.51
-            }
-          ],
-          "specsPricingSteps": [
-            {
-              "num": 100,
-              "price": 0.94
-            },
-            {
-              "num": 250,
-              "price": 0.8
-            },
-            {
-              "num": 500,
-              "price": 0.72
-            },
-            {
-              "num": 1000,
-              "price": 0.67
-            },
-            {
-              "num": 2000,
-              "price": 0.51
-            }
-          ]
-        },
-        {
-          "specsValue1": "Natural",
-          "specsValue2": "5.9 X 7.87",
-          "colorRgb": "#d8d8ce",
-          "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164698182996080149.jpg",
-          "productLengthIn": 14.99,
-          "productWidthIn": 19.99,
-          "productHeightIn": 0,
-          "productWeightKgs": 0.016,
-          "printLength": 3.9,
-          "printWidth": 3.9,
-          "packingMethodEn": "bulk",
-          "priceTiers": [
-            {
-              "num": 100,
-              "price": 1.18
-            },
-            {
-              "num": 250,
-              "price": 1.01
-            },
-            {
-              "num": 500,
-              "price": 0.91
-            },
-            {
-              "num": 1000,
-              "price": 0.84
-            },
-            {
-              "num": 2000,
-              "price": 0.65
-            }
-          ],
-          "specsPricingSteps": [
-            {
-              "num": 100,
-              "price": 1.18
-            },
-            {
-              "num": 250,
-              "price": 1.01
-            },
-            {
-              "num": 500,
-              "price": 0.91
-            },
-            {
-              "num": 1000,
-              "price": 0.84
-            },
-            {
-              "num": 2000,
-              "price": 0.65
-            }
-          ]
-        }
-      ],
-      "printingSurfaces": [
-        {
-          "printingPositionNameEn": "Front",
-          "printingRegions": [
-            {
-              "id": "1256958023558021213",
-              "regionName": "Front",
-              "regionWidth": 3.1,
-              "regionHigh": 3.1,
-              "regionX": 6.16,
-              "regionY": 6.3,
-              "regionExtend": "[{\"width\":\"0.2070\",\"height\":\"0.2070\",\"top\":\"0.4206\",\"left\":\"0.4113\",\"regionWidth\":3.1,\"regionHigh\":3.1}]"
-            }
-          ]
-        }
-      ],
-      "printingWays": [
-        {
-          "id": "964577235270909986",
-          "printingWayId": "937073965438865446",
-          "printingWayNameCn": "热升华",
-          "printingWayNameEn": "Sublimation",
-          "printingConditions": "印刷颜色",
-          "printingPositions": "Front-Front",
-          "pricingMethod": "full-color",
-          "deliveryProductNum": null,
-          "deliveryDayProductNum": null,
-          "productPrintingWayPrices": [
-            {
-              "id": "964577235270909987",
-              "printingPositionNum": 1,
-              "pricingMethod": "full-color",
-              "productPrintingWayPriceSteps": [
+              "wayEn": "Screen Print",
+              "wayCn": "丝印1",
+              "positions": [
+                "Front",
+                "Back"
+              ],
+              "size": {
+                "width": 3,
+                "height": 3,
+                "unit": "IN"
+              },
+              "baseSetUpCharge": 50,
+              "baseSteps": [
                 {
-                  "id": "964577235296075806",
-                  "num": 100,
-                  "price": "0.76",
-                  "promotionPrice": null,
-                  "printingDay": 3,
-                  "deliverDay": 8
+                  "qty": 50,
+                  "price": 1.26,
+                  "printingDay": null,
+                  "deliverDay": null
                 },
                 {
-                  "id": "964577235296075807",
-                  "num": 250,
-                  "price": "0.65",
-                  "promotionPrice": null,
-                  "printingDay": 4,
-                  "deliverDay": 9
+                  "qty": 100,
+                  "price": 1.21,
+                  "printingDay": null,
+                  "deliverDay": null
                 },
                 {
-                  "id": "964577235296075808",
-                  "num": 500,
-                  "price": "0.59",
-                  "promotionPrice": null,
-                  "printingDay": 3,
-                  "deliverDay": 8
+                  "qty": 250,
+                  "price": 1.16,
+                  "printingDay": null,
+                  "deliverDay": null
                 },
                 {
-                  "id": "964577235296075809",
-                  "num": 1000,
-                  "price": "0.54",
-                  "promotionPrice": null,
-                  "printingDay": 4,
-                  "deliverDay": 9
+                  "qty": 500,
+                  "price": 1.12,
+                  "printingDay": null,
+                  "deliverDay": null
                 },
                 {
-                  "id": "964577235296075810",
-                  "num": 2000,
-                  "price": "0.42",
-                  "promotionPrice": null,
-                  "printingDay": 5,
-                  "deliverDay": 10
+                  "qty": 1000,
+                  "price": 1.08,
+                  "printingDay": null,
+                  "deliverDay": null
+                },
+                {
+                  "qty": 2500,
+                  "price": 1.03,
+                  "printingDay": null,
+                  "deliverDay": null
                 }
               ],
-              "isBaseOption": true,
-              "set_up_charge": "50.00",
-              "unit_price": "0.76"
+              "variants": [
+                {
+                  "colorCount": 1,
+                  "positionCount": 2,
+                  "setUpCharge": 100,
+                  "addOn": 0.47
+                },
+                {
+                  "colorCount": 2,
+                  "positionCount": 1,
+                  "setUpCharge": 100,
+                  "addOn": 0.47
+                },
+                {
+                  "colorCount": 2,
+                  "positionCount": 2,
+                  "setUpCharge": 200,
+                  "addOn": 1.325346
+                },
+                {
+                  "colorCount": 3,
+                  "positionCount": 1,
+                  "setUpCharge": 150,
+                  "addOn": 0.91135
+                },
+                {
+                  "colorCount": 3,
+                  "positionCount": 2,
+                  "setUpCharge": 300,
+                  "addOn": 2.076202077
+                }
+              ]
+            },
+            {
+              "wayEn": "Heat Transfer",
+              "wayCn": "烫画",
+              "positions": [
+                "Front",
+                "Back"
+              ],
+              "size": {
+                "width": 3,
+                "height": 3,
+                "unit": "IN"
+              },
+              "baseSetUpCharge": 100,
+              "baseSteps": [
+                {
+                  "qty": 50,
+                  "price": 1.46,
+                  "printingDay": null,
+                  "deliverDay": null
+                },
+                {
+                  "qty": 100,
+                  "price": 1.41,
+                  "printingDay": null,
+                  "deliverDay": null
+                },
+                {
+                  "qty": 250,
+                  "price": 1.35,
+                  "printingDay": null,
+                  "deliverDay": null
+                },
+                {
+                  "qty": 500,
+                  "price": 1.3,
+                  "printingDay": null,
+                  "deliverDay": null
+                },
+                {
+                  "qty": 1000,
+                  "price": 1.25,
+                  "printingDay": null,
+                  "deliverDay": null
+                },
+                {
+                  "qty": 2500,
+                  "price": 1.19,
+                  "printingDay": null,
+                  "deliverDay": null
+                }
+              ],
+              "variants": [
+                {
+                  "colorCount": 1,
+                  "positionCount": 2,
+                  "setUpCharge": 200,
+                  "addOn": 0.658
+                }
+              ]
             }
           ],
-          "returnDiscount": "50"
+          "productWeightKgs": null,
+          "numberPerBox": null,
+          "printWidth": null,
+          "printLength": null,
+          "printUnit": null,
+          "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164698166158943190.jpg"
+        },
+        {
+          "sku": "1812092-02",
+          "specsValue1": "4.7'' x 5.9''",
+          "prc1": 0.8,
+          "blank": [
+            0.8,
+            0.77,
+            0.74,
+            0.71,
+            0.68,
+            0.65
+          ],
+          "printing": [
+            {
+              "wayEn": "Screen Print",
+              "wayCn": "丝印1",
+              "positions": [
+                "Front",
+                "Back"
+              ],
+              "size": {
+                "width": 3,
+                "height": 3,
+                "unit": "IN"
+              },
+              "baseSetUpCharge": 50,
+              "baseSteps": [
+                {
+                  "qty": 50,
+                  "price": 1.3,
+                  "printingDay": null,
+                  "deliverDay": null
+                },
+                {
+                  "qty": 100,
+                  "price": 1.25,
+                  "printingDay": null,
+                  "deliverDay": null
+                },
+                {
+                  "qty": 250,
+                  "price": 1.19,
+                  "printingDay": null,
+                  "deliverDay": null
+                },
+                {
+                  "qty": 500,
+                  "price": 1.15,
+                  "printingDay": null,
+                  "deliverDay": null
+                },
+                {
+                  "qty": 1000,
+                  "price": 1.11,
+                  "printingDay": null,
+                  "deliverDay": null
+                },
+                {
+                  "qty": 2500,
+                  "price": 1.06,
+                  "printingDay": null,
+                  "deliverDay": null
+                }
+              ],
+              "variants": [
+                {
+                  "colorCount": 1,
+                  "positionCount": 2,
+                  "setUpCharge": 100,
+                  "addOn": 0.47
+                },
+                {
+                  "colorCount": 2,
+                  "positionCount": 1,
+                  "setUpCharge": 100,
+                  "addOn": 0.47
+                },
+                {
+                  "colorCount": 2,
+                  "positionCount": 2,
+                  "setUpCharge": 200,
+                  "addOn": 1.325346
+                },
+                {
+                  "colorCount": 3,
+                  "positionCount": 1,
+                  "setUpCharge": 150,
+                  "addOn": 0.91135
+                },
+                {
+                  "colorCount": 3,
+                  "positionCount": 2,
+                  "setUpCharge": 300,
+                  "addOn": 2.076202077
+                }
+              ]
+            },
+            {
+              "wayEn": "Heat Transfer",
+              "wayCn": "烫画",
+              "positions": [
+                "Front",
+                "Back"
+              ],
+              "size": {
+                "width": 3,
+                "height": 3,
+                "unit": "IN"
+              },
+              "baseSetUpCharge": 100,
+              "baseSteps": [
+                {
+                  "qty": 50,
+                  "price": 1.5,
+                  "printingDay": null,
+                  "deliverDay": null
+                },
+                {
+                  "qty": 100,
+                  "price": 1.45,
+                  "printingDay": null,
+                  "deliverDay": null
+                },
+                {
+                  "qty": 250,
+                  "price": 1.38,
+                  "printingDay": null,
+                  "deliverDay": null
+                },
+                {
+                  "qty": 500,
+                  "price": 1.33,
+                  "printingDay": null,
+                  "deliverDay": null
+                },
+                {
+                  "qty": 1000,
+                  "price": 1.28,
+                  "printingDay": null,
+                  "deliverDay": null
+                },
+                {
+                  "qty": 2500,
+                  "price": 1.22,
+                  "printingDay": null,
+                  "deliverDay": null
+                }
+              ],
+              "variants": [
+                {
+                  "colorCount": 1,
+                  "positionCount": 2,
+                  "setUpCharge": 200,
+                  "addOn": 0.658
+                }
+              ]
+            }
+          ],
+          "productWeightKgs": null,
+          "numberPerBox": null,
+          "printWidth": null,
+          "printLength": null,
+          "printUnit": null,
+          "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164698180467355350.jpg"
+        },
+        {
+          "sku": "1812092-03",
+          "specsValue1": "5'' x 7''",
+          "prc1": 0.83,
+          "blank": [
+            0.83,
+            0.8,
+            0.76,
+            0.73,
+            0.7,
+            0.67
+          ],
+          "printing": [
+            {
+              "wayEn": "Screen Print",
+              "wayCn": "丝印1",
+              "positions": [
+                "Front",
+                "Back"
+              ],
+              "size": {
+                "width": 3,
+                "height": 3,
+                "unit": "IN"
+              },
+              "baseSetUpCharge": 50,
+              "baseSteps": [
+                {
+                  "qty": 50,
+                  "price": 1.33,
+                  "printingDay": null,
+                  "deliverDay": null
+                },
+                {
+                  "qty": 100,
+                  "price": 1.28,
+                  "printingDay": null,
+                  "deliverDay": null
+                },
+                {
+                  "qty": 250,
+                  "price": 1.22,
+                  "printingDay": null,
+                  "deliverDay": null
+                },
+                {
+                  "qty": 500,
+                  "price": 1.18,
+                  "printingDay": null,
+                  "deliverDay": null
+                },
+                {
+                  "qty": 1000,
+                  "price": 1.14,
+                  "printingDay": null,
+                  "deliverDay": null
+                },
+                {
+                  "qty": 2500,
+                  "price": 1.09,
+                  "printingDay": null,
+                  "deliverDay": null
+                }
+              ],
+              "variants": [
+                {
+                  "colorCount": 1,
+                  "positionCount": 2,
+                  "setUpCharge": 100,
+                  "addOn": 0.47
+                },
+                {
+                  "colorCount": 2,
+                  "positionCount": 1,
+                  "setUpCharge": 100,
+                  "addOn": 0.47
+                },
+                {
+                  "colorCount": 2,
+                  "positionCount": 2,
+                  "setUpCharge": 200,
+                  "addOn": 1.325346
+                },
+                {
+                  "colorCount": 3,
+                  "positionCount": 1,
+                  "setUpCharge": 150,
+                  "addOn": 0.91135
+                },
+                {
+                  "colorCount": 3,
+                  "positionCount": 2,
+                  "setUpCharge": 300,
+                  "addOn": 2.076202077
+                }
+              ]
+            },
+            {
+              "wayEn": "Heat Transfer",
+              "wayCn": "烫画",
+              "positions": [
+                "Front",
+                "Back"
+              ],
+              "size": {
+                "width": 3,
+                "height": 3,
+                "unit": "IN"
+              },
+              "baseSetUpCharge": 100,
+              "baseSteps": [
+                {
+                  "qty": 50,
+                  "price": 1.53,
+                  "printingDay": null,
+                  "deliverDay": null
+                },
+                {
+                  "qty": 100,
+                  "price": 1.47,
+                  "printingDay": null,
+                  "deliverDay": null
+                },
+                {
+                  "qty": 250,
+                  "price": 1.4,
+                  "printingDay": null,
+                  "deliverDay": null
+                },
+                {
+                  "qty": 500,
+                  "price": 1.35,
+                  "printingDay": null,
+                  "deliverDay": null
+                },
+                {
+                  "qty": 1000,
+                  "price": 1.3,
+                  "printingDay": null,
+                  "deliverDay": null
+                },
+                {
+                  "qty": 2500,
+                  "price": 1.24,
+                  "printingDay": null,
+                  "deliverDay": null
+                }
+              ],
+              "variants": [
+                {
+                  "colorCount": 1,
+                  "positionCount": 2,
+                  "setUpCharge": 200,
+                  "addOn": 0.658
+                }
+              ]
+            }
+          ],
+          "productWeightKgs": null,
+          "numberPerBox": null,
+          "printWidth": null,
+          "printLength": null,
+          "printUnit": null,
+          "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164698181819234514.jpg"
+        },
+        {
+          "sku": "1812092-04",
+          "specsValue1": "5.9'' x 7.87''",
+          "prc1": 0.86,
+          "blank": [
+            0.86,
+            0.83,
+            0.79,
+            0.76,
+            0.73,
+            0.7
+          ],
+          "printing": [
+            {
+              "wayEn": "Screen Print",
+              "wayCn": "丝印1",
+              "positions": [
+                "Front",
+                "Back"
+              ],
+              "size": {
+                "width": 3,
+                "height": 3,
+                "unit": "IN"
+              },
+              "baseSetUpCharge": 50,
+              "baseSteps": [
+                {
+                  "qty": 50,
+                  "price": 1.36,
+                  "printingDay": null,
+                  "deliverDay": null
+                },
+                {
+                  "qty": 100,
+                  "price": 1.31,
+                  "printingDay": null,
+                  "deliverDay": null
+                },
+                {
+                  "qty": 250,
+                  "price": 1.25,
+                  "printingDay": null,
+                  "deliverDay": null
+                },
+                {
+                  "qty": 500,
+                  "price": 1.2,
+                  "printingDay": null,
+                  "deliverDay": null
+                },
+                {
+                  "qty": 1000,
+                  "price": 1.16,
+                  "printingDay": null,
+                  "deliverDay": null
+                },
+                {
+                  "qty": 2500,
+                  "price": 1.11,
+                  "printingDay": null,
+                  "deliverDay": null
+                }
+              ],
+              "variants": [
+                {
+                  "colorCount": 1,
+                  "positionCount": 2,
+                  "setUpCharge": 100,
+                  "addOn": 0.47
+                },
+                {
+                  "colorCount": 2,
+                  "positionCount": 1,
+                  "setUpCharge": 100,
+                  "addOn": 0.47
+                },
+                {
+                  "colorCount": 2,
+                  "positionCount": 2,
+                  "setUpCharge": 200,
+                  "addOn": 1.325346
+                },
+                {
+                  "colorCount": 3,
+                  "positionCount": 1,
+                  "setUpCharge": 150,
+                  "addOn": 0.91135
+                },
+                {
+                  "colorCount": 3,
+                  "positionCount": 2,
+                  "setUpCharge": 300,
+                  "addOn": 2.076202077
+                }
+              ]
+            },
+            {
+              "wayEn": "Heat Transfer",
+              "wayCn": "烫画",
+              "positions": [
+                "Front",
+                "Back"
+              ],
+              "size": {
+                "width": 3,
+                "height": 3,
+                "unit": "IN"
+              },
+              "baseSetUpCharge": 100,
+              "baseSteps": [
+                {
+                  "qty": 50,
+                  "price": 1.56,
+                  "printingDay": null,
+                  "deliverDay": null
+                },
+                {
+                  "qty": 100,
+                  "price": 1.5,
+                  "printingDay": null,
+                  "deliverDay": null
+                },
+                {
+                  "qty": 250,
+                  "price": 1.43,
+                  "printingDay": null,
+                  "deliverDay": null
+                },
+                {
+                  "qty": 500,
+                  "price": 1.38,
+                  "printingDay": null,
+                  "deliverDay": null
+                },
+                {
+                  "qty": 1000,
+                  "price": 1.33,
+                  "printingDay": null,
+                  "deliverDay": null
+                },
+                {
+                  "qty": 2500,
+                  "price": 1.27,
+                  "printingDay": null,
+                  "deliverDay": null
+                }
+              ],
+              "variants": [
+                {
+                  "colorCount": 1,
+                  "positionCount": 2,
+                  "setUpCharge": 200,
+                  "addOn": 0.658
+                }
+              ]
+            }
+          ],
+          "productWeightKgs": null,
+          "numberPerBox": null,
+          "printWidth": null,
+          "printLength": null,
+          "printUnit": null,
+          "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164698182996080149.jpg"
         }
       ],
-      "shippingCharge": {
-        "amount": 0,
-        "currency": "USD",
-        "isFixed": true
-      },
-      "colors": [
+      "surfaces": [
         {
-          "name": "Natural",
-          "rgb": "",
-          "imageUrl": ""
+          "position": "Front",
+          "width": 3,
+          "height": 3,
+          "unit": "IN"
+        },
+        {
+          "position": "Back",
+          "width": 3,
+          "height": 3,
+          "unit": "IN"
+        }
+      ],
+      "files": [
+        {
+          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/173381254156995360.pdf?uploadId=2367F8CF02D149598BA3BCADCFA5496D",
+          "type": 1,
+          "name": "1812092 5in W.pdf"
+        },
+        {
+          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/173381254156362071.pdf?uploadId=7C4F256156EA431784E7C31B79BE2C9A",
+          "type": 1,
+          "name": "1812092 4in W.pdf"
+        },
+        {
+          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/173381254157255817.pdf?uploadId=598195A9ADE046EEA17F994616685D8C",
+          "type": 1,
+          "name": "1812092 4.7in W.pdf"
+        },
+        {
+          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/173381254156828138.pdf?uploadId=A2351CB35B1347EAB963D793DBF46262",
+          "type": 1,
+          "name": "1812092 5.9in W.pdf"
+        }
+      ],
+      "knifeFiles": [],
+      "imgMain": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/178272113584345861.jpg",
+      "surfaceImages": [
+        {
+          "position": "",
+          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164698166158943190.jpg"
+        }
+      ]
+    },
+    {
+      "title": "Men's Micro Pique Ribbed Collar Polo Shirt",
+      "SPU": "314750",
+      "is_blank": "true",
+      "is_sample": "true",
+      "spec": "多尺寸服装",
+      "qty": [
+        2,
+        10,
+        25,
+        50,
+        100,
+        200
+      ],
+      "blankScale": 1,
+      "specs": [
+        {
+          "sku": "314750-01",
+          "prc1": 21.1,
+          "blank": [
+            21.1,
+            19.72,
+            18.82,
+            18.13,
+            17.47,
+            16.83
+          ],
+          "printing": [
+            {
+              "wayEn": "Screen Print",
+              "wayCn": "丝印1",
+              "positions": [
+                "Front",
+                "Back"
+              ],
+              "size": {
+                "width": 3,
+                "height": 3,
+                "unit": "IN"
+              },
+              "baseSetUpCharge": 50,
+              "baseSteps": [
+                {
+                  "qty": 2,
+                  "price": 21.6,
+                  "printingDay": null,
+                  "deliverDay": null
+                },
+                {
+                  "qty": 10,
+                  "price": 20.19,
+                  "printingDay": null,
+                  "deliverDay": null
+                },
+                {
+                  "qty": 25,
+                  "price": 19.27,
+                  "printingDay": null,
+                  "deliverDay": null
+                },
+                {
+                  "qty": 50,
+                  "price": 18.57,
+                  "printingDay": null,
+                  "deliverDay": null
+                },
+                {
+                  "qty": 100,
+                  "price": 17.89,
+                  "printingDay": null,
+                  "deliverDay": null
+                },
+                {
+                  "qty": 200,
+                  "price": 17.24,
+                  "printingDay": null,
+                  "deliverDay": null
+                }
+              ],
+              "variants": [
+                {
+                  "colorCount": 1,
+                  "positionCount": 2,
+                  "setUpCharge": 100,
+                  "addOn": 0.47
+                },
+                {
+                  "colorCount": 2,
+                  "positionCount": 1,
+                  "setUpCharge": 100,
+                  "addOn": 0.47
+                },
+                {
+                  "colorCount": 2,
+                  "positionCount": 2,
+                  "setUpCharge": 200,
+                  "addOn": 1.325346
+                },
+                {
+                  "colorCount": 3,
+                  "positionCount": 1,
+                  "setUpCharge": 150,
+                  "addOn": 0.91135
+                },
+                {
+                  "colorCount": 3,
+                  "positionCount": 2,
+                  "setUpCharge": 300,
+                  "addOn": 2.076202077
+                }
+              ]
+            },
+            {
+              "wayEn": "Heat Transfer",
+              "wayCn": "烫画",
+              "positions": [
+                "Front",
+                "Back"
+              ],
+              "size": {
+                "width": 3,
+                "height": 3,
+                "unit": "IN"
+              },
+              "baseSetUpCharge": 100,
+              "baseSteps": [
+                {
+                  "qty": 2,
+                  "price": 21.8,
+                  "printingDay": null,
+                  "deliverDay": null
+                },
+                {
+                  "qty": 10,
+                  "price": 20.38,
+                  "printingDay": null,
+                  "deliverDay": null
+                },
+                {
+                  "qty": 25,
+                  "price": 19.45,
+                  "printingDay": null,
+                  "deliverDay": null
+                },
+                {
+                  "qty": 50,
+                  "price": 18.74,
+                  "printingDay": null,
+                  "deliverDay": null
+                },
+                {
+                  "qty": 100,
+                  "price": 18.06,
+                  "printingDay": null,
+                  "deliverDay": null
+                },
+                {
+                  "qty": 200,
+                  "price": 17.4,
+                  "printingDay": null,
+                  "deliverDay": null
+                }
+              ],
+              "variants": [
+                {
+                  "colorCount": 1,
+                  "positionCount": 2,
+                  "setUpCharge": 200,
+                  "addOn": 0.658
+                }
+              ]
+            }
+          ],
+          "specsValue1": "XS|S|M|L|XL|2XL|3XL|4XL",
+          "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/178392386587728492.jpg"
+        }
+      ],
+      "sizeSurcharges": [
+        {
+          "specsValue": "2XL",
+          "specsPrice": 2
+        },
+        {
+          "specsValue": "3XL",
+          "specsPrice": 2
+        },
+        {
+          "specsValue": "4XL",
+          "specsPrice": 2.5
+        }
+      ],
+      "surfaces": [
+        {
+          "position": "Front",
+          "width": 3,
+          "height": 3,
+          "unit": "IN"
+        },
+        {
+          "position": "Back",
+          "width": 3,
+          "height": 3,
+          "unit": "IN"
+        }
+      ],
+      "files": [
+        {
+          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/178392545886522128.jpg",
+          "type": 0,
+          "name": ""
+        },
+        {
+          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/178392546467375274.jpg",
+          "type": 0,
+          "name": ""
+        },
+        {
+          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/178392546818140356.jpg",
+          "type": 0,
+          "name": ""
+        },
+        {
+          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/178399280003223188.pdf?uploadId=4EAC278C25EA449B871203397968DFAD",
+          "type": 1,
+          "name": "314750 template.pdf"
+        }
+      ],
+      "knifeFiles": [],
+      "imgMain": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/178392544501570857.jpg",
+      "surfaceImages": [
+        {
+          "position": "",
+          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/178392417457586710.jpg"
+        },
+        {
+          "position": "",
+          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/178392419989183366.jpg"
+        },
+        {
+          "position": "",
+          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/170693028172556452.jpg"
+        },
+        {
+          "position": "",
+          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/170693032702083759.jpg"
         }
       ]
     }
