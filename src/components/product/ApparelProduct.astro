@@ -37,18 +37,22 @@ const specs = getSpecifications(product);
 const description: string = product.descriptionEn || "";
 const defaultColor: string = colors.length > 0 ? colors[0].name : "Default";
 
-// 分尺码数量输入组 - 9 个标准尺码,加价全部置 0(待后续加价数据接入)
-// 顺序固定: S → M → L → XL → 2XL → 3XL → 4XL → 5XL → 6XL
+// 分尺码数量输入组 - 从 JSON 的 productSpecs[0].sizes 动态读取(不再硬编码)
+// 加价来自 productSpecs[0].sizeSurcharges({"2XL":2, "3XL":2, "4XL":2.5})
 type InputSizeRow = {
   label: string;
   surcharge: number;
   basePrice: number;
   min: number;
 };
-const STANDARD_INPUT_SIZES = ["S", "M", "L", "XL", "2XL", "3XL", "4XL", "5XL", "6XL"];
-const inputSizeList: InputSizeRow[] = STANDARD_INPUT_SIZES.map(label => ({
+const __firstSpec: any = (product as any).productSpecs?.[0] || {};
+const __dynamicSizes: string[] = Array.isArray(__firstSpec.sizes) && __firstSpec.sizes.length > 0
+  ? __firstSpec.sizes
+  : [];  // 空数组 → 模板不渲染尺码行
+const __surcharges: Record<string, number> = __firstSpec.sizeSurcharges || {};
+const inputSizeList: InputSizeRow[] = __dynamicSizes.map(label => ({
   label,
-  surcharge: 0,
+  surcharge: __surcharges[label] || 0,
   basePrice: parseFloat(pricingSteps[0]?.price?.toString() || "0"),
   min: pricingSteps[0]?.quantity || 1,
 }));
