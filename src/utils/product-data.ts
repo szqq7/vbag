@@ -88,9 +88,12 @@ function normalizeProduct(raw: any): ProductData {
 
   // ---- 构建 productSpecs ----
   const productSpecs: ProductSpec[] = (raw.specs || []).map((s: any, idx: number) => {
+    const sizeLabel = s.specsValue1 || "";
     const spec: ProductSpec = {
-      specsValue1: s.specsValue1 || "",
-      specsValue2: s.specsValue2 || String(idx),
+      specsValue1: sizeLabel,
+      // 新格式的尺寸写在 specsValue1,但 MultiSpecProduct.astro 从 specsValue2 读 label
+      // → 同时写入 specsValue2,保证多规格页能正确显示尺寸名(如 "4'' x 4.7''")
+      specsValue2: s.specsValue2 || sizeLabel || String(idx),
       // blank[] 作为参考定价
       specsPricingSteps: (raw.qty || []).map((q: number, ki: number) => ({
         num: q,
