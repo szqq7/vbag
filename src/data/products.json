@@ -1309,7 +1309,99 @@
         "amount": 0,
         "currency": "USD",
         "isFixed": true
-      }
+      },
+      "colors": [
+        {
+          "name": "Gray/Gray",
+          "rgb": "",
+          "imageUrl": ""
+        },
+        {
+          "name": "Gray/Blue",
+          "rgb": "",
+          "imageUrl": ""
+        },
+        {
+          "name": "Gray/Green",
+          "rgb": "",
+          "imageUrl": ""
+        },
+        {
+          "name": "Gray/Orange",
+          "rgb": "",
+          "imageUrl": ""
+        },
+        {
+          "name": "Yellow/White",
+          "rgb": "",
+          "imageUrl": ""
+        },
+        {
+          "name": "Khaki/White",
+          "rgb": "",
+          "imageUrl": ""
+        },
+        {
+          "name": "Gray/White",
+          "rgb": "",
+          "imageUrl": ""
+        },
+        {
+          "name": "Royal/White",
+          "rgb": "",
+          "imageUrl": ""
+        },
+        {
+          "name": "Green/White",
+          "rgb": "",
+          "imageUrl": ""
+        },
+        {
+          "name": "Red/White",
+          "rgb": "",
+          "imageUrl": ""
+        },
+        {
+          "name": "Black/White",
+          "rgb": "",
+          "imageUrl": ""
+        },
+        {
+          "name": "Orange/White",
+          "rgb": "",
+          "imageUrl": ""
+        },
+        {
+          "name": "Dark Orange/White",
+          "rgb": "",
+          "imageUrl": ""
+        },
+        {
+          "name": "Purple/White",
+          "rgb": "",
+          "imageUrl": ""
+        },
+        {
+          "name": "Navy Blue/White",
+          "rgb": "",
+          "imageUrl": ""
+        },
+        {
+          "name": "Brown/White",
+          "rgb": "",
+          "imageUrl": ""
+        },
+        {
+          "name": "Black/Black",
+          "rgb": "",
+          "imageUrl": ""
+        },
+        {
+          "name": "Royal Blue/White",
+          "rgb": "",
+          "imageUrl": ""
+        }
+      ]
     },
     {
       "code": "306227",
@@ -12882,7 +12974,19 @@
         "amount": 0,
         "currency": "USD",
         "isFixed": true
-      }
+      },
+      "colors": [
+        {
+          "name": "Full Color",
+          "rgb": "",
+          "imageUrl": ""
+        },
+        {
+          "name": "Various",
+          "rgb": "",
+          "imageUrl": ""
+        }
+      ]
     },
     {
       "code": "1812092",
@@ -13237,7 +13341,14 @@
         "amount": 0,
         "currency": "USD",
         "isFixed": true
-      }
+      },
+      "colors": [
+        {
+          "name": "Natural",
+          "rgb": "",
+          "imageUrl": ""
+        }
+      ]
     }
   ]
 }
