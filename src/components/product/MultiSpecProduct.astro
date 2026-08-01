@@ -26,14 +26,17 @@ if (!product) {
 const title: string = product.nameEn || "Product";
 const images: string[] = getAllImages(product);
 const mainImage: string = images[0] || product.imgMainUrl || "";
-const colors = loadImprintColors(product);
+// 产品本体颜色(顶部 PRODUCT COLOR 色块用):从产品 JSON 读取
+const productColors = getColorOptions(product);
+// Imprint 印刷颜色:从 imprint-colors.json 读取(独立数据源)
+const imprintColors = loadImprintColors();
 const methodTabs = getPrintMethodTabs(product);
 const surfaces = getPrintingSurfaces(product);
 const downloadFiles = getDownloadFiles(product);
 const templateFiles = getTemplateFiles(product);
 const specs = getSpecifications(product);
 const description: string = product.descriptionEn || "";
-const defaultColor: string = colors.length > 0 ? colors[0].name : "Default";
+const defaultColor: string = productColors.length > 0 ? productColors[0].name : "Default";
 
 // === 多规格 size 列表 ===
 // 数据来源:productSpecs 的 specsValue2 唯一值
@@ -209,9 +212,9 @@ const setupCharge = 50;
           </label>
         </div>
 
-        {colors.length > 0 && (
+        {productColors.length > 0 && (
           <div class="color-grid">
-            {colors.map((c, i) => (
+            {productColors.map((c, i) => (
               <button class={`color-swatch ${i === 0 ? "selected" : ""}`} style={`background-color:${c.rgb};`} data-name={c.name} data-img={c.imageUrl || ""} title={c.name}></button>
             ))}
           </div>
@@ -277,7 +280,7 @@ const setupCharge = 50;
           </div>
         </div>
 
-        <ImprintColorPicker colors={colors} idPrefix="ms" />
+        <ImprintColorPicker colors={imprintColors} idPrefix="ms" />
 
         {/* Proofing(替代 Physical Sample):从 product.proofingSupported 读取,JSON 有 proofing 字段才显示 */}
         {(product as any).proofingSupported && (
