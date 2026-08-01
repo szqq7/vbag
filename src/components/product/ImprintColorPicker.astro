@@ -325,6 +325,30 @@ const triggerText = `${idPrefix}-imprint-trigger-text`;
         if (existsInSystem) { setError("该颜色已在标准列表中，请直接选择"); return; }
         if (customColors.indexOf(v) !== -1) { setError("该颜色已添加"); return; }
 
+        // ★ 颜色数限制联动(与系统色选项保持一致):1-color 时只保留最后一个,多色时满了则取消最早的
+        var countSel = document.getElementById(prefix + "-imprint-count");
+        var limit = getColorLimit(countSel ? countSel.value : "1 color");
+        var systemChecked = root.querySelectorAll(".popover-option input:checked");
+        var totalCount = systemChecked.length + customColors.length;
+        if (limit === 1) {
+          // 单色模式:清掉所有已选项(系统色 + 自定义色),保留最新这一个
+          root.querySelectorAll(".popover-option input:checked").forEach(function(cb){ cb.checked = false; });
+          customColors = [];
+        } else {
+          // 多色模式:达到上限时,移除最早勾选/最早添加的那个
+          while (totalCount >= limit) {
+            var firstChecked = root.querySelector(".popover-option input:checked");
+            if (firstChecked) {
+              firstChecked.checked = false;
+            } else if (customColors.length > 0) {
+              customColors.shift();
+            } else {
+              break;
+            }
+            totalCount--;
+          }
+        }
+
         // 推入自定义颜色数组,触发 refreshTrigger
         customColors.push(v);
         setError("");
