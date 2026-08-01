@@ -242,13 +242,6 @@ const setupCharge = 50;  // 占位初值,运行时被 JS 根据当前选中的 t
 
         <ImprintColorPicker colors={colors} idPrefix="ss" />
 
-        {/* ★ Debug 标记:确认 proofingSupported 字段是否传到模板 */}
-        <div style="background:#fee;padding:8px;margin:8px 0;border:1px solid red;font-size:12px;">
-          [DEBUG] proofingSupported = <b>{String((product as any).proofingSupported)}</b>,
-          proofingFee = <b>{String((product as any).proofingFee)}</b>,
-          code = <b>{String(product.code)}</b>
-        </div>
-
         {/* Proofing 区块(替代 Physical Sample):从 product.proofingSupported 读取 */}
         {(product as any).proofingSupported && (
           <div class="form-row">
