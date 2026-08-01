@@ -1,0 +1,13 @@
+{
+  "_comment": "Imprint Color 选择器默认颜色列表,后续直接编辑此文件即可。",
+  "_usage": "ImprintColorPicker 组件默认从此文件读取颜色;产品 JSON 中的 colors 字段仍可覆盖。",
+  "colors": [
+    { "name": "Athletic Gold", "rgb": "rgb(255, 199, 44)" },
+    { "name": "Black", "rgb": "rgb(0, 0, 0)" },
+    { "name": "Vegas Gold", "rgb": "rgb(153, 133, 66)" },
+    { "name": "White", "rgb": "rgb(255, 255, 255)" },
+    { "name": "Brown", "rgb": "rgb(102, 51, 0)" },
+    { "name": "Burgundy", "rgb": "rgb(128, 0, 32)" },
+    { "name": "Dark Green", "rgb": "rgb(0, 100, 0)" }
+  ]
+}
