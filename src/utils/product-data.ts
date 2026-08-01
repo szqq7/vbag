@@ -324,19 +324,12 @@ export function loadProduct(code: string): ProductData | null {
 }
 
 /**
- * 读取 Imprint Color 选择器的默认颜色列表
- * - 优先返回 product.colors(产品 JSON 中定义的)
- * - 兜底从 src/data/imprint-colors.json 读取(方便后期直接修改)
+ * 读取 Imprint Color 选择器的颜色列表(独立于产品 JSON)
+ * - 始终从 src/data/imprint-colors.json 读取
+ * - 不读 product.colors(product.color 是另一个概念:产品的本体颜色,顶部色块用)
+ * - 后期修改颜色只需改 imprint-colors.json 一个文件
  */
-export function loadImprintColors(p?: ProductData | null): ColorOption[] {
-  const fromProduct = (p as any)?.colors;
-  if (Array.isArray(fromProduct) && fromProduct.length > 0) {
-    return fromProduct.map((c: any) => ({
-      name: c.name || c,
-      rgb: c.rgb || guessRgb(c.name || c),
-      imageUrl: c.imageUrl || "",
-    }));
-  }
+export function loadImprintColors(_product?: ProductData | null): ColorOption[] {
   const data = imprintColorsData as any;
   const list = Array.isArray(data) ? data : (data.colors || []);
   return list.map((c: any) => ({
