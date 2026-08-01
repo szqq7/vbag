@@ -253,13 +253,18 @@ const setupCharge = 50;
         )}
 
         <div class="form-row">
-          <label class="form-label">Physical Sample</label>
-          <div class="form-control">
-            <label class="checkbox-inline">
-              <input type="checkbox" />
-              <span>Send me a physical sample</span>
-            </label>
-          </div>
+          {/* Proofing 区块(替代 Physical Sample):仅当 JSON 有 proofingSupported 才显示 */}
+          {(product as any).proofingSupported && (
+            <div class="form-row">
+              <label class="form-label">Proofing</label>
+              <div class="form-control">
+                <label class="checkbox-inline">
+                  <input type="checkbox" id="proofingCheckbox" data-fee={String((product as any).proofingFee || 0)} />
+                  <span>Send me a proofing sample (${Number((product as any).proofingFee || 0).toFixed(2)})</span>
+                </label>
+              </div>
+            </div>
+          )}
         </div>
 
         <!-- 左 delivery 卡 + 右 pricing 摘要(横版布局) -->
@@ -326,6 +331,10 @@ const setupCharge = 50;
                   <tr id="summaryAdditionalRow" style="display:none">
                     <td>Additional Charges <span id="summaryAdditionalDetail"></span></td>
                     <td class="summary-right" id="summaryAdditional">$0.00</td>
+                  </tr>
+                  <tr id="summaryProofingRow" style="display:none">
+                    <td>Proofing Fee</td>
+                    <td class="summary-right" id="summaryProofing">$0.00</td>
                   </tr>
                   <tr>
                     <td>Shipping Charge</td>
@@ -542,7 +551,19 @@ function recalc(){
     var impRow2 = document.getElementById("summaryImprintRow");
     if (impRow2) impRow2.style.display = "none";
   }
-  if (summaryTotal) summaryTotal.textContent = "$" + (subtotal + setup + imprintAmount + (window.__AP_SHIPPING_CHARGE__ || 0)).toFixed(2);
+  // ★ Proofing Fee:勾选后加入 Total
+  var proofingCheckbox = document.getElementById("proofingCheckbox");
+  var summaryProofingRow = document.getElementById("summaryProofingRow");
+  var summaryProofingCell = document.getElementById("summaryProofing");
+  var proofingFee = 0;
+  if (proofingCheckbox && proofingCheckbox.checked) {
+    proofingFee = parseFloat(proofingCheckbox.getAttribute("data-fee") || "0") || 0;
+    if (summaryProofingRow) summaryProofingRow.style.display = "";
+    if (summaryProofingCell) summaryProofingCell.textContent = "$" + proofingFee.toFixed(2);
+  } else {
+    if (summaryProofingRow) summaryProofingRow.style.display = "none";
+  }
+  if (summaryTotal) summaryTotal.textContent = "$" + (subtotal + setup + imprintAmount + proofingFee + (window.__AP_SHIPPING_CHARGE__ || 0)).toFixed(2);
   updateDeliveryDay();
 }
 
@@ -677,6 +698,12 @@ document.querySelectorAll(".imprint-location-row input[type=checkbox]").forEach(
 });
 
 // Imprint Color 已移除(服装产品):无需联动颜色数下拉
+
+// Proofing 复选框联动
+var proofingCb = document.getElementById("proofingCheckbox");
+if (proofingCb) {
+  proofingCb.addEventListener("change", function(){ recalc(); });
+}
 
 // View Delivery Time 点击展开 (左卡内的链接)
 var apDeliveryLink = document.getElementById("apViewDeliveryLink");
