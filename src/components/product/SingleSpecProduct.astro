@@ -23,6 +23,17 @@ if (!product) {
 }
 
 const title: string = product.nameEn || "Product";
+// ★ DEBUG 标记:确认 product 的规格类型和 sizes 字段
+const __dbg = {
+  code: product.code,
+  spec: (product as any).spec || (product as any).specsType || "<missing>",
+  productSpecs0: product.productSpecs?.[0] ? {
+    specsValue1: (product.productSpecs[0] as any).specsValue1,
+    specsValue2: (product.productSpecs[0] as any).specsValue2,
+    sizes: (product.productSpecs[0] as any).sizes,
+    printingByWay_ways: Object.keys((product.productSpecs[0] as any).printingByWay || {}),
+  } : null,
+};
 const images: string[] = getAllImages(product);
 const mainImage: string = images[0] || product.imgMainUrl || "";
 // 产品本体颜色(顶部 PRODUCT COLOR 色块用):从产品 JSON 读取
@@ -72,6 +83,16 @@ const setupCharge = 50;  // 占位初值,运行时被 JS 根据当前选中的 t
 ---
 
 <Base title={title}>
+  {/* ★ DEBUG:产品 spec/规格值(确认路由分发) */}
+  <div style="background:#ffe;padding:8px;margin:8px 0;border:1px solid orange;font-size:12px;font-family:monospace;">
+    [DEBUG SingleSpecProduct]<br/>
+    code: {__dbg.code}<br/>
+    spec: {__dbg.spec}<br/>
+    specs[0].specsValue1: {__dbg.productSpecs0?.specsValue1 ?? "<none>"}<br/>
+    specs[0].specsValue2: {__dbg.productSpecs0?.specsValue2 ?? "<none>"}<br/>
+    specs[0].sizes: {JSON.stringify(__dbg.productSpecs0?.sizes ?? null)}<br/>
+    specs[0].printingByWay keys: {JSON.stringify(__dbg.productSpecs0?.printingByWay_ways ?? null)}
+  </div>
   <div class="product-page">
     <div class="left-column">
       <div class="product-media">
