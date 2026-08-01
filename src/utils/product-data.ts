@@ -9,6 +9,8 @@ export interface ProductSpec {
   specsPricingSteps?: { num: number; price: number }[];
   // 每规格独立的 printing 数据(way → baseSteps)
   printingByWay?: Record<string, { num: number; price: string }[]>;
+  // ★ variants 加价表(颜色×位置 → setUpCharge + addOn)
+  variantsByWay?: Record<string, { colorCount: number; positionCount: number; setUpCharge: number; addOn: number }[]>;
   // ★ 拆分后的尺码数组(从 specsValue1 拆分)
   sizes?: string[];
   // ★ 尺码加价映射({"2XL": 2, "3XL": 2.5})
@@ -97,13 +99,22 @@ function normalizeProduct(raw: any): ProductData {
     const sizeLabel = s.specsValue1 || "";
     // ★ 每个 spec 自己的 printing 数据(丝印/热转印等)按 way 名存下来
     // 因为不同规格的 printing baseSteps 不同,不能共用 printingWays 的价格
+    // - printingByWay[way]      = 基础价阶梯(1c1p,最小印花)
+    // - variantsByWay[way]      = variants 数组(colorCount × positionCount → setUpCharge + addOn)
     const printingByWay: Record<string, any[]> = {};
+    const variantsByWay: Record<string, any[]> = {};
     for (const p of s.printing || []) {
       const wn = (p.wayEn || "").trim();
       if (!wn) continue;
       printingByWay[wn] = (p.baseSteps || []).map((bs: any) => ({
         num: bs.qty,
         price: String(bs.price),
+      }));
+      variantsByWay[wn] = (p.variants || []).map((v: any) => ({
+        colorCount: Number(v.colorCount || 1),
+        positionCount: Number(v.positionCount || 1),
+        setUpCharge: Number(v.setUpCharge || p.baseSetUpCharge || 0),
+        addOn: Number(v.addOn || 0),
       }));
     }
 
@@ -138,6 +149,8 @@ function normalizeProduct(raw: any): ProductData {
       })),
       // ★ 把每规格独立的 printing 价存到 spec 上(前端按规格取)
       printingByWay,
+      // ★ variants 加价表(颜色×位置 → setUpCharge + addOn)
+      variantsByWay,
     };
     if (s.productWeight) spec.productWeightKgs = Number(s.productWeight);
     if (s.productLength && s.productWidth) {
