@@ -295,6 +295,9 @@ function normalizeProduct(raw: any): ProductData {
     printingSurfaces,
     shippingCharge: { amount: 0, currency: "USD", isFixed: true },
     images,
+    // ★ Proofing 字段(替代 Physical Sample):勾选后 summary 加 proofingFee
+    proofingSupported: raw.proofingSupported === true,
+    proofingFee: Number(raw.proofingFee || 0),
   };
 
   return result as ProductData;
