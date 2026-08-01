@@ -4,8 +4,9 @@
       "title": "Non-Woven Value Tote Bag",
       "SPU": "120356",
       "is_blank": "true",
-      "is_sample": "true",
+      "proofingSupported": "true",
       "spec": "单尺寸多色",
+      "proofingFee": "8",
       "qty": [
         100,
         250,
@@ -12992,8 +12993,9 @@
       "title": "Small Cotton and Linen Drawstring Bag",
       "SPU": "1812092",
       "is_blank": "true",
-      "is_sample": "true",
+      "proofingSupported": "true",
       "spec": "多尺寸",
+      "proofingFee": "8",
       "qty": [
         50,
         100,
@@ -13714,8 +13716,9 @@
       "title": "Men's Micro Pique Ribbed Collar Polo Shirt",
       "SPU": "314750",
       "is_blank": "true",
-      "is_sample": "true",
+      "proofingSupported": "true",
       "spec": "多尺寸服装",
+      "proofingFee": "8",
       "qty": [
         2,
         10,
