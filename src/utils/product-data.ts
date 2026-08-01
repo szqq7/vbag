@@ -152,7 +152,14 @@ function normalizeProduct(raw: any): ProductData {
       // ★ variants 加价表(颜色×位置 → setUpCharge + addOn)
       variantsByWay,
     };
-    if (s.productWeight) spec.productWeightKgs = Number(s.productWeight);
+    // ★ 新格式字段:productWeightKgs / printWidth / printLength / imageUrl
+    if (s.productWeightKgs !== undefined) spec.productWeightKgs = Number(s.productWeightKgs);
+    else if (s.productWeight) spec.productWeightKgs = Number(s.productWeight);
+    if (s.printLength !== undefined && s.printWidth !== undefined) {
+      spec.printLength = Number(s.printLength);
+      spec.printWidth = Number(s.printWidth);
+    }
+    if (s.imageUrl) spec.imageUrl = s.imageUrl;
     if (s.productLength && s.productWidth) {
       spec.productLengthIn = Number(s.productLength);
       spec.productWidthIn = Number(s.productWidth);
@@ -246,9 +253,10 @@ function normalizeProduct(raw: any): ProductData {
   }
 
   // ---- 构建 printingSurfaces ----
+  // 兼容两种格式:字符串数组 ["Front","Back"] 或 对象数组 [{position:"Front",...}]
   const printingSurfaces = (raw.surfaces || []).map((s: any, i: number) => {
     if (typeof s === "string") return { printingPositionNameEn: s };
-    return { printingPositionNameEn: s.surfaceName || `Surface ${i + 1}` };
+    return { printingPositionNameEn: s.position || s.surfaceName || `Surface ${i + 1}` };
   });
 
   // ---- 产品阶梯价(顶层 productPricingSteps) ----
@@ -256,6 +264,22 @@ function normalizeProduct(raw: any): ProductData {
     num: q,
     price: productSpecs[0]?.specsPricingSteps?.find((sp: any) => sp.num === q)?.price ?? 0,
   }));
+
+  // ---- images 处理:兼容三种格式 ----
+  // 1) 数组 [{position,url},...] → 取 url
+  // 2) 对象 { "Surface 1": "url" } → Object.values
+  // 3) 字符串数组 ["url1","url2"] → 直接用
+  let images: string[] = [];
+  const si = raw.surfaceImages;
+  if (Array.isArray(si)) {
+    if (si.length > 0 && typeof si[0] === "string") {
+      images = si;
+    } else {
+      images = si.map((it: any) => (typeof it === "string" ? it : it.url || "")).filter(Boolean);
+    }
+  } else if (si && typeof si === "object") {
+    images = Object.values(si).map((v: any) => (typeof v === "string" ? v : v?.url || "")).filter(Boolean);
+  }
 
   const result: any = {
     code: raw.SPU,
@@ -270,7 +294,7 @@ function normalizeProduct(raw: any): ProductData {
     productPricingSteps,
     printingSurfaces,
     shippingCharge: { amount: 0, currency: "USD", isFixed: true },
-    images: raw.surfaceImages ? Object.values(raw.surfaceImages) : [],
+    images,
   };
 
   return result as ProductData;
@@ -456,7 +480,10 @@ export function getAllImages(p: ProductData): string[] {
   for (let i = 0; i < specs.length; i++) push(specs[i].imageUrl);
   const files = safeArr(p.files);
   for (let i = 0; i < files.length; i++) {
-    if (files[i].type === 0 && files[i].file) push(files[i].file.path);
+    if (files[i].type === 0) {
+      const url = files[i].url || files[i].file?.path;
+      if (url) push(url);
+    }
   }
   const imgs = safeArr(p.imgs);
   for (let i = 0; i < imgs.length; i++) { push(imgs[i].url); push(imgs[i].path); }
@@ -467,7 +494,11 @@ export function getDownloadFiles(p: ProductData): { path?: string }[] {
   const out: { path?: string }[] = [];
   const files = safeArr(p.files);
   for (let i = 0; i < files.length; i++) {
-    if (files[i].type === 0 && files[i].file && files[i].file.path) out.push(files[i].file!);
+    // 兼容新旧格式:新 {url,type,name} / 旧 {file:{path}}
+    if (files[i].type === 0) {
+      const url = files[i].url || files[i].file?.path;
+      if (url) out.push({ path: url });
+    }
   }
   // 兜底:部分产品(例如 1812092)files 为空,使用 imgMainUrl 作为 Hi-Res 图片
   if (out.length === 0 && (p as any).imgMainUrl) {
@@ -480,7 +511,19 @@ export function getTemplateFiles(p: ProductData): { path?: string }[] {
   const out: { path?: string }[] = [];
   const kf = safeArr(p.knifeFiles);
   for (let i = 0; i < kf.length; i++) {
-    if (kf[i].file && kf[i].file.path) out.push(kf[i].file!);
+    // 兼容新旧格式:新 {url,...} / 旧 {file:{path}}
+    const url = kf[i].url || kf[i].file?.path;
+    if (url) out.push({ path: url });
+  }
+  // 新格式:files 数组里 type=1 是模板(PDF)
+  if (out.length === 0) {
+    const files = safeArr((p as any).files);
+    for (let i = 0; i < files.length; i++) {
+      if (files[i].type === 1) {
+        const url = files[i].url || files[i].file?.path;
+        if (url) out.push({ path: url });
+      }
+    }
   }
   return out;
 }
