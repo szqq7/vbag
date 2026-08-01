@@ -42,6 +42,7 @@ type SizeRow = {
   label: string;
   priceTiers: { num: number; price: number; formatted: string }[];
   allWayTiers?: Record<string, { num: number; price: number; formatted: string }[]>;
+  allWayVariants?: Record<string, { colorCount: number; positionCount: number; setUpCharge: number; addOn: number }[]>;
   min: number;
 };
 const productSizes: SizeRow[] = (() => {
@@ -63,6 +64,8 @@ const productSizes: SizeRow[] = (() => {
 
     // ★ 关键:每个 spec 自己的 printingByWay(丝印/热转印)各自的 baseSteps
     const specPrinting: Record<string, any[]> = (s.printingByWay) || {};
+    // ★ variants 加价表:颜色×位置 → setUpCharge + addOn
+    const specVariants: Record<string, any[]> = (s.variantsByWay) || {};
     const allWayTiers: Record<string, { num: number; price: number; formatted: string }[]> = { Blank: blankTiers };
     for (const wn of Object.keys(specPrinting)) {
       allWayTiers[wn] = specPrinting[wn]
@@ -75,6 +78,7 @@ const productSizes: SizeRow[] = (() => {
       label: v2,
       priceTiers: blankTiers,
       allWayTiers,
+      allWayVariants: specVariants,
       min: blankTiers[0]?.num || 1,
     });
   }
@@ -187,6 +191,7 @@ const setupCharge = 50;
                   data-min={s.min}
                   data-price-tiers={JSON.stringify(s.priceTiers)}
                   data-all-way-tiers={JSON.stringify(s.allWayTiers || {})}
+                  data-all-way-variants={JSON.stringify(s.allWayVariants || {})}
                 >
                   {s.label}
                 </button>
@@ -408,9 +413,20 @@ document.querySelectorAll(".color-swatch").forEach(function(s){
   });
 });
 
-// === 价格:动态根据 size + 当前 tab 读取 ===
+// === 价格:动态根据 size + 当前 tab + 颜色数×位置数 读取 ===
 // 当前选中的 way 缓存在 window 上
 var __CURRENT_WAY__ = "Blank";
+function getCurrentColorCount() {
+  var sel = document.getElementById("ms-imprint-count");
+  if (!sel || !sel.value) return 1;
+  var m = sel.value.match(/\d+/);
+  return m ? parseInt(m[0]) : 1;
+}
+function getCurrentPositionCount() {
+  var boxes = document.querySelectorAll(".imprint-location-row input[type=checkbox]:checked");
+  return Math.max(1, boxes.length);
+}
+// 根据当前 颜色数×位置数 计算实际阶梯价(基础价 + variant.addOn)
 function getCurrentTiers() {
   var tag = document.querySelector(".size-tags[data-mode='multi-spec'] .size-tag.selected");
   if (!tag) return [];
@@ -418,7 +434,30 @@ function getCurrentTiers() {
   if (raw) {
     try {
       var map = JSON.parse(raw || "{}");
-      if (map[__CURRENT_WAY__] && map[__CURRENT_WAY__].length) return map[__CURRENT_WAY__];
+      var base = map[__CURRENT_WAY__];
+      if (base && base.length) {
+        // 查 variants:匹配 colorCount×positionCount 的 addOn(1c1p 无 addOn = 基础价)
+        var addOn = 0;
+        var vRaw = tag.getAttribute("data-all-way-variants");
+        if (vRaw) {
+          try {
+            var vMap = JSON.parse(vRaw || "{}");
+            var variants = vMap[__CURRENT_WAY__] || [];
+            var cc = getCurrentColorCount();
+            var pc = getCurrentPositionCount();
+            for (var i = 0; i < variants.length; i++) {
+              if (variants[i].colorCount === cc && variants[i].positionCount === pc) {
+                addOn = variants[i].addOn || 0;
+                break;
+              }
+            }
+          } catch(e2) {}
+        }
+        if (addOn > 0) {
+          return base.map(function(t){ return { num: t.num, price: t.price + addOn, formatted: "$" + (t.price + addOn).toFixed(2) }; });
+        }
+        return base;
+      }
     } catch(e) {}
   }
   // 兜底:用 data-price-tiers(Blank)
@@ -659,13 +698,13 @@ function getSubtotal() {
 
 // Imprint Location 复选框联动
 document.querySelectorAll(".imprint-location-row input[type=checkbox]").forEach(function(cb){
-  cb.addEventListener("change", function(){ recalc(); updateDeliveryDay(); });
+  cb.addEventListener("change", function(){ renderPricingTable(); updateUnitPrice(); recalc(); updateDeliveryDay(); });
 });
 
 // 颜色数量下拉联动
 var colorCountSel = document.getElementById("ms-imprint-count");
 if (colorCountSel) {
-  colorCountSel.addEventListener("change", function(){ recalc(); updateDeliveryDay(); });
+  colorCountSel.addEventListener("change", function(){ renderPricingTable(); updateUnitPrice(); recalc(); updateDeliveryDay(); });
 }
 
 // View Delivery Time 点击展开
