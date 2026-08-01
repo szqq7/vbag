@@ -91,8 +91,18 @@ export function getAllProducts(): ProductData[] {
  * 检测依据:顶层是否有 SPU 字段。
  */
 function normalizeProduct(raw: any): ProductData {
-  // 旧格式直接返回
-  if (!raw || !raw.SPU) return raw as ProductData;
+  // 旧格式也兼容 proofing 字段:如果 raw 本身有 proofingSupported/proofingFee,直接补到结果上
+  // 新格式走下面完整转换;旧格式先快速补 proofing,再返回原对象
+  if (!raw || !raw.SPU) {
+    if (raw && raw.proofingSupported !== undefined) {
+      return {
+        ...raw,
+        proofingSupported: raw.proofingSupported === true,
+        proofingFee: Number(raw.proofingFee || 0),
+      };
+    }
+    return raw as ProductData;
+  }
 
   // ---- 构建 productSpecs ----
   const productSpecs: ProductSpec[] = (raw.specs || []).map((s: any, idx: number) => {
@@ -296,7 +306,8 @@ function normalizeProduct(raw: any): ProductData {
     shippingCharge: { amount: 0, currency: "USD", isFixed: true },
     images,
     // ★ Proofing 字段(替代 Physical Sample):勾选后 summary 加 proofingFee
-    proofingSupported: raw.proofingSupported === true,
+    // 兼容多种 JSON 写法:"true"/"false"/true/false/数字等
+    proofingSupported: raw.proofingSupported === true || raw.proofingSupported === "true" || raw.proofingSupported === 1 || raw.proofingSupported === "1",
     proofingFee: Number(raw.proofingFee || 0),
   };
 
@@ -554,3 +565,4 @@ export function getSpecifications(p: ProductData): SpecRow[] {
     { label: "Packing Method", value: (f && f.packingMethodEn) || "-" }
   ];
 }
+v
