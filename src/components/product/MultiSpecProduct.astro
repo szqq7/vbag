@@ -11,7 +11,7 @@ import ImprintColorPicker from "../../components/product/ImprintColorPicker.astr
 import {
   loadProduct, getColorOptions, getPrintMethodTabs,
   getPrintingSurfaces, getAllImages, getDownloadFiles, getTemplateFiles,
-  getSpecifications, getPublishFeeData, getDeliveryDayData, type ProductData
+  getSpecifications, getPublishFeeData, getDeliveryDayData, loadImprintColors, type ProductData
 } from "../../utils/product-data";
 
 const url = new URL(Astro.request.url);
@@ -26,7 +26,7 @@ if (!product) {
 const title: string = product.nameEn || "Product";
 const images: string[] = getAllImages(product);
 const mainImage: string = images[0] || product.imgMainUrl || "";
-const colors = getColorOptions(product);
+const colors = loadImprintColors(product);
 const methodTabs = getPrintMethodTabs(product);
 const surfaces = getPrintingSurfaces(product);
 const downloadFiles = getDownloadFiles(product);
