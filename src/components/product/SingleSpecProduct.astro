@@ -25,7 +25,10 @@ if (!product) {
 const title: string = product.nameEn || "Product";
 const images: string[] = getAllImages(product);
 const mainImage: string = images[0] || product.imgMainUrl || "";
-const colors = loadImprintColors(product);
+// 产品本体颜色(顶部 PRODUCT COLOR 色块用):从产品 JSON 读取
+const productColors = getColorOptions(product);
+// Imprint 印刷颜色:从 imprint-colors.json 读取(独立数据源)
+const imprintColors = loadImprintColors();
 const pricingSteps = getPricingSteps(product);
 const methodTabs = getPrintMethodTabs(product);
 const surfaces = getPrintingSurfaces(product);
@@ -33,7 +36,7 @@ const downloadFiles = getDownloadFiles(product);
 const templateFiles = getTemplateFiles(product);
 const specs = getSpecifications(product);
 const description: string = product.descriptionEn || "";
-const defaultColor: string = colors.length > 0 ? colors[0].name : "Default";
+const defaultColor: string = productColors.length > 0 ? productColors[0].name : "Default";
 
 // 单规格 size 标签:从 productSpecs 中按"长 × 宽"去重提取唯一尺寸
 // (旧逻辑用 pricingSteps.slice(0,4) 会拼出 4 个相同 tag,已修复)
@@ -183,9 +186,9 @@ const setupCharge = 50;  // 占位初值,运行时被 JS 根据当前选中的 t
           </label>
         </div>
 
-        {colors.length > 0 && (
+        {productColors.length > 0 && (
           <div class="color-grid">
-            {colors.map((c, i) => (
+            {productColors.map((c, i) => (
               <button class={`color-swatch ${i === 0 ? "selected" : ""}`} style={`background-color:${c.rgb};`} data-name={c.name} data-img={c.imageUrl || ""} title={c.name}></button>
             ))}
           </div>
@@ -240,7 +243,7 @@ const setupCharge = 50;  // 占位初值,运行时被 JS 根据当前选中的 t
           </div>
         </div>
 
-        <ImprintColorPicker colors={colors} idPrefix="ss" />
+        <ImprintColorPicker colors={imprintColors} idPrefix="ss" />
 
         {/* Proofing 区块(替代 Physical Sample):从 product.proofingSupported 读取 */}
         {(product as any).proofingSupported && (
