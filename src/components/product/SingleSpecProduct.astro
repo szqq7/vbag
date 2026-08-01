@@ -242,15 +242,18 @@ const setupCharge = 50;  // 占位初值,运行时被 JS 根据当前选中的 t
 
         <ImprintColorPicker colors={colors} idPrefix="ss" />
 
-<div class="form-row">
-          <label class="form-label">Physical Sample</label>
-          <div class="form-control">
-            <label class="checkbox-inline">
-              <input type="checkbox" />
-              <span>Send me a physical sample</span>
-            </label>
+        {/* Proofing 区块(替代 Physical Sample):从 product.proofingSupported 读取 */}
+        {(product as any).proofingSupported && (
+          <div class="form-row">
+            <label class="form-label">Proofing</label>
+            <div class="form-control">
+              <label class="checkbox-inline">
+                <input type="checkbox" id="proofingCheckbox" data-fee={String((product as any).proofingFee || 0)} />
+                <span>Send me a proofing sample (${Number((product as any).proofingFee || 0).toFixed(2)})</span>
+              </label>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* 左 delivery 卡 + 右 pricing 摘要(横版布局) */}
         <div class="delivery-and-pricing-row">
@@ -318,6 +321,10 @@ const setupCharge = 50;  // 占位初值,运行时被 JS 根据当前选中的 t
                   <tr id="summaryImprintRow" class="summary-sub-row" style="display:none">
                     <td style="padding-left: 1.5rem; color:#666;">Imprint</td>
                     <td class="summary-right" id="summaryImprint">$0.00</td>
+                  </tr>
+                  <tr id="summaryProofingRow" style="display:none">
+                    <td>Proofing Fee</td>
+                    <td class="summary-right" id="summaryProofing">$0.00</td>
                   </tr>
                   <tr>
                     <td>Shipping Charge</td>
@@ -630,7 +637,19 @@ function recalc() {
     if (summaryImprintRow) summaryImprintRow.style.display = "none";
   }
   var ship = window.__SS_SHIPPING_CHARGE__ || 0;
-  if (summaryTotal) summaryTotal.textContent = "$" + (subtotal + s.fee + imprintAmount + ship).toFixed(2);
+  // ★ Proofing Fee:勾选后加入 Total
+  var proofingCheckbox = document.getElementById("proofingCheckbox");
+  var summaryProofingRow = document.getElementById("summaryProofingRow");
+  var summaryProofingCell = document.getElementById("summaryProofing");
+  var proofingFee = 0;
+  if (proofingCheckbox && proofingCheckbox.checked) {
+    proofingFee = parseFloat(proofingCheckbox.getAttribute("data-fee") || "0") || 0;
+    if (summaryProofingRow) summaryProofingRow.style.display = "";
+    if (summaryProofingCell) summaryProofingCell.textContent = "$" + proofingFee.toFixed(2);
+  } else {
+    if (summaryProofingRow) summaryProofingRow.style.display = "none";
+  }
+  if (summaryTotal) summaryTotal.textContent = "$" + (subtotal + s.fee + imprintAmount + proofingFee + ship).toFixed(2);
   highlightTier(n);
   updateDeliveryDay();  // 数量或位置变化时刷新交期
 }
@@ -654,6 +673,12 @@ document.querySelectorAll(".imprint-location-row input[type=checkbox]").forEach(
 var colorCountSel = document.getElementById("ss-imprint-count");
 if (colorCountSel) {
   colorCountSel.addEventListener("change", function(){ recalc(); });
+}
+
+// Proofing 复选框联动
+var proofingCb = document.getElementById("proofingCheckbox");
+if (proofingCb) {
+  proofingCb.addEventListener("change", function(){ recalc(); });
 }
 
 // View Delivery Time 点击展开时间详情
