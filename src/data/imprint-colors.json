@@ -8,6 +8,7 @@
     { "name": "White", "rgb": "rgb(255, 255, 255)" },
     { "name": "Brown", "rgb": "rgb(102, 51, 0)" },
     { "name": "Burgundy", "rgb": "rgb(128, 0, 32)" },
-    { "name": "Dark Green", "rgb": "rgb(0, 100, 0)" }
+    { "name": "Dark Green", "rgb": "rgb(0, 100, 0)" },
+    { "name": "Red", "rgb": "rgb(192,0,0)" }
   ]
 }
