@@ -8,7 +8,7 @@ import type { ProductData } from "./product-data";
  */
 export type ProductPageType = "single-spec" | "multi-spec" | "apparel";
 
-const APPAREL_KEYWORDS = /garment[- _]?size|apparel[- _]?size|clothing[- _]?size/i;
+const APPAREL_KEYWORDS = /garment[- _]?size|apparel[- _]?size|clothing[- _]?size|服装|garment|apparel|clothing/i;
 const LETTER_SIZE_PATTERN = /\b(XS|S|M|L|XL|XXL|XXXL|XXXL)\b/i;
 
 /**
