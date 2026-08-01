@@ -565,4 +565,3 @@ export function getSpecifications(p: ProductData): SpecRow[] {
     { label: "Packing Method", value: (f && f.packingMethodEn) || "-" }
   ];
 }
-v
