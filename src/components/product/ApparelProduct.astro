@@ -1,22 +1,23 @@
 ---
 // =====================================================================
-// 多规格非服装页面（物理隔离的独立组件）
-// - 适用:产品类型为非服装,且 productSpecs.specsValue2 唯一值 ≥ 2
-// - 例:1812092 (Small Cotton and Linen Drawstring Bag)
-// - 与 single-spec / apparel 页面互不耦合
-// - 价格来源:每个 SKU 自带的 priceTiers 静态阶梯价(不计算、不叠加)
+// 服装页面（物理隔离的独立组件）
+// - 适用:specsType 含 Garment-Size / Apparel / Clothing-Size 的产品
+// - 例:306227 (5.3oz 100% Cotton Full Color T-Shirt W/ DTG Print)
+// - 与 single-spec / multi-spec 页面互不耦合
+// - 颜色/尺码联动逻辑完全自包含,不允许外部修改影响本组件
 // =====================================================================
 import Base from "../../layouts/Base.astro";
-import ImprintColorPicker from "../../components/product/ImprintColorPicker.astro";
+// ImprintColorPicker 已移除(服装产品不再需要)
+// import ImprintColorPicker from "../../components/product/ImprintColorPicker.astro";
 import {
-  loadProduct, getColorOptions, getPrintMethodTabs,
+  loadProduct, getColorOptions, getPricingSteps, getPrintMethodTabs,
   getPrintingSurfaces, getAllImages, getDownloadFiles, getTemplateFiles,
   getSpecifications, getPublishFeeData, getDeliveryDayData, loadImprintColors, type ProductData
 } from "../../utils/product-data";
 
 const url = new URL(Astro.request.url);
 const requestedCode = url.searchParams.get("code");
-const defaultCode = "1812092";
+const defaultCode = "306227";
 const product: ProductData | null = loadProduct(requestedCode || defaultCode);
 
 if (!product) {
@@ -30,6 +31,7 @@ const mainImage: string = images[0] || product.imgMainUrl || "";
 const productColors = getColorOptions(product);
 // Imprint 印刷颜色:从 imprint-colors.json 读取(独立数据源)
 const imprintColors = loadImprintColors();
+const pricingSteps = getPricingSteps(product);
 const methodTabs = getPrintMethodTabs(product);
 const surfaces = getPrintingSurfaces(product);
 const downloadFiles = getDownloadFiles(product);
@@ -38,55 +40,25 @@ const specs = getSpecifications(product);
 const description: string = product.descriptionEn || "";
 const defaultColor: string = productColors.length > 0 ? productColors[0].name : "Default";
 
-// === 多规格 size 列表 ===
-// 数据来源:productSpecs 的 specsValue2 唯一值
-// 每个 size 的 priceTiers 从该 specsValue2 对应 SKU 的 priceTiers 字段读取(静态配置,不计算)
-type SizeRow = {
+// 分尺码数量输入组 - 从 JSON 的 productSpecs[0].sizes 动态读取(不再硬编码)
+// 加价来自 productSpecs[0].sizeSurcharges({"2XL":2, "3XL":2, "4XL":2.5})
+type InputSizeRow = {
   label: string;
-  priceTiers: { num: number; price: number; formatted: string }[];
-  allWayTiers?: Record<string, { num: number; price: number; formatted: string }[]>;
-  allWayVariants?: Record<string, { colorCount: number; positionCount: number; setUpCharge: number; addOn: number }[]>;
+  surcharge: number;
+  basePrice: number;
   min: number;
 };
-const productSizes: SizeRow[] = (() => {
-  const specsArr: any[] = (product as any).productSpecs || [];
-  const printingWaysArr: any[] = (product as any).printingWays || [];
-  const seen = new Set<string>();
-  const out: SizeRow[] = [];
-
-  for (let i = 0; i < specsArr.length; i++) {
-    const s = specsArr[i];
-    const v2 = (s.specsValue2 || "").trim();
-    if (!v2 || seen.has(v2)) continue;
-    seen.add(v2);
-    const tiers: any[] = Array.isArray(s.specsPricingSteps) ? s.specsPricingSteps : [];
-    const blankTiers = tiers
-      .filter(t => typeof t.num === "number" && t.price !== undefined)
-      .sort((a, b) => a.num - b.num)
-      .map(t => ({ num: t.num, price: parseFloat(t.price), formatted: "$" + parseFloat(t.price).toFixed(2) }));
-
-    // ★ 关键:每个 spec 自己的 printingByWay(丝印/热转印)各自的 baseSteps
-    const specPrinting: Record<string, any[]> = (s.printingByWay) || {};
-    // ★ variants 加价表:颜色×位置 → setUpCharge + addOn
-    const specVariants: Record<string, any[]> = (s.variantsByWay) || {};
-    const allWayTiers: Record<string, { num: number; price: number; formatted: string }[]> = { Blank: blankTiers };
-    for (const wn of Object.keys(specPrinting)) {
-      allWayTiers[wn] = specPrinting[wn]
-        .filter((t: any) => typeof t.num === "number" && t.price !== undefined)
-        .sort((a: any, b: any) => a.num - b.num)
-        .map((t: any) => ({ num: t.num, price: parseFloat(t.price), formatted: "$" + parseFloat(t.price).toFixed(2) }));
-    }
-
-    out.push({
-      label: v2,
-      priceTiers: blankTiers,
-      allWayTiers,
-      allWayVariants: specVariants,
-      min: blankTiers[0]?.num || 1,
-    });
-  }
-  return out;
-})();
+const __firstSpec: any = (product as any).productSpecs?.[0] || {};
+const __dynamicSizes: string[] = Array.isArray(__firstSpec.sizes) && __firstSpec.sizes.length > 0
+  ? __firstSpec.sizes
+  : [];  // 空数组 → 模板不渲染尺码行
+const __surcharges: Record<string, number> = __firstSpec.sizeSurcharges || {};
+const inputSizeList: InputSizeRow[] = __dynamicSizes.map(label => ({
+  label,
+  surcharge: __surcharges[label] || 0,
+  basePrice: parseFloat(pricingSteps[0]?.price?.toString() || "0"),
+  min: pricingSteps[0]?.quantity || 1,
+}));
 
 // 印刷版费表 + 单价表 + 各 way 的基础值 + 交期表 + 静态运费
 const { setUpFeeMap, unitPriceMap, baseSetUpFees, baseUnitPrices } = getPublishFeeData(product);
@@ -183,26 +155,6 @@ const setupCharge = 50;
           <div class="product-code-line">{product.code}</div>
         )}
 
-        {productSizes.length > 0 && (
-          <div class="size-selector">
-            <div class="size-tags" data-mode="multi-spec">
-              {productSizes.map((s, i) => (
-                <button
-                  type="button"
-                  class={"size-tag " + (i === 0 ? "selected" : "")}
-                  data-label={s.label}
-                  data-min={s.min}
-                  data-price-tiers={JSON.stringify(s.priceTiers)}
-                  data-all-way-tiers={JSON.stringify(s.allWayTiers || {})}
-                  data-all-way-variants={JSON.stringify(s.allWayVariants || {})}
-                >
-                  {s.label}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
         <div class="color-header">
           <span class="color-label">PRODUCT COLOR: <strong id="currentColor">{defaultColor}</strong></span>
           <label class="bulk-toggle">
@@ -222,35 +174,52 @@ const setupCharge = 50;
 
         <div class="method-section">
           <h3 class="section-title">IMPRINT METHOD & QUANTITY</h3>
-          <div class="tabs">
-            {methodTabs.map((tab, i) => (
-              <button class={`tab-btn ${i === 0 ? "active" : ""}`} data-method={tab.name}>{tab.name}</button>
-            ))}
-          </div>
-          {productSizes[0]?.priceTiers && productSizes[0].priceTiers.length > 0 && (
+          {methodTabs.length > 1 ? (
+            <div class="tabs">
+              {methodTabs.map((tab, i) => (
+                <button class={`tab-btn ${i === 0 ? "active" : ""}`} data-method={tab.name}>{tab.name}</button>
+              ))}
+            </div>
+          ) : (
+            <div class="single-method-label" data-method={methodTabs[0]?.name || ''}>{methodTabs[0]?.name || 'Default'}</div>
+          )}
+          {pricingSteps.length > 0 && (
             <div class="pricing-table">
               <div class="pricing-row header">
                 <span class="qty-col">Quantity</span>
-                {productSizes[0].priceTiers.map((s) => (<span class="step-col">{s.num}+</span>))}
+                {pricingSteps.map((s) => (<span class="step-col">{s.label}</span>))}
               </div>
               <div class="pricing-row values" id="pricingRow">
                 <span class="qty-col">Price Each (C)</span>
-                {productSizes[0].priceTiers.map((s) => (
-                  <span class="step-col" data-step-price={s.price} data-step-num={s.num}>{s.formatted}</span>
-                ))}
+                {pricingSteps.map((s) => (<span class="step-col" data-step-price={s.price}>{s.formatted}</span>))}
               </div>
             </div>
           )}
           <a class="flat-price-link" href="#">Sign in to view flat price</a>
 
+        <!-- 分尺码数量输入组 - 9 个标准尺码,每个独立填数量 -->
+        {inputSizeList.length > 0 && (
           <div class="qty-input-card">
-            <label>Enter the quantity you'd like</label>
-            <div class="qty-input-row">
-              <input type="number" id="qtyInput" value="0" min="1" />
-              <span class="qty-mult">×</span>
-              <span id="qtyUnitPrice" class="qty-unit-price">$0.00 (C) ea</span>
+            <label class="qty-input-label">Enter the quantity you'd like</label>
+            <div class="size-inputs">
+              {inputSizeList.map((s) => (
+                <div class="size-input-item">
+                  <input
+                    type="number"
+                    class="size-qty-input"
+                    min="0"
+                    value="0"
+                    data-surcharge={s.surcharge}
+                    data-base-price={s.basePrice}
+                    data-min={s.min}
+                    data-label={s.label}
+                  />
+                  <span class="size-label">{s.label}</span>
+                </div>
+              ))}
             </div>
           </div>
+        )}
         </div>
 
         <h3 class="section-title">IMPRINT LOCATION(S) & OPTION</h3>
@@ -259,43 +228,49 @@ const setupCharge = 50;
           <label class="form-label">Imprint Location</label>
           <div class="form-control">
             {surfaces.length > 0 ? (
-              <>
-                {surfaces.map((s, i) => (
-                  <label class="checkbox-inline">
-                    <input type="checkbox" checked={i === 0} />
-                    <span>{s.name}</span>
-                  </label>
-                ))}
-                {/* 数据里没有 Back 时,自动补一个默认的 Back 复选框 */}
-                {!surfaces.some(s => s.name.toLowerCase().includes("back")) && (
-                  <label class="checkbox-inline">
-                    <input type="checkbox" />
-                    <span>Back</span>
-                  </label>
-                )}
-              </>
+              surfaces.map((s, i) => (
+                <label class="checkbox-inline">
+                  <input type="checkbox" checked={i === 0} />
+                  <span>{s.name}</span>
+                </label>
+              ))
             ) : (
               <span style="color:#999">No imprint location info</span>
             )}
           </div>
         </div>
 
-        <ImprintColorPicker colors={imprintColors} idPrefix="ms" />
-
-        {/* Proofing(替代 Physical Sample):从 product.proofingSupported 读取,JSON 有 proofing 字段才显示 */}
-        {(product as any).proofingSupported && (
+        {/* Imprint Color:从 imprint-colors.json 读取(独立于产品颜色,后期可直接改 JSON) */}
+        {imprintColors.length > 0 && (
           <div class="form-row">
-            <label class="form-label">Proofing</label>
+            <label class="form-label">Imprint Color</label>
             <div class="form-control">
-              <label class="checkbox-inline">
-                <input type="checkbox" id="proofingCheckbox" data-fee={String((product as any).proofingFee || 0)} />
-                <span>Send me a proofing sample (${Number((product as any).proofingFee || 0).toFixed(2)})</span>
-              </label>
+              {imprintColors.map((c, i) => (
+                <label class="checkbox-inline">
+                  <input type="checkbox" checked={i === 0} />
+                  <span>{c.name}</span>
+                </label>
+              ))}
             </div>
           </div>
         )}
 
-        {/* 左 delivery 卡 + 右 pricing 摘要(横版布局) */}
+        <div class="form-row">
+          {/* Proofing 区块(替代 Physical Sample):仅当 JSON 有 proofingSupported 才显示 */}
+          {(product as any).proofingSupported && (
+            <div class="form-row">
+              <label class="form-label">Proofing</label>
+              <div class="form-control">
+                <label class="checkbox-inline">
+                  <input type="checkbox" id="proofingCheckbox" data-fee={String((product as any).proofingFee || 0)} />
+                  <span>Send me a proofing sample (${Number((product as any).proofingFee || 0).toFixed(2)})</span>
+                </label>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <!-- 左 delivery 卡 + 右 pricing 摘要(横版布局) -->
         <div class="delivery-and-pricing-row">
           <div class="delivery-side">
             <div class="delivery-summary-card">
@@ -311,16 +286,16 @@ const setupCharge = 50;
               <div class="card-right-col">
                 <div class="info-row">
                   <span class="item-desc">Delivery Days:</span>
-                  <span class="item-value" id="msDeliveryDays">9 Days</span>
+                  <span class="item-value" id="apDeliveryDays">9 Days</span>
                 </div>
-                <div class="info-row">
-                  <span class="item-desc">Shipping:</span>
-                  <span class="item-value">${shippingCharge.toFixed(2)}</span>
-                </div>
-                <a href="javascript:void(0)" class="view-delivery-link" id="msViewDeliveryLink">View Delivery Time</a>
+<div class="info-row">
+              <span class="item-desc">Shipping:</span>
+              <span class="item-value">${shippingCharge.toFixed(2)}</span>
+            </div>
+                <a href="javascript:void(0)" class="view-delivery-link" id="apViewDeliveryLink">View Delivery Time</a>
               </div>
             </div>
-            <div class="delivery-detail-panel" id="msDeliveryDetail" hidden>
+            <div class="delivery-detail-panel" id="apDeliveryDetail" hidden>
               <div class="detail-row">
                 <span>Production Time:</span>
                 <span class="detail-value">1-2 business days</span>
@@ -331,7 +306,7 @@ const setupCharge = 50;
               </div>
               <div class="detail-row detail-row-total">
                 <span>Total Delivery:</span>
-                <span class="detail-value" id="msTotalDeliveryDays">9 Days</span>
+                <span class="detail-value" id="apTotalDeliveryDays">9 Days</span>
               </div>
               <div class="detail-row">
                 <span>Carrier:</span>
@@ -342,7 +317,6 @@ const setupCharge = 50;
 
           <div class="pricing-side">
             <div class="pricing-summary">
-              <a href="javascript:void(0)" class="view-delivery-time">View Delivery Time</a>
               <table class="summary-table">
                 <tbody>
                   <tr>
@@ -353,13 +327,13 @@ const setupCharge = 50;
                     <td>Set-Up Charge (G)</td>
                     <td class="summary-right" id="summarySetupCharge">${setupCharge.toFixed(2)}</td>
                   </tr>
-                  <tr id="summaryAdditionalRow" style="display:none">
-                    <td>Additional Charges (C)</td>
-                    <td class="summary-right"></td>
-                  </tr>
                   <tr id="summaryImprintRow" class="summary-sub-row" style="display:none">
                     <td style="padding-left: 1.5rem; color:#666;">Imprint</td>
                     <td class="summary-right" id="summaryImprint">$0.00</td>
+                  </tr>
+                  <tr id="summaryAdditionalRow" style="display:none">
+                    <td>Additional Charges <span id="summaryAdditionalDetail"></span></td>
+                    <td class="summary-right" id="summaryAdditional">$0.00</td>
                   </tr>
                   <tr id="summaryProofingRow" style="display:none">
                     <td>Proofing Fee</td>
@@ -383,20 +357,27 @@ const setupCharge = 50;
   </div>
 </Base>
 
-<script is:inline define:vars={{ methodTabs, setUpFeeMap, unitPriceMap, baseSetUpFees, baseUnitPrices, deliveryDayMap, shippingCharge }}>
-  window.__MS_METHOD_TABS_JSON__ = JSON.stringify({ tabs: methodTabs });
-  window.__MS_PUBLISH_FEE_DATA__ = JSON.stringify({
+<!-- 静态嵌入 Tab 阶梯价数据 -->
+<script is:inline define:vars={{ methodTabs }}>
+  window.__AP_METHOD_TABS_JSON__ = JSON.stringify({ tabs: methodTabs });
+</script>
+
+<script is:inline define:vars={{ pricingSteps, methodTabs, setupCharge, setUpFeeMap, unitPriceMap, baseSetUpFees, baseUnitPrices, deliveryDayMap, shippingCharge }}>
+  window.__AP_PS__ = pricingSteps;
+  window.__AP_MT__ = methodTabs;
+  window.__AP_SETUP__ = setupCharge;
+  window.__AP_PUBLISH_FEE_DATA__ = JSON.stringify({
     setUpFeeMap: setUpFeeMap,
     unitPriceMap: unitPriceMap,
     baseSetUpFees: baseSetUpFees,
     baseUnitPrices: baseUnitPrices
   });
-  window.__MS_DELIVERY_DAY_MAP__ = deliveryDayMap;
-  window.__MS_SHIPPING_CHARGE__ = shippingCharge;
+  window.__AP_DELIVERY_DAY_MAP__ = deliveryDayMap;
+  window.__AP_SHIPPING_CHARGE__ = shippingCharge;
 </script>
 
 <script>
-/* ============ 多规格非服装页面 - 独立脚本(与 single-spec / apparel 物理隔离) ============ */
+/* ============ 服装页面 - 独立脚本(与 single-spec / multi-spec 物理隔离) ============ */
 
 // 缩略图 / 颜色
 document.querySelectorAll(".thumb-btn").forEach(function(b){
@@ -423,165 +404,155 @@ document.querySelectorAll(".color-swatch").forEach(function(s){
   });
 });
 
-// === 价格:动态根据 size + 当前 tab + 颜色数×位置数 读取 ===
-// 当前选中的 way 缓存在 window 上
-var __CURRENT_WAY__ = "Blank";
-function getCurrentColorCount() {
-  var sel = document.getElementById("ms-imprint-count");
-  if (!sel || !sel.value) return 1;
-  var m = sel.value.match(/\d+/);
-  return m ? parseInt(m[0]) : 1;
+// 从静态注入加载 Tab 阶梯价数据
+var __METHOD_TABS__ = [];
+try {
+  if (window.__AP_METHOD_TABS_JSON__) {
+    __METHOD_TABS__ = JSON.parse(window.__AP_METHOD_TABS_JSON__).tabs;
+  }
+} catch(e) { __METHOD_TABS__ = []; }
+
+// 从 DOM 阶梯表读取当前显示的阶梯价
+function getCSFromDOM(){
+  var result = [];
+  var headers = document.querySelectorAll(".pricing-row.header .step-col");
+  var values  = document.querySelectorAll("#pricingRow .step-col");
+  for (var i = 0; i < headers.length && i < values.length; i++) {
+    var label = (headers[i].textContent || "").trim();
+    var numMatch = label.match(/^(\d+)/);
+    var num = numMatch ? parseInt(numMatch[1]) : NaN;
+    var priceRaw = values[i] ? values[i].getAttribute("data-step-price") : null;
+    var price = priceRaw ? parseFloat(priceRaw) : NaN;
+    if (!isNaN(num) && !isNaN(price)) result.push({ num: num, price: price });
+  }
+  return result;
 }
-function getCurrentPositionCount() {
-  var boxes = document.querySelectorAll(".imprint-location-row input[type=checkbox]:checked");
-  return Math.max(1, boxes.length);
-}
-// 根据当前 颜色数×位置数 计算实际阶梯价(基础价 + variant.addOn)
-function getCurrentTiers() {
-  var tag = document.querySelector(".size-tags[data-mode='multi-spec'] .size-tag.selected");
-  if (!tag) return [];
-  var raw = tag.getAttribute("data-all-way-tiers");
-  if (raw) {
-    try {
-      var map = JSON.parse(raw || "{}");
-      var base = map[__CURRENT_WAY__];
-      if (base && base.length) {
-        // 查 variants:匹配 colorCount×positionCount 的 addOn(1c1p 无 addOn = 基础价)
-        var addOn = 0;
-        var vRaw = tag.getAttribute("data-all-way-variants");
-        if (vRaw) {
-          try {
-            var vMap = JSON.parse(vRaw || "{}");
-            var variants = vMap[__CURRENT_WAY__] || [];
-            var cc = getCurrentColorCount();
-            var pc = getCurrentPositionCount();
-            for (var i = 0; i < variants.length; i++) {
-              if (variants[i].colorCount === cc && variants[i].positionCount === pc) {
-                addOn = variants[i].addOn || 0;
-                break;
-              }
-            }
-          } catch(e2) {}
-        }
-        if (addOn > 0) {
-          return base.map(function(t){ return { num: t.num, price: t.price + addOn, formatted: "$" + (t.price + addOn).toFixed(2) }; });
-        }
-        return base;
+
+function getCS(){
+  if (__METHOD_TABS__.length > 0) {
+    var a = document.querySelector(".tab-btn.active");
+    var n = a ? a.getAttribute("data-method") : "Screen Print";
+    for (var i = 0; i < __METHOD_TABS__.length; i++) {
+      if (__METHOD_TABS__[i].name === n && __METHOD_TABS__[i].pricingSteps && __METHOD_TABS__[i].pricingSteps.length > 0) {
+        return __METHOD_TABS__[i].pricingSteps;
       }
-    } catch(e) {}
+    }
   }
-  // 兜底:用 data-price-tiers(Blank)
-  try { return JSON.parse(tag.getAttribute("data-price-tiers") || "[]"); } catch(e) { return []; }
+  return getCSFromDOM();
 }
 
-function getUnitPrice(qty) {
-  var s = getCurrentTiers();
-  if (!s.length) return 0;
-  if (!qty || qty <= 0 || qty < s[0].num) return s[0].price;
+function updatePricingTable(){
+  var steps = getCS();
+  var cols = document.querySelectorAll("#pricingRow .step-col");
+  for (var i = 0; i < cols.length; i++) {
+    if (steps[i]) {
+      var price = parseFloat(steps[i].price);
+      if (!isNaN(price)) {
+        cols[i].textContent = "$" + price.toFixed(2);
+        cols[i].setAttribute("data-step-price", String(price));
+        cols[i].setAttribute("data-base-price", String(price));
+      }
+    }
+  }
+  highlightPricingTier(0);
+}
+
+function getUnitPrice(qty){
+  var s = getCSFromDOM();
+  if (!s || s.length === 0) return 0;
+  if (!qty || qty <= 0 || qty < s[0].num) return parseFloat(s[0].price) || 0;
   for (var i = s.length - 1; i >= 0; i--) {
-    if (qty >= s[i].num) return s[i].price;
+    if (qty >= s[i].num) return parseFloat(s[i].price) || 0;
   }
-  return s[0].price;
+  return parseFloat(s[0].price) || 0;
 }
 
-function highlightTier(qty) {
-  var steps = getCurrentTiers();
-  if (!steps.length) return;
-  var idx = 0;
+function highlightPricingTier(qty){
+  var steps = getCSFromDOM();
+  if (!steps || steps.length === 0) return;
+  var matchedIdx = 0;
   for (var i = 0; i < steps.length; i++) {
-    if (qty >= steps[i].num) idx = i; else break;
+    if (qty >= steps[i].num) matchedIdx = i; else break;
   }
-  if (!qty || qty <= 0) idx = 0;
-  document.querySelectorAll(".pricing-row .step-col.highlighted").forEach(function(el){ el.classList.remove("highlighted"); });
-  var h = document.querySelectorAll(".pricing-row.header .step-col");
-  var v = document.querySelectorAll("#pricingRow .step-col");
-  if (h[idx]) h[idx].classList.add("highlighted");
-  if (v[idx]) v[idx].classList.add("highlighted");
-}
-
-// 渲染价格表(基于当前选中 size 的 priceTiers)
-function renderPricingTable() {
-  var tiers = getCurrentTiers();
+  if (!qty || qty <= 0) matchedIdx = 0;
+  document.querySelectorAll(".pricing-row .step-col.highlighted").forEach(function(el){
+    el.classList.remove("highlighted");
+  });
   var headerCells = document.querySelectorAll(".pricing-row.header .step-col");
   var valueCells  = document.querySelectorAll("#pricingRow .step-col");
-  for (var i = 0; i < headerCells.length && i < valueCells.length; i++) {
-    if (tiers[i]) {
-      headerCells[i].textContent = tiers[i].num + "+";
-      valueCells[i].textContent = "$" + tiers[i].price.toFixed(2);
-      valueCells[i].setAttribute("data-step-price", String(tiers[i].price));
-    }
-  }
+  if (headerCells[matchedIdx]) headerCells[matchedIdx].classList.add("highlighted");
+  if (valueCells[matchedIdx])  valueCells[matchedIdx].classList.add("highlighted");
 }
 
-// size-tag 切换:直接重渲染表格 + 高亮 + 单价
-document.querySelectorAll(".size-tags[data-mode='multi-spec'] .size-tag").forEach(function(b){
-  b.addEventListener("click", function(){
-    document.querySelectorAll(".size-tags[data-mode='multi-spec'] .size-tag").forEach(function(x){ x.classList.remove("selected"); });
-    this.classList.add("selected");
-    renderPricingTable();
-    var qInput = document.getElementById("qtyInput");
-    if (qInput) {
-      qInput.value = "0";
-      updateUnitPrice();
-    }
-    recalc();
-    updateDeliveryDay();
-  });
+// 服装尺码多选:每个 size-qty-input 独立 input
+document.querySelectorAll(".size-qty-input").forEach(function(inp){
+  inp.addEventListener("input", function(){ recalc(); updateDeliveryDay(); });
 });
 
-var qInput = document.getElementById("qtyInput");
-if (qInput) {
-  qInput.addEventListener("input", function(){ updateUnitPrice(); recalc(); });
-  qInput.addEventListener("change", function(){ updateUnitPrice(); recalc(); });
-}
-
-// Tab 切换:多规格页面 tab 切换现在也联动价格表
 document.querySelectorAll(".tab-btn").forEach(function(b){
   b.addEventListener("click", function(){
     document.querySelectorAll(".tab-btn").forEach(function(x){ x.classList.remove("active"); });
     this.classList.add("active");
-    __CURRENT_WAY__ = this.getAttribute("data-method") || "Blank";
-    renderPricingTable();
-    updateUnitPrice();
+    updatePricingTable();
     recalc();
     updateDeliveryDay();
   });
 });
 
-function updateUnitPrice() {
-  var qInput = document.getElementById("qtyInput");
-  if (!qInput) return;
-  var n = parseInt(qInput.value) || 0;
-  var unit = getUnitPrice(n);
-  var display = document.getElementById("qtyUnitPrice");
-  if (display) display.textContent = "$" + unit.toFixed(2) + " (C) ea";
-  highlightTier(n);
-}
-
-function recalc() {
+function recalc(){
   var summaryQty = document.getElementById("summaryQty");
   var summarySubtotal = document.getElementById("summarySubtotal");
   var summaryTotal = document.getElementById("summaryTotal");
-  var summaryImprintRow = document.getElementById("summaryImprintRow");
-  var summaryImprintCell = document.getElementById("summaryImprint");
-  var summaryAdditionalRow = document.getElementById("summaryAdditionalRow");
-  var qInput = document.getElementById("qtyInput");
-  var n = parseInt(qInput && qInput.value) || 0;
-  var unit = getUnitPrice(n);
-  var subtotal = unit * n;
-  var tag = document.querySelector(".size-tags[data-mode='multi-spec'] .size-tag.selected");
-  var label = tag ? (tag.getAttribute("data-label") || "") : "";
-  if (summaryQty) summaryQty.textContent = "$" + unit.toFixed(2) + " ea × " + n + " (" + label + ")";
-  if (summarySubtotal) summarySubtotal.textContent = "$" + subtotal.toFixed(2);
-  var s = updateSetupCharge();
-  var imprintAmount = Math.max(0, s.unitDiff) * n;
-  if (s.unitDiff > 0 && n > 0) {
-    if (summaryAdditionalRow) summaryAdditionalRow.style.display = "";
-    if (summaryImprintRow) summaryImprintRow.style.display = "";
-    if (summaryImprintCell) summaryImprintCell.textContent = "$" + imprintAmount.toFixed(2);
+  var setup = 50;
+  var subtotal = 0;
+  var totalQty = 0;
+  var totalSurcharge = 0;
+  var surchargeDetails = [];
+  var firstUnitPrice = 0;  // 用于汇总行的单价(用第一个尺码的基础单价)
+  document.querySelectorAll(".size-qty-input").forEach(function(inp){
+    var v = parseInt(inp.value) || 0;
+    if (v > 0) {
+      totalQty += v;
+      var label = inp.getAttribute("data-label") || "";
+      var surcharge = parseFloat(inp.getAttribute("data-surcharge")) || 0;
+      var unit = getUnitPrice(v);
+      // 单价 = 基础价(不含尺码加价),加价另算
+      if (firstUnitPrice === 0) firstUnitPrice = unit;
+      subtotal += v * unit;
+      if (surcharge > 0) {
+        totalSurcharge += v * surcharge;
+        surchargeDetails.push("Garment-Size: " + label + " $" + surcharge.toFixed(2));
+      }
+    }
+  });
+  // ★ 不再一行行罗列每个尺码,改成单行汇总:$X (C) ea × Y qty
+  if (summaryQty) summaryQty.innerHTML = (totalQty > 0)
+    ? "$" + firstUnitPrice.toFixed(2) + " (C) ea × " + totalQty + " qty"
+    : "—";
+  var addRow = document.getElementById("summaryAdditionalRow");
+  var addCell = document.getElementById("summaryAdditional");
+  var addDetail = document.getElementById("summaryAdditionalDetail");
+  if (totalSurcharge > 0) {
+    if (addRow) addRow.style.display = "";
+    if (addCell) addCell.textContent = "$" + totalSurcharge.toFixed(2);
+    if (addDetail) addDetail.innerHTML = surchargeDetails.map(function(d){ return "<div style='font-size:.7rem;color:#888'>" + d + "</div>"; }).join("");
   } else {
-    if (summaryAdditionalRow) summaryAdditionalRow.style.display = "none";
-    if (summaryImprintRow) summaryImprintRow.style.display = "none";
+    if (addRow) addRow.style.display = "none";
+  }
+  if (summarySubtotal) summarySubtotal.textContent = "$" + subtotal.toFixed(2);
+  // Set-Up + Imprint(单价差价×数量) 计入 Total
+  var s = updateSetupCharge();
+  setup = s.fee;
+  var qty = getTotalQty();
+  var imprintAmount = Math.max(0, s.unitDiff) * qty;
+  if (s.unitDiff > 0 && qty > 0) {
+    var impRow2 = document.getElementById("summaryImprintRow");
+    var impCell2 = document.getElementById("summaryImprint");
+    if (impRow2) impRow2.style.display = "";
+    if (impCell2) impCell2.textContent = "$" + imprintAmount.toFixed(2);
+  } else {
+    var impRow2 = document.getElementById("summaryImprintRow");
+    if (impRow2) impRow2.style.display = "none";
   }
   // ★ Proofing Fee:勾选后加入 Total
   var proofingCheckbox = document.getElementById("proofingCheckbox");
@@ -595,20 +566,17 @@ function recalc() {
   } else {
     if (summaryProofingRow) summaryProofingRow.style.display = "none";
   }
-  if (summaryTotal) summaryTotal.textContent = "$" + (subtotal + s.fee + imprintAmount + proofingFee + (window.__MS_SHIPPING_CHARGE__ || 0)).toFixed(2);
-  highlightTier(n);
+  if (summaryTotal) summaryTotal.textContent = "$" + (subtotal + setup + imprintAmount + proofingFee + (window.__AP_SHIPPING_CHARGE__ || 0)).toFixed(2);
   updateDeliveryDay();
 }
 
 // ============================================================
-// 印刷版费联动(V3.0):
-// - Set-Up Charge = 当前(way, method, position) 的 set_up_charge
-// - Imprint = (当前 unit_price - 基础 unit_price) × 数量
+// 印刷版费联动(V3.0): Set-Up Charge + Imprint (单价差价×数量)
 // ============================================================
 var __FEE_DATA__ = { setUpFeeMap: {}, unitPriceMap: {}, baseSetUpFees: {}, baseUnitPrices: {} };
 try {
-  if (window.__MS_PUBLISH_FEE_DATA__) {
-    __FEE_DATA__ = JSON.parse(window.__MS_PUBLISH_FEE_DATA__);
+  if (window.__AP_PUBLISH_FEE_DATA__) {
+    __FEE_DATA__ = JSON.parse(window.__AP_PUBLISH_FEE_DATA__);
   }
 } catch(e) { __FEE_DATA__ = { setUpFeeMap: {}, unitPriceMap: {}, baseSetUpFees: {}, baseUnitPrices: {} }; }
 
@@ -623,8 +591,9 @@ function mapCountToMethod(val) {
 function getCurrentSetupCharge() {
   var activeTab = document.querySelector(".tab-btn.active");
   var way = activeTab ? (activeTab.getAttribute("data-method") || "") : "";
-  var countSel = document.getElementById("ms-imprint-count");
-  var method = mapCountToMethod(countSel ? countSel.value : "1 color");
+  var countSel = document.getElementById("ap-imprint-count");
+  // 服装产品已移除 Imprint Color 下拉,默认 full-color(覆盖 306227 等)
+  var method = countSel ? mapCountToMethod(countSel.value) : "full-color";
   var pos = 1;
   var boxes = document.querySelectorAll(".imprint-location-row input[type=checkbox]:checked");
   pos = Math.max(1, boxes.length);
@@ -673,23 +642,24 @@ function updateSetupCharge() {
 
 // 交期联动: 根据 (way, method, pos, qty) 查 deliverDay
 function updateDeliveryDay() {
-  var qty = parseInt(document.getElementById("qtyInput").value) || 0;
+  var qty = getTotalQty();
   var activeTab = document.querySelector(".tab-btn.active");
   var way = activeTab ? (activeTab.getAttribute("data-method") || "") : "";
-  var countSel = document.getElementById("ms-imprint-count");
-  var method = countSel ? mapCountToMethod(countSel.value) : "1-color";
+  var countSel = document.getElementById("ap-imprint-count");
+  // 服装产品已移除 Imprint Color 下拉,默认 full-color
+  var method = countSel ? mapCountToMethod(countSel.value) : "full-color";
   var boxes = document.querySelectorAll(".imprint-location-row input[type=checkbox]:checked");
   var pos = Math.max(1, boxes.length);
 
   var day = 0;
   var found = false;
-  var keys = Object.keys(window.__MS_DELIVERY_DAY_MAP__ || {});
+  var keys = Object.keys(window.__AP_DELIVERY_DAY_MAP__ || {});
   for (var i = 0; i < keys.length; i++) {
     var k = keys[i];
     var parts = k.split("|");
     if (parts[0] === way && parts[1] === method && parts[2] === String(pos)) {
       var tierQty = parseInt(parts[3]);
-      if (qty >= tierQty) { day = window.__MS_DELIVERY_DAY_MAP__[k]; found = true; }
+      if (qty >= tierQty) { day = window.__AP_DELIVERY_DAY_MAP__[k]; found = true; }
     }
   }
   if (!found) {
@@ -697,37 +667,40 @@ function updateDeliveryDay() {
       var k2 = keys[j];
       var p2 = k2.split("|");
       if (p2[0] === way && p2[1] === method && p2[2] === String(pos)) {
-        day = window.__MS_DELIVERY_DAY_MAP__[k2];
+        day = window.__AP_DELIVERY_DAY_MAP__[k2];
         break;
       }
     }
   }
-  var el = document.getElementById("msDeliveryDays");
+  var el = document.getElementById("apDeliveryDays");
   if (el) el.textContent = (day || 9) + " Days";
-  var totalEl = document.getElementById("msTotalDeliveryDays");
+  var totalEl = document.getElementById("apTotalDeliveryDays");
   if (totalEl) totalEl.textContent = (day || 9) + " Days";
 }
 
-function getTotalQty() {
-  var qInput = document.getElementById("qtyInput");
-  return parseInt(qInput && qInput.value) || 0;
+function getTotalQty(){
+  var q = 0;
+  document.querySelectorAll(".size-qty-input").forEach(function(inp){ q += parseInt(inp.value) || 0; });
+  return q;
 }
 
-function getSubtotal() {
-  var n = getTotalQty();
-  return getUnitPrice(n) * n;
+function getApparelSubtotal(){
+  var sub = 0;
+  document.querySelectorAll(".size-qty-input").forEach(function(inp){
+    var v = parseInt(inp.value) || 0;
+    var surcharge = parseFloat(inp.getAttribute("data-surcharge")) || 0;
+    var unit = getUnitPrice(v);
+    sub += v * (unit + surcharge);
+  });
+  return sub;
 }
 
 // Imprint Location 复选框联动
 document.querySelectorAll(".imprint-location-row input[type=checkbox]").forEach(function(cb){
-  cb.addEventListener("change", function(){ renderPricingTable(); updateUnitPrice(); recalc(); updateDeliveryDay(); });
+  cb.addEventListener("change", function(){ recalc(); updateDeliveryDay(); });
 });
 
-// 颜色数量下拉联动
-var colorCountSel = document.getElementById("ms-imprint-count");
-if (colorCountSel) {
-  colorCountSel.addEventListener("change", function(){ renderPricingTable(); updateUnitPrice(); recalc(); updateDeliveryDay(); });
-}
+// Imprint Color 已移除(服装产品):无需联动颜色数下拉
 
 // Proofing 复选框联动
 var proofingCb = document.getElementById("proofingCheckbox");
@@ -735,29 +708,21 @@ if (proofingCb) {
   proofingCb.addEventListener("change", function(){ recalc(); });
 }
 
-// View Delivery Time 点击展开
-var msDeliveryLink = document.getElementById("msViewDeliveryLink");
-var msDeliveryDetail = document.getElementById("msDeliveryDetail");
-if (msDeliveryLink && msDeliveryDetail) {
-  msDeliveryLink.addEventListener("click", function(e){
+// View Delivery Time 点击展开 (左卡内的链接)
+var apDeliveryLink = document.getElementById("apViewDeliveryLink");
+var apDeliveryDetail = document.getElementById("apDeliveryDetail");
+if (apDeliveryLink && apDeliveryDetail) {
+  apDeliveryLink.addEventListener("click", function(e){
     e.preventDefault();
-    msDeliveryDetail.hidden = !msDeliveryDetail.hidden;
-  });
-}
-var msPricingDeliveryLink = document.querySelector(".pricing-summary .view-delivery-time");
-if (msPricingDeliveryLink && msDeliveryDetail && msDeliveryLink) {
-  msPricingDeliveryLink.addEventListener("click", function(e){
-    e.preventDefault();
-    msDeliveryDetail.hidden = false;
-    msDeliveryDetail.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    apDeliveryDetail.hidden = !apDeliveryDetail.hidden;
   });
 }
 
-// 初始化:渲染默认选中的 size-tag 价格
-renderPricingTable();
+// (右侧 pricing-summary 里的 View Delivery Time 已删除,避免与左卡重复)
+
 recalc();
+highlightPricingTier(0);
 updateDeliveryDay();
-updateUnitPrice();
 </script>
 
 <style>
@@ -822,6 +787,16 @@ updateUnitPrice();
 .section-title { font-size: .95rem; font-weight: 700; margin: 0 0 .75rem; color: #222; }
 .method-section { margin-bottom: 1rem; }
 .tabs { display: flex; border-bottom: 1px solid #ddd; margin-bottom: 1rem; }
+.single-method-label {
+  display: inline-block;
+  font-weight: 600;
+  font-size: .9rem;
+  color: #111;
+  padding: .5rem 0;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid #333;
+  cursor: default;
+}
 .tab-btn { padding: .5rem 1.25rem; border: none; background: none; font-size: .9rem; color: #555; cursor: pointer; border-bottom: 2px solid transparent; }
 .tab-btn.active { color: #111; border-bottom-color: #333; font-weight: 600; }
 .pricing-table { border: 1px solid #e0e0e0; border-radius: 4px; margin-bottom: .75rem; overflow-x: auto; }
@@ -929,8 +904,7 @@ updateUnitPrice();
 .add-btn:hover { background: #0066c0; color: #fff; }
 
 .pricing-summary { margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #e0e0e0; }
-.view-delivery-time { display: inline-block; font-size: .9rem; color: #0066c0; text-decoration: none; margin-bottom: .75rem; }
-.view-delivery-time:hover { text-decoration: underline; }
+/* (服装产品已删除 view-delivery-time,样式不再需要) */
 .summary-table { width: 100%; border-collapse: collapse; }
 .summary-table td { padding: .45rem 0; font-size: .9rem; color: #444; }
 .summary-table td.summary-right { text-align: right; color: #222; }
@@ -938,41 +912,22 @@ updateUnitPrice();
 .summary-table .total-row td.summary-right { color: #111; }
 
 .size-selector { margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #e0e0e0; }
-.size-tags { display: flex; flex-wrap: wrap; gap: 8px; }
-.size-tag {
-  padding: .5rem 1rem; border: 1px solid #ccc; border-radius: 4px;
-  background: #fff; color: #333; cursor: pointer; font-size: .9rem;
-  transition: all .15s;
+.size-inputs { display: grid; grid-template-columns: repeat(auto-fit, minmax(56px, 1fr)); gap: 8px; }
+.size-input-item { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.size-qty-input {
+  width: 100%; padding: .45rem .25rem;
+  border: 2px solid #0066c0; border-radius: 4px;
+  text-align: center; font-size: .95rem; font-weight: 600;
+  -moz-appearance: textfield;
 }
-.size-tag:hover { border-color: #0066c0; color: #0066c0; }
-.size-tag.selected {
-  border-color: #0066c0; background: #0066c0; color: #fff; font-weight: 600;
-}
+.size-qty-input::-webkit-outer-spin-button,
+.size-qty-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.size-qty-input:focus { outline: none; border-color: #003d80; }
+.size-label { font-size: .85rem; color: #333; font-weight: 500; }
+.size-surcharge-tag { display: inline-block; margin-left: 4px; padding: 1px 5px; background: #fff3e0; color: #c75000; border-radius: 3px; font-size: .7rem; font-weight: 600; }
 
-.qty-input-card { margin-top: .5rem; padding: .85rem; background: #f8f9fa; border: 1px solid #e0e0e0; border-radius: 4px; }
-.qty-input-card label { display: block; font-size: .85rem; color: #555; margin-bottom: .5rem; font-weight: 500; }
-.qty-input-row { display: flex; align-items: center; gap: 0; }
-.qty-input-row input[type=number] {
-  width: 100px; height: 36px; padding: .5rem;
-  border: 1px solid #0066c0; border-right: none;
-  border-radius: 4px 0 0 4px;
-  text-align: center; font-size: 1rem; font-weight: 600;
-  outline: none; -moz-appearance: textfield;
-}
-.qty-input-row input[type=number]::-webkit-outer-spin-button,
-.qty-input-row input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-.qty-input-row input[type=number]::-webkit-search-cancel-button,
-.qty-input-row input[type=number]::-webkit-search-decoration {
-  -webkit-appearance: none; display: none;
-}
-.qty-mult { padding: 0 .5rem; height: 36px; background: #0066c0; color: #fff;
-  display: flex; align-items: center; font-weight: 500; }
-.qty-unit-price {
-  padding: 0 1rem; height: 36px; background: #cce8ff; color: #0066c0;
-  display: flex; align-items: center; font-weight: 600; font-size: .9rem;
-  border: 1px solid #0066c0; border-left: none;
-  border-radius: 0 4px 4px 0;
-}
+.qty-input-card { margin-top: .5rem; padding: .85rem .95rem; background: #f8f9fa; border: 1px solid #e0e0e0; border-radius: 4px; }
+.qty-input-card .qty-input-label { display: block; font-size: .9rem; color: #333; margin-bottom: .6rem; font-weight: 500; }
 
 @media (max-width: 1024px) {
   .product-page { grid-template-columns: 1fr; max-width: 800px; padding: 1.5rem; }
@@ -980,12 +935,13 @@ updateUnitPrice();
   .thumbnails { flex-direction: row; width: 100%; max-height: none; overflow-x: auto; }
   .download-row { flex-wrap: wrap; }
   .form-row { grid-template-columns: 1fr; gap: .5rem; }
+  .size-inputs { grid-template-columns: repeat(2, 1fr); }
 }
 @media (max-width: 640px) {
   .product-page { padding: 1rem; }
   .product-title { font-size: 1.3rem; }
   .color-grid { grid-template-columns: repeat(6, 1fr); }
   .imprint-diagram-grid { grid-template-columns: 1fr; }
-  .qty-input-row input[type=number] { width: 80px; }
+  .size-inputs { grid-template-columns: 1fr; }
 }
 </style>
