@@ -189,7 +189,15 @@ const setupCharge = 50;  // 占位初值,运行时被 JS 根据当前选中的 t
         {productColors.length > 0 && (
           <div class="color-grid">
             {productColors.map((c, i) => (
-              <button class={`color-swatch ${i === 0 ? "selected" : ""}`} style={`background-color:${c.rgb};`} data-name={c.name} data-img={c.imageUrl || ""} title={c.name}></button>
+              <button
+                class={`color-swatch ${i === 0 ? "selected" : ""}`}
+                style={c.imageUrl
+                  ? `background-image:url(${c.imageUrl});background-size:cover;background-position:center;`
+                  : `background-color:${c.rgb};`}
+                data-name={c.name}
+                data-img={c.imageUrl || ""}
+                title={c.name}
+              ></button>
             ))}
           </div>
         )}
