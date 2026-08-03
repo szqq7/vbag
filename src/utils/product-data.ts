@@ -306,6 +306,8 @@ function normalizeProduct(raw: any): ProductData {
     printingSurfaces,
     shippingCharge: { amount: 0, currency: "USD", isFixed: true },
     images,
+    // ★ 保留顶层 colors 字段(产品本体颜色数组,供 getColorOptions 使用)
+    colors: Array.isArray(raw.colors) ? raw.colors : [],
     // ★ Proofing 字段(替代 Physical Sample):勾选后 summary 加 proofingFee
     // 兼容多种 JSON 写法:"true"/"false"/true/false/数字等
     proofingSupported: raw.proofingSupported === true || raw.proofingSupported === "true" || raw.proofingSupported === 1 || raw.proofingSupported === "1",
