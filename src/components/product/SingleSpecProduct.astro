@@ -745,24 +745,30 @@ updateDeliveryDay();
 .qty-col { text-align: left; font-weight: 500; color: #333; }
 .pricing-row.values .step-col { color: #b12704; }
 .pricing-row .step-col.highlighted { background: #e8f4fc; color: #0066c0; font-weight: 600; }
-/* Delivery Summary Card:左图右文 */
+/* Delivery Summary Card:左图右文,与右侧 pricing 摘要对齐(独立两个区块,各自完整) */
   .delivery-and-pricing-row {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.7fr);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: 1.25rem;
     margin-top: 1rem;
+    align-items: stretch;
   }
   @media (max-width: 900px) {
     .delivery-and-pricing-row { grid-template-columns: 1fr; }
   }
+  .delivery-side {
+    display: flex;
+    flex-direction: column;
+  }
   .delivery-summary-card {
     display: flex;
-    align-items: center;
-    padding: 14px 16px;
+    align-items: stretch;
+    padding: 22px 22px;
     background-color: #f9f9f9;
     border: 1px solid #eaeaea;
     border-radius: 6px;
-    margin-bottom: 12px;
+    margin-bottom: 0;
+    flex: 1;
   }
   .card-left-col {
     flex: 0 0 64px;
@@ -778,7 +784,7 @@ updateDeliveryDay();
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    justify-content: space-around;  /* 3 行垂直均匀分布,与右侧 4 行节奏一致 */
     padding-left: 14px;
   }
   .info-row {
@@ -787,7 +793,10 @@ updateDeliveryDay();
     align-items: center;
     font-size: 14px;
     color: #333;
+    padding: .45rem 0;  /* 与右侧 summary-table td 同 padding,行级对齐 */
+    border-bottom: 1px solid transparent;
   }
+  .card-right-col .view-delivery-link { padding: .45rem 0; }
   .info-row .item-desc { color: #555; }
   .info-row .item-value { font-weight: 600; color: #222; }
   .view-delivery-link {
