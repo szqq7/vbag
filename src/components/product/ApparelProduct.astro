@@ -7,8 +7,7 @@
 // - 颜色/尺码联动逻辑完全自包含,不允许外部修改影响本组件
 // =====================================================================
 import Base from "../../layouts/Base.astro";
-// ImprintColorPicker 已移除(服装产品不再需要)
-// import ImprintColorPicker from "../../components/product/ImprintColorPicker.astro";
+import ImprintColorPicker from "../../components/product/ImprintColorPicker.astro";
 import {
   loadProduct, getColorOptions, getPricingSteps, getPrintMethodTabs,
   getPrintingSurfaces, getAllImages, getDownloadFiles, getTemplateFiles,
@@ -240,35 +239,21 @@ const setupCharge = 50;
           </div>
         </div>
 
-        {/* Imprint Color:从 imprint-colors.json 读取(独立于产品颜色,后期可直接改 JSON) */}
-        {imprintColors.length > 0 && (
+        {/* Imprint Color:使用 ImprintColorPicker 组件(从 imprint-colors.json 读取,标准色下拉 + 自定义输入 + Add) */}
+        <ImprintColorPicker colors={imprintColors} idPrefix="ap" />
+
+        {/* Proofing:仅当 JSON 有 proofingSupported 才显示(紧凑同行布局,参考图2) */}
+        {(product as any).proofingSupported && (
           <div class="form-row">
-            <label class="form-label">Imprint Color</label>
+            <label class="form-label">Proofing</label>
             <div class="form-control">
-              {imprintColors.map((c, i) => (
-                <label class="checkbox-inline">
-                  <input type="checkbox" checked={i === 0} />
-                  <span>{c.name}</span>
-                </label>
-              ))}
+              <label class="checkbox-inline">
+                <input type="checkbox" id="proofingCheckbox" data-fee={String((product as any).proofingFee || 0)} />
+                <span>Send me a proofing sample (${Number((product as any).proofingFee || 0).toFixed(2)})</span>
+              </label>
             </div>
           </div>
         )}
-
-        <div class="form-row">
-          {/* Proofing 区块(替代 Physical Sample):仅当 JSON 有 proofingSupported 才显示 */}
-          {(product as any).proofingSupported && (
-            <div class="form-row">
-              <label class="form-label">Proofing</label>
-              <div class="form-control">
-                <label class="checkbox-inline">
-                  <input type="checkbox" id="proofingCheckbox" data-fee={String((product as any).proofingFee || 0)} />
-                  <span>Send me a proofing sample (${Number((product as any).proofingFee || 0).toFixed(2)})</span>
-                </label>
-              </div>
-            </div>
-          )}
-        </div>
 
         <!-- 左 delivery 卡 + 右 pricing 摘要(横版布局) -->
         <div class="delivery-and-pricing-row">
