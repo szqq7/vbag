@@ -1,371 +1,466 @@
 {
-  "products": [
+  "title": "Non-Woven Value Tote Bag",
+  "SPU": "120356",
+  "is_blank": "true",
+  "proofingSupported": true,
+  "spec": "单尺寸多色",
+  "proofingFee": 8.0,
+  "qty": [
+    100,
+    250,
+    500,
+    1000,
+    2500,
+    5000
+  ],
+  "blankScale": 1,
+  "specs": [
     {
-      "title": "Non-Woven Value Tote Bag",
-      "SPU": "120356",
-      "is_blank": "true",
-      "proofingSupported": true,
-      "spec": "单尺寸多色",
-      "proofingFee": 8.0,
-      "qty": [
-        100,
-        250,
-        500,
-        1000,
-        2500,
-        5000
+      "sku": "120356-01",
+      "specsValue1": "13'' x 14''",
+      "prc1": 0.26,
+      "blank": [
+        0.26,
+        0.25,
+        0.24,
+        0.23,
+        0.22,
+        0.21
       ],
-      "blankScale": 1,
-      "specs": [
+      "printing": [
         {
-          "sku": "120356-01",
-          "specsValue1": "13'' x 14''",
-          "prc1": 0.26,
-          "blank": [
-            0.26,
-            0.25,
-            0.24,
-            0.23,
-            0.22,
-            0.21
+          "wayEn": "Screen Print",
+          "wayCn": "丝印1",
+          "positions": [
+            "Front",
+            "Back"
           ],
-          "printing": [
+          "size": {
+            "width": 9,
+            "height": 10,
+            "unit": "IN"
+          },
+          "baseSetUpCharge": 50,
+          "baseSteps": [
             {
-              "wayEn": "Screen Print",
-              "wayCn": "丝印1",
-              "positions": [
-                "Front",
-                "Back"
-              ],
-              "size": {
-                "width": 9,
-                "height": 10,
-                "unit": "IN"
-              },
-              "baseSetUpCharge": 50,
-              "baseSteps": [
-                {
-                  "qty": 100,
-                  "price": 0.76,
-                  "printingDay": null,
-                  "deliverDay": null
-                },
-                {
-                  "qty": 250,
-                  "price": 0.73,
-                  "printingDay": null,
-                  "deliverDay": null
-                },
-                {
-                  "qty": 500,
-                  "price": 0.7,
-                  "printingDay": null,
-                  "deliverDay": null
-                },
-                {
-                  "qty": 1000,
-                  "price": 0.67,
-                  "printingDay": null,
-                  "deliverDay": null
-                },
-                {
-                  "qty": 2500,
-                  "price": 0.64,
-                  "printingDay": null,
-                  "deliverDay": null
-                },
-                {
-                  "qty": 5000,
-                  "price": 0.62,
-                  "printingDay": null,
-                  "deliverDay": null
-                }
-              ],
-              "variants": [
-                {
-                  "colorCount": 1,
-                  "positionCount": 2,
-                  "setUpCharge": 100,
-                  "addOn": 0.47
-                },
-                {
-                  "colorCount": 2,
-                  "positionCount": 1,
-                  "setUpCharge": 100,
-                  "addOn": 0.47
-                },
-                {
-                  "colorCount": 2,
-                  "positionCount": 2,
-                  "setUpCharge": 200,
-                  "addOn": 1.325346
-                },
-                {
-                  "colorCount": 3,
-                  "positionCount": 1,
-                  "setUpCharge": 150,
-                  "addOn": 0.91135
-                },
-                {
-                  "colorCount": 3,
-                  "positionCount": 2,
-                  "setUpCharge": 300,
-                  "addOn": 2.076202077
-                }
-              ]
+              "qty": 100,
+              "price": 0.76,
+              "printingDay": null,
+              "deliverDay": null
             },
             {
-              "wayEn": "Heat Transfer",
-              "wayCn": "烫画",
-              "positions": [
-                "Front",
-                "Back"
-              ],
-              "size": {
-                "width": 9,
-                "height": 10,
-                "unit": "IN"
-              },
-              "baseSetUpCharge": 100,
-              "baseSteps": [
-                {
-                  "qty": 100,
-                  "price": 0.96,
-                  "printingDay": null,
-                  "deliverDay": null
-                },
-                {
-                  "qty": 250,
-                  "price": 0.92,
-                  "printingDay": null,
-                  "deliverDay": null
-                },
-                {
-                  "qty": 500,
-                  "price": 0.89,
-                  "printingDay": null,
-                  "deliverDay": null
-                },
-                {
-                  "qty": 1000,
-                  "price": 0.86,
-                  "printingDay": null,
-                  "deliverDay": null
-                },
-                {
-                  "qty": 2500,
-                  "price": 0.82,
-                  "printingDay": null,
-                  "deliverDay": null
-                },
-                {
-                  "qty": 5000,
-                  "price": 0.79,
-                  "printingDay": null,
-                  "deliverDay": null
-                }
-              ],
-              "variants": [
-                {
-                  "colorCount": 1,
-                  "positionCount": 2,
-                  "setUpCharge": 200,
-                  "addOn": 0.658
-                }
-              ]
+              "qty": 250,
+              "price": 0.73,
+              "printingDay": null,
+              "deliverDay": null
+            },
+            {
+              "qty": 500,
+              "price": 0.7,
+              "printingDay": null,
+              "deliverDay": null
+            },
+            {
+              "qty": 1000,
+              "price": 0.67,
+              "printingDay": null,
+              "deliverDay": null
+            },
+            {
+              "qty": 2500,
+              "price": 0.64,
+              "printingDay": null,
+              "deliverDay": null
+            },
+            {
+              "qty": 5000,
+              "price": 0.62,
+              "printingDay": null,
+              "deliverDay": null
             }
           ],
-          "productWeightKgs": null,
-          "numberPerBox": null,
-          "printWidth": null,
-          "printLength": null,
-          "printUnit": null,
-          "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164439532712033952.jpg"
+          "variants": [
+            {
+              "colorCount": 1,
+              "positionCount": 2,
+              "setUpCharge": 100,
+              "addOn": 0.47
+            },
+            {
+              "colorCount": 2,
+              "positionCount": 1,
+              "setUpCharge": 100,
+              "addOn": 0.47
+            },
+            {
+              "colorCount": 2,
+              "positionCount": 2,
+              "setUpCharge": 200,
+              "addOn": 1.325346
+            },
+            {
+              "colorCount": 3,
+              "positionCount": 1,
+              "setUpCharge": 150,
+              "addOn": 0.91135
+            },
+            {
+              "colorCount": 3,
+              "positionCount": 2,
+              "setUpCharge": 300,
+              "addOn": 2.076202077
+            }
+          ]
+        },
+        {
+          "wayEn": "Heat Transfer",
+          "wayCn": "烫画",
+          "positions": [
+            "Front",
+            "Back"
+          ],
+          "size": {
+            "width": 9,
+            "height": 10,
+            "unit": "IN"
+          },
+          "baseSetUpCharge": 100,
+          "baseSteps": [
+            {
+              "qty": 100,
+              "price": 0.96,
+              "printingDay": null,
+              "deliverDay": null
+            },
+            {
+              "qty": 250,
+              "price": 0.92,
+              "printingDay": null,
+              "deliverDay": null
+            },
+            {
+              "qty": 500,
+              "price": 0.89,
+              "printingDay": null,
+              "deliverDay": null
+            },
+            {
+              "qty": 1000,
+              "price": 0.86,
+              "printingDay": null,
+              "deliverDay": null
+            },
+            {
+              "qty": 2500,
+              "price": 0.82,
+              "printingDay": null,
+              "deliverDay": null
+            },
+            {
+              "qty": 5000,
+              "price": 0.79,
+              "printingDay": null,
+              "deliverDay": null
+            }
+          ],
+          "variants": [
+            {
+              "colorCount": 1,
+              "positionCount": 2,
+              "setUpCharge": 200,
+              "addOn": 0.658
+            }
+          ]
         }
       ],
-      "surfaces": [
-        {
-          "position": "Front",
-          "width": 9,
-          "height": 10,
-          "unit": "IN"
-        },
-        {
-          "position": "Back",
-          "width": 9,
-          "height": 10,
-          "unit": "IN"
-        }
-      ],
-      "files": [
-        {
-          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/165848101594645623.jpg",
-          "type": 0,
-          "name": ""
-        },
-        {
-          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/173252349266955189.pdf?uploadId=615071D1EC454AE7B9984DC2F19CADBE",
-          "type": 1,
-          "name": "120356-Template.pdf"
-        }
-      ],
-      "knifeFiles": [],
-      "imgMain": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/178357374406755000.jpg",
-      "surfaceImages": [
-        {
-          "position": "",
-          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164439532712033952.jpg"
-        },
-        {
-          "position": "",
-          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059030562382320.jpg"
-        },
-        {
-          "position": "",
-          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059032435260100.jpg"
-        },
-        {
-          "position": "",
-          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059034065413272.jpg"
-        },
-        {
-          "position": "",
-          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059035206083988.jpg"
-        },
-        {
-          "position": "",
-          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059036186774031.jpg"
-        },
-        {
-          "position": "",
-          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059038808186571.jpg"
-        },
-        {
-          "position": "",
-          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059040048474933.jpg"
-        },
-        {
-          "position": "",
-          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059041101961263.jpg"
-        },
-        {
-          "position": "",
-          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059042809116175.jpg"
-        },
-        {
-          "position": "",
-          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059044231113952.jpg"
-        },
-        {
-          "position": "",
-          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164439519370835908.jpg"
-        },
-        {
-          "position": "",
-          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164439522764094127.jpg"
-        },
-        {
-          "position": "",
-          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164439524193851196.jpg"
-        },
-        {
-          "position": "",
-          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/175680035078953137.jpg"
-        },
-        {
-          "position": "",
-          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059050061214012.jpg"
-        },
-        {
-          "position": "",
-          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164439533901372603.jpg"
-        },
-        {
-          "position": "",
-          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164439535830147045.jpg"
-        },
-        {
-          "position": "",
-          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/176051749465323099.jpg"
-        },
-        {
-          "position": "",
-          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164439532712033952.jpg"
-        },
-        {
-          "position": "",
-          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059030562382320.jpg"
-        },
-        {
-          "position": "",
-          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059032435260100.jpg"
-        },
-        {
-          "position": "",
-          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059034065413272.jpg"
-        },
-        {
-          "position": "",
-          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059035206083988.jpg"
-        },
-        {
-          "position": "",
-          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059036186774031.jpg"
-        },
-        {
-          "position": "",
-          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059038808186571.jpg"
-        },
-        {
-          "position": "",
-          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059040048474933.jpg"
-        },
-        {
-          "position": "",
-          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059041101961263.jpg"
-        },
-        {
-          "position": "",
-          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059042809116175.jpg"
-        },
-        {
-          "position": "",
-          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059044231113952.jpg"
-        },
-        {
-          "position": "",
-          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164439519370835908.jpg"
-        },
-        {
-          "position": "",
-          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164439522764094127.jpg"
-        },
-        {
-          "position": "",
-          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164439524193851196.jpg"
-        },
-        {
-          "position": "",
-          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/175680035610717965.jpg"
-        },
-        {
-          "position": "",
-          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059050061214012.jpg"
-        },
-        {
-          "position": "",
-          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164439533901372603.jpg"
-        },
-        {
-          "position": "",
-          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164439535830147045.jpg"
-        },
-        {
-          "position": "",
-          "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/176051747173769489.jpg"
-        }
-      ]
+      "productWeightKgs": null,
+      "numberPerBox": null,
+      "printWidth": null,
+      "printLength": null,
+      "printUnit": null,
+      "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164439532712033952.jpg"
+    }
+  ],
+  "surfaces": [
+    {
+      "position": "Front",
+      "width": 9,
+      "height": 10,
+      "unit": "IN"
     },
+    {
+      "position": "Back",
+      "width": 9,
+      "height": 10,
+      "unit": "IN"
+    }
+  ],
+  "files": [
+    {
+      "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/165848101594645623.jpg",
+      "type": 0,
+      "name": ""
+    },
+    {
+      "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/173252349266955189.pdf?uploadId=615071D1EC454AE7B9984DC2F19CADBE",
+      "type": 1,
+      "name": "120356-Template.pdf"
+    }
+  ],
+  "knifeFiles": [],
+  "imgMain": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/178357374406755000.jpg",
+  "surfaceImages": [
+    {
+      "position": "",
+      "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164439532712033952.jpg"
+    },
+    {
+      "position": "",
+      "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059030562382320.jpg"
+    },
+    {
+      "position": "",
+      "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059032435260100.jpg"
+    },
+    {
+      "position": "",
+      "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059034065413272.jpg"
+    },
+    {
+      "position": "",
+      "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059035206083988.jpg"
+    },
+    {
+      "position": "",
+      "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059036186774031.jpg"
+    },
+    {
+      "position": "",
+      "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059038808186571.jpg"
+    },
+    {
+      "position": "",
+      "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059040048474933.jpg"
+    },
+    {
+      "position": "",
+      "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059041101961263.jpg"
+    },
+    {
+      "position": "",
+      "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059042809116175.jpg"
+    },
+    {
+      "position": "",
+      "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059044231113952.jpg"
+    },
+    {
+      "position": "",
+      "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164439519370835908.jpg"
+    },
+    {
+      "position": "",
+      "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164439522764094127.jpg"
+    },
+    {
+      "position": "",
+      "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164439524193851196.jpg"
+    },
+    {
+      "position": "",
+      "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/175680035078953137.jpg"
+    },
+    {
+      "position": "",
+      "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059050061214012.jpg"
+    },
+    {
+      "position": "",
+      "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164439533901372603.jpg"
+    },
+    {
+      "position": "",
+      "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164439535830147045.jpg"
+    },
+    {
+      "position": "",
+      "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/176051749465323099.jpg"
+    },
+    {
+      "position": "",
+      "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164439532712033952.jpg"
+    },
+    {
+      "position": "",
+      "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059030562382320.jpg"
+    },
+    {
+      "position": "",
+      "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059032435260100.jpg"
+    },
+    {
+      "position": "",
+      "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059034065413272.jpg"
+    },
+    {
+      "position": "",
+      "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059035206083988.jpg"
+    },
+    {
+      "position": "",
+      "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059036186774031.jpg"
+    },
+    {
+      "position": "",
+      "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059038808186571.jpg"
+    },
+    {
+      "position": "",
+      "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059040048474933.jpg"
+    },
+    {
+      "position": "",
+      "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059041101961263.jpg"
+    },
+    {
+      "position": "",
+      "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059042809116175.jpg"
+    },
+    {
+      "position": "",
+      "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059044231113952.jpg"
+    },
+    {
+      "position": "",
+      "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164439519370835908.jpg"
+    },
+    {
+      "position": "",
+      "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164439522764094127.jpg"
+    },
+    {
+      "position": "",
+      "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164439524193851196.jpg"
+    },
+    {
+      "position": "",
+      "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/175680035610717965.jpg"
+    },
+    {
+      "position": "",
+      "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059050061214012.jpg"
+    },
+    {
+      "position": "",
+      "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164439533901372603.jpg"
+    },
+    {
+      "position": "",
+      "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164439535830147045.jpg"
+    },
+    {
+      "position": "",
+      "url": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/176051747173769489.jpg"
+    }
+  ],
+  "colors": [
+    {
+      "name": "Black",
+      "rgb": "#000000",
+      "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164439532712033952.jpg"
+    },
+    {
+      "name": "White",
+      "rgb": "#FFFFFF",
+      "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059030562382320.jpg"
+    },
+    {
+      "name": "Red",
+      "rgb": "#c00000",
+      "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059032435260100.jpg"
+    },
+    {
+      "name": "Royal Blue",
+      "rgb": "#25337f",
+      "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059034065413272.jpg"
+    },
+    {
+      "name": "Light Blue",
+      "rgb": "#0084c8",
+      "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059035206083988.jpg"
+    },
+    {
+      "name": "Baby Blue",
+      "rgb": "#76bbde",
+      "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059036186774031.jpg"
+    },
+    {
+      "name": "Fuchsia Pink",
+      "rgb": "#c80271",
+      "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059038808186571.jpg"
+    },
+    {
+      "name": "Pink",
+      "rgb": "#dc7ba9",
+      "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059040048474933.jpg"
+    },
+    {
+      "name": "Burgundy Red",
+      "rgb": "#6f1b28",
+      "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059041101961263.jpg"
+    },
+    {
+      "name": "Orange",
+      "rgb": "#fb8f29",
+      "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059042809116175.jpg"
+    },
+    {
+      "name": "Yellow",
+      "rgb": "#edda37",
+      "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059044231113952.jpg"
+    },
+    {
+      "name": "Lime Green",
+      "rgb": "#a0d91c",
+      "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164439519370835908.jpg"
+    },
+    {
+      "name": "Kelly Green",
+      "rgb": "#008042",
+      "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164439522764094127.jpg"
+    },
+    {
+      "name": "Forest Green",
+      "rgb": "#004528",
+      "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164439524193851196.jpg"
+    },
+    {
+      "name": "Purple",
+      "rgb": "#4f1b83",
+      "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/175680033937737958.jpg"
+    },
+    {
+      "name": "Grey",
+      "rgb": "#a0a0a0",
+      "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/product_img/164059050061214012.jpg"
+    },
+    {
+      "name": "Navy Blue",
+      "rgb": "#1e2130",
+      "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164439533901372603.jpg"
+    },
+    {
+      "name": "Tan",
+      "rgb": "#b09c83",
+      "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/164439535830147045.jpg"
+    },
+    {
+      "name": "Teal Blue",
+      "rgb": "#008992",
+      "imageUrl": "https://weiwo-erp.oss-accelerate.aliyuncs.com/erp/user/176051747173769489.jpg"
+    }
+  ]
+},
     {
       "code": "121642",
       "nameEn": "6 Panel Low Profile Trucker Cap",
