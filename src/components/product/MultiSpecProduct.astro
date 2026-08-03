@@ -342,7 +342,6 @@ const setupCharge = 50;
 
           <div class="pricing-side">
             <div class="pricing-summary">
-              <a href="javascript:void(0)" class="view-delivery-time">View Delivery Time</a>
               <table class="summary-table">
                 <tbody>
                   <tr>
@@ -735,21 +734,13 @@ if (proofingCb) {
   proofingCb.addEventListener("change", function(){ recalc(); });
 }
 
-// View Delivery Time 点击展开
+// View Delivery Time 点击展开(只在左侧 delivery 卡内,summary 表格上方的链接已移除)
 var msDeliveryLink = document.getElementById("msViewDeliveryLink");
 var msDeliveryDetail = document.getElementById("msDeliveryDetail");
 if (msDeliveryLink && msDeliveryDetail) {
   msDeliveryLink.addEventListener("click", function(e){
     e.preventDefault();
     msDeliveryDetail.hidden = !msDeliveryDetail.hidden;
-  });
-}
-var msPricingDeliveryLink = document.querySelector(".pricing-summary .view-delivery-time");
-if (msPricingDeliveryLink && msDeliveryDetail && msDeliveryLink) {
-  msPricingDeliveryLink.addEventListener("click", function(e){
-    e.preventDefault();
-    msDeliveryDetail.hidden = false;
-    msDeliveryDetail.scrollIntoView({ behavior: "smooth", block: "nearest" });
   });
 }
 
@@ -929,8 +920,6 @@ updateUnitPrice();
 .add-btn:hover { background: #0066c0; color: #fff; }
 
 .pricing-summary { margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #e0e0e0; }
-.view-delivery-time { display: inline-block; font-size: .9rem; color: #0066c0; text-decoration: none; margin-bottom: .75rem; }
-.view-delivery-time:hover { text-decoration: underline; }
 .summary-table { width: 100%; border-collapse: collapse; }
 .summary-table td { padding: .45rem 0; font-size: .9rem; color: #444; }
 .summary-table td.summary-right { text-align: right; color: #222; }
