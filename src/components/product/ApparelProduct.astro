@@ -269,35 +269,18 @@ const setupCharge = 50;
                 </svg>
               </div>
               <div class="card-right-col">
+                <a href="javascript:void(0)" class="view-delivery-link" id="apViewDeliveryLink">View Delivery Time</a>
                 <div class="info-row">
                   <span class="item-desc">Delivery Days:</span>
                   <span class="item-value" id="apDeliveryDays">9 Days</span>
                 </div>
-<div class="info-row">
-              <span class="item-desc">Shipping:</span>
-              <span class="item-value">${shippingCharge.toFixed(2)}</span>
-            </div>
-                <a href="javascript:void(0)" class="view-delivery-link" id="apViewDeliveryLink">View Delivery Time</a>
+                <div class="info-row">
+                  <span class="item-desc">Shipping:</span>
+                  <span class="item-value">${shippingCharge.toFixed(2)}</span>
+                </div>
               </div>
             </div>
-            <div class="delivery-detail-panel" id="apDeliveryDetail" hidden>
-              <div class="detail-row">
-                <span>Production Time:</span>
-                <span class="detail-value">1-2 business days</span>
-              </div>
-              <div class="detail-row">
-                <span>Standard Shipping:</span>
-                <span class="detail-value">5-7 business days</span>
-              </div>
-              <div class="detail-row detail-row-total">
-                <span>Total Delivery:</span>
-                <span class="detail-value" id="apTotalDeliveryDays">9 Days</span>
-              </div>
-              <div class="detail-row">
-                <span>Carrier:</span>
-                <span class="detail-value">UPS Ground</span>
-              </div>
-            </div>
+            {/* 下拉详情面板暂时移除 */}
           </div>
 
           <div class="pricing-side">
@@ -659,8 +642,6 @@ function updateDeliveryDay() {
   }
   var el = document.getElementById("apDeliveryDays");
   if (el) el.textContent = (day || 9) + " Days";
-  var totalEl = document.getElementById("apTotalDeliveryDays");
-  if (totalEl) totalEl.textContent = (day || 9) + " Days";
 }
 
 function getTotalQty(){
@@ -693,14 +674,10 @@ if (proofingCb) {
   proofingCb.addEventListener("change", function(){ recalc(); });
 }
 
-// View Delivery Time 点击展开 (左卡内的链接)
+// View Delivery Time 链接(暂时移除点击展开行为,只保留链接文字)
 var apDeliveryLink = document.getElementById("apViewDeliveryLink");
-var apDeliveryDetail = document.getElementById("apDeliveryDetail");
-if (apDeliveryLink && apDeliveryDetail) {
-  apDeliveryLink.addEventListener("click", function(e){
-    e.preventDefault();
-    apDeliveryDetail.hidden = !apDeliveryDetail.hidden;
-  });
+if (apDeliveryLink) {
+  apDeliveryLink.addEventListener("click", function(e){ e.preventDefault(); });
 }
 
 // (右侧 pricing-summary 里的 View Delivery Time 已删除,避免与左卡重复)
@@ -791,51 +768,32 @@ updateDeliveryDay();
 .qty-col { text-align: left; font-weight: 500; color: #333; }
 .pricing-row.values .step-col { color: #b12704; }
 .pricing-row .step-col.highlighted { background: #e8f4fc; color: #0066c0; font-weight: 600; }
-/* Delivery Summary Card:左图右文 + 横版布局 */
+/* Delivery Summary Card:左图右文 + 横版布局,与右侧 pricing 摘要对齐 */
+  .delivery-side {
+    display: flex;
+    flex-direction: column;
+  }
   .delivery-and-pricing-row {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.7fr);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: 1.25rem;
     margin-top: 1rem;
+    align-items: stretch;
   }
   @media (max-width: 900px) {
     .delivery-and-pricing-row { grid-template-columns: 1fr; }
   }
   .delivery-summary-card {
     display: flex;
-    align-items: center;
-    padding: 14px 16px;
+    align-items: stretch;
+    padding: 22px 22px;
     background-color: #f9f9f9;
     border: 1px solid #eaeaea;
     border-radius: 6px;
-    margin-bottom: 12px;
+    margin-bottom: 0;
+    flex: 1;
   }
-  .delivery-detail-panel {
-    background: #fff;
-    border: 1px solid #eaeaea;
-    border-radius: 6px;
-    padding: 10px 14px;
-    margin-top: 4px;
-  }
-  .delivery-detail-panel .detail-row {
-    display: flex;
-    justify-content: space-between;
-    font-size: .85rem;
-    color: #555;
-    padding: 3px 0;
-  }
-  .delivery-detail-panel .detail-value {
-    color: #222;
-    font-weight: 500;
-  }
-  .delivery-detail-panel .detail-row-total {
-    border-top: 1px solid #eee;
-    margin-top: 4px;
-    padding-top: 6px;
-    color: #0066c0;
-    font-weight: 600;
-  }
-  .delivery-detail-panel .detail-row-total .detail-value { color: #0066c0; }
+  /* delivery-detail-panel 已移除相关样式 */
   .card-left-col {
     flex: 0 0 64px;
     display: flex;
@@ -850,7 +808,7 @@ updateDeliveryDay();
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    justify-content: space-around;
     padding-left: 14px;
   }
   .info-row {
@@ -859,6 +817,7 @@ updateDeliveryDay();
     align-items: center;
     font-size: 14px;
     color: #333;
+    padding: .45rem 0;
   }
   .info-row .item-desc { color: #555; }
   .info-row .item-value { font-weight: 600; color: #222; }
@@ -868,7 +827,7 @@ updateDeliveryDay();
     color: #007bff;
     text-decoration: none;
     align-self: flex-start;
-    margin-top: 2px;
+    padding: .45rem 0;
   }
   .view-delivery-link:hover { text-decoration: underline; }
 
@@ -888,7 +847,13 @@ updateDeliveryDay();
 .add-btn { padding: .5rem 1.25rem; background: #fff; color: #0066c0; border: 1px solid #0066c0; border-radius: 4px; cursor: pointer; font-size: .9rem; }
 .add-btn:hover { background: #0066c0; color: #fff; }
 
-.pricing-summary { margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #e0e0e0; }
+.pricing-summary {
+    margin-top: 0;
+    padding: 22px 22px;
+    background-color: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+  }
 /* (服装产品已删除 view-delivery-time,样式不再需要) */
 .summary-table { width: 100%; border-collapse: collapse; }
 .summary-table td { padding: .45rem 0; font-size: .9rem; color: #444; }
