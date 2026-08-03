@@ -272,6 +272,7 @@ const setupCharge = 50;  // 占位初值,运行时被 JS 根据当前选中的 t
                 </svg>
               </div>
               <div class="card-right-col">
+                <a href="javascript:void(0)" class="view-delivery-link" id="ssViewDeliveryLink">View Delivery Time</a>
                 <div class="info-row">
                   <span class="item-desc">Delivery Days:</span>
                   <span class="item-value" id="ssDeliveryDays">9 Days</span>
@@ -280,28 +281,9 @@ const setupCharge = 50;  // 占位初值,运行时被 JS 根据当前选中的 t
                   <span class="item-desc">Shipping:</span>
                   <span class="item-value">${shippingCharge.toFixed(2)}</span>
                 </div>
-                <a href="javascript:void(0)" class="view-delivery-link" id="ssViewDeliveryLink">View Delivery Time</a>
               </div>
             </div>
-            {/* 点击 View Delivery Time 后展开的时间详情 */}
-            <div class="delivery-detail-panel" id="ssDeliveryDetail" hidden>
-              <div class="detail-row">
-                <span>Production Time:</span>
-                <span class="detail-value">1-2 business days</span>
-              </div>
-              <div class="detail-row">
-                <span>Standard Shipping:</span>
-                <span class="detail-value">5-7 business days</span>
-              </div>
-              <div class="detail-row detail-row-total">
-                <span>Total Delivery:</span>
-                <span class="detail-value" id="ssTotalDeliveryDays">9 Days</span>
-              </div>
-              <div class="detail-row">
-                <span>Carrier:</span>
-                <span class="detail-value">UPS Ground</span>
-              </div>
-            </div>
+            {/* 下拉详情面板暂时移除(暂不展示 Production Time / Total Delivery / Carrier) */}
           </div>
 
           <div class="pricing-side">
@@ -607,9 +589,6 @@ function updateDeliveryDay() {
   }
   var el = document.getElementById("ssDeliveryDays");
   if (el) el.textContent = (day || 9) + " Days";
-  // 同步更新详情面板里的 Total Delivery
-  var totalEl = document.getElementById("ssTotalDeliveryDays");
-  if (totalEl) totalEl.textContent = (day || 9) + " Days";
 }
 
 function recalc() {
@@ -683,14 +662,10 @@ if (proofingCb) {
   proofingCb.addEventListener("change", function(){ recalc(); });
 }
 
-// View Delivery Time 点击展开时间详情(只在左侧 delivery 卡内,summary 表格上方的链接已移除)
+// View Delivery Time 链接(暂时移除点击展开行为,只保留链接文字)
 var deliveryLink = document.getElementById("ssViewDeliveryLink");
-var deliveryDetail = document.getElementById("ssDeliveryDetail");
-if (deliveryLink && deliveryDetail) {
-  deliveryLink.addEventListener("click", function(e){
-    e.preventDefault();
-    deliveryDetail.hidden = !deliveryDetail.hidden;
-  });
+if (deliveryLink) {
+  deliveryLink.addEventListener("click", function(e){ e.preventDefault(); });
 }
 
 recalc();
@@ -789,32 +764,6 @@ updateDeliveryDay();
     border-radius: 6px;
     margin-bottom: 12px;
   }
-  .delivery-detail-panel {
-    background: #fff;
-    border: 1px solid #eaeaea;
-    border-radius: 6px;
-    padding: 10px 14px;
-    margin-top: 4px;
-  }
-  .delivery-detail-panel .detail-row {
-    display: flex;
-    justify-content: space-between;
-    font-size: .85rem;
-    color: #555;
-    padding: 3px 0;
-  }
-  .delivery-detail-panel .detail-value {
-    color: #222;
-    font-weight: 500;
-  }
-  .delivery-detail-panel .detail-row-total {
-    border-top: 1px solid #eee;
-    margin-top: 4px;
-    padding-top: 6px;
-    color: #0066c0;
-    font-weight: 600;
-  }
-  .delivery-detail-panel .detail-row-total .detail-value { color: #0066c0; }
   .card-left-col {
     flex: 0 0 64px;
     display: flex;
