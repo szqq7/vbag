@@ -252,7 +252,7 @@ const setupCharge = 50;  // 占位初值,运行时被 JS 根据当前选中的 t
             <div class="form-control">
               <label class="checkbox-inline">
                 <input type="checkbox" id="proofingCheckbox" data-fee={String((product as any).proofingFee || 0)} />
-                <span>Send me a proofing sample (${Number((product as any).proofingFee || 0).toFixed(2)})</span>
+                <span>Send me a proofing sample{Number((product as any).proofingFee || 0) > 0 ? ` ($${Number((product as any).proofingFee).toFixed(2)})` : ''}</span>
               </label>
             </div>
           </div>
