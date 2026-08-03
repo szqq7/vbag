@@ -23,29 +23,7 @@ if (!product) {
 }
 
 const pageType = getProductPageType(product);
-
-// ★ DEBUG 标记:显示当前产品 code / spec / pageType
-const __dbgProduct = {
-  code: product.code,
-  spec: (product as any).specsType || (product as any).spec || "<missing>",
-  pageType,
-  productSpecs0: product.productSpecs?.[0] ? {
-    specsValue1: (product.productSpecs[0] as any).specsValue1,
-    specsValue2: (product.productSpecs[0] as any).specsValue2,
-    sizes: (product.productSpecs[0] as any).sizes,
-  } : null,
-};
 ---
-
-<div style="background:#ffe;padding:8px;margin:8px 0;border:2px solid orange;font-size:12px;font-family:monospace;">
-  [DEBUG Routing /products]<br/>
-  code: {__dbgProduct.code}<br/>
-  spec: {__dbgProduct.spec}<br/>
-  pageType: <b>{__dbgProduct.pageType}</b><br/>
-  specs[0].specsValue1: {__dbgProduct.productSpecs0?.specsValue1 ?? "<none>"}<br/>
-  specs[0].specsValue2: {__dbgProduct.productSpecs0?.specsValue2 ?? "<none>"}<br/>
-  specs[0].sizes: {JSON.stringify(__dbgProduct.productSpecs0?.sizes ?? null)}
-</div>
 
 {pageType === "single-spec" && <SingleSpecProduct />}
 {pageType === "multi-spec"  && <MultiSpecProduct />}
