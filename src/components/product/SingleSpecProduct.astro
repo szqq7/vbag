@@ -306,7 +306,6 @@ const setupCharge = 50;  // 占位初值,运行时被 JS 根据当前选中的 t
 
           <div class="pricing-side">
             <div class="pricing-summary">
-              <a href="javascript:void(0)" class="view-delivery-time">View Delivery Time</a>
               <table class="summary-table">
                 <tbody>
                   <tr>
@@ -684,22 +683,13 @@ if (proofingCb) {
   proofingCb.addEventListener("change", function(){ recalc(); });
 }
 
-// View Delivery Time 点击展开时间详情
+// View Delivery Time 点击展开时间详情(只在左侧 delivery 卡内,summary 表格上方的链接已移除)
 var deliveryLink = document.getElementById("ssViewDeliveryLink");
 var deliveryDetail = document.getElementById("ssDeliveryDetail");
 if (deliveryLink && deliveryDetail) {
   deliveryLink.addEventListener("click", function(e){
     e.preventDefault();
     deliveryDetail.hidden = !deliveryDetail.hidden;
-  });
-}
-// pricing 摘要里的 View Delivery Time 也触发同一个详情面板
-var pricingDeliveryLink = document.querySelector(".pricing-summary .view-delivery-time");
-if (pricingDeliveryLink && deliveryDetail && deliveryLink) {
-  pricingDeliveryLink.addEventListener("click", function(e){
-    e.preventDefault();
-    deliveryDetail.hidden = false;
-    deliveryDetail.scrollIntoView({ behavior: "smooth", block: "nearest" });
   });
 }
 
@@ -878,8 +868,6 @@ updateDeliveryDay();
 .add-btn:hover { background: #0066c0; color: #fff; }
 
 .pricing-summary { margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #e0e0e0; }
-.view-delivery-time { display: inline-block; font-size: .9rem; color: #0066c0; text-decoration: none; margin-bottom: .75rem; }
-.view-delivery-time:hover { text-decoration: underline; }
 .summary-table { width: 100%; border-collapse: collapse; }
 .summary-table td { padding: .45rem 0; font-size: .9rem; color: #444; }
 .summary-table td.summary-right { text-align: right; color: #222; }
