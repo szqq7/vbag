@@ -16,13 +16,20 @@
   "dependencies": {
     "@astrojs/cloudflare": "^13.5.3",
     "@astrojs/react": "^5.0.0",
-    "@emdash-cms/cloudflare": "^0.21.0",
+    "@emdash-cms/cloudflare": "^0.31.1",
     "@emdash-cms/plugin-forms": "^0.2.4",
     "@emdash-cms/plugin-webhook-notifier": "^0.2.0",
     "astro": "^6.3.0",
-    "emdash": "^0.21.0",
+    "emdash": "^0.31.1",
     "react": "19.2.4",
     "react-dom": "19.2.4"
+  },
+  "pnpm": {
+    "peerDependencyRules": {
+      "ignoreMissing": [
+        "pg"
+      ]
+    }
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.7",
