@@ -1,13 +1,14 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "uupack",
+	"name": "vbag",
 	"main": "./src/worker.ts",
 	"compatibility_date": "2026-02-24",
 	"compatibility_flags": ["nodejs_compat"],
 	"d1_databases": [
 		{
 			"binding": "DB",
-			"database_name": "uupack","database_id": "56baf2eb-b533-4355-b4f7-6168a48360d0",
+			// ★ 独立数据库:创建后填入 wrangler d1 create 返回的 database_id
+			"database_name": "vbag-db","database_id": "ad0f7f09-ffcc-4d07-a554-16a47602ad32",
 		},
 	],
 	"r2_buckets": [
