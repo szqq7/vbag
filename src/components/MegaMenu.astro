@@ -1,7 +1,8 @@
 ---
 import { getTaxonomyTerms } from "emdash";
 
-const termTree = await getTaxonomyTerms("products1");
+// includeCounts:false → 0.31.1 性能优化,菜单不需要显示条目计数,跳过聚合查询
+const termTree = await getTaxonomyTerms("products1", { includeCounts: false });
 
 const url = new URL(Astro.request.url);
 const activeCategory = url.searchParams.get("category") || "";
