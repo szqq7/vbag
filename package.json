@@ -4,8 +4,8 @@
   "private": true,
   "type": "module",
   "emdash": {
-    "seed": "seed/seed.json"
-  },
+  "seed": ".emdash/seed.json"
+},
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
